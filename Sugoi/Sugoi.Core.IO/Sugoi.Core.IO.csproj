@@ -9,7 +9,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Sugoi.Core.IO\Sugoi.Core.IO.csproj" />
     <ProjectReference Include="..\Sugoi.Core.Shared\Sugoi.Core.Shared.csproj" />
   </ItemGroup>
 

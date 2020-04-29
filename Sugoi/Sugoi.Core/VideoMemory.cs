@@ -1,4 +1,4 @@
-﻿using Sugoi.IO;
+﻿using Sugoi.Core.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;

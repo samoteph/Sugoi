@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 
-namespace Sugoi.IO
+namespace Sugoi.Core.IO
 {
     public abstract class AssetImage : Asset
     {

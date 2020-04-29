@@ -1,4 +1,4 @@
-﻿using Sugoi.IO;
+﻿using Sugoi.Core.IO;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -44,7 +44,7 @@ namespace Sugoi.Core
             private set;
         }   
 
-        public void Start()
+        public void Start(Cartridge cartridge)
         {
             if(this.IsStarted == true)
             {
@@ -53,11 +53,20 @@ namespace Sugoi.Core
 
             this.IsStarted = true;
 
+            this.Cartridge = cartridge;
+
             this.Cartridge.Start();
             // ici lecture de la cartridge
-            this.Gpu.Start(this.Cartridge.Header.VideoMemorySize, 240, 136);
-
+            this.Gpu.Start(this.Cartridge.Header.VideoMemorySize, 240, 136); // La resolution du jeu est fixé une fois pour toute ici
             this.Gamepad.Start();
+
+            // Permmet de démarrer d'autres services si la classe est dérivée
+            InternalStart();
+        }
+
+        protected virtual void InternalStart()
+        {
+
         }
 
         public Action UpdateCallback
@@ -97,6 +106,12 @@ namespace Sugoi.Core
             this.IsStarted = false;
 
             this.Gpu.Stop();
+
+            this.InternalStop();
+        }
+
+        protected virtual void InternalStop()
+        {
         }
 
         /// <summary>

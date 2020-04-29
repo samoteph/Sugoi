@@ -130,6 +130,8 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Images\atlas.png" />
+    <Content Include="Assets\Images\monkey.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -153,6 +155,20 @@
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.9</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Sugoi.Core.IO\Sugoi.Core.IO.csproj">
+      <Project>{93A2BC20-FC27-43F1-AD94-24114AAFA069}</Project>
+      <Name>Sugoi.Core.IO</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Sugoi.Core\Sugoi.Core.csproj">
+      <Project>{863DC66C-4CF6-4650-93EA-78DAC22CE49A}</Project>
+      <Name>Sugoi.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Sugoi.Console.Controls\Sugoi.Console.Controls.csproj">
+      <Project>{614794d4-f806-4c32-a314-9828a2274cbd}</Project>
+      <Name>Sugoi.Console.Controls</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

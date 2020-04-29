@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Sugoi.IO
+namespace Sugoi.Core.IO
 {
     public class Cartridge
     {
@@ -77,9 +77,9 @@ namespace Sugoi.IO
         /// <param name="assetName"></param>
         /// <returns></returns>
 
-        public Asset GetAsset(string assetName)
+        public T GetAsset<T>(string assetName) where T:Asset
         {
-            return this.assets[assetName];
+            return (T)this.assets[assetName];
         }
     }
 }

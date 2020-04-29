@@ -11,7 +11,7 @@ using System.Text;
 using Sugoi.Core;
 using Rgba32 = SixLabors.ImageSharp.PixelFormats.Rgba32;
 
-namespace Sugoi.IO
+namespace Sugoi.Core.IO
 {
     public abstract class Asset
     {
