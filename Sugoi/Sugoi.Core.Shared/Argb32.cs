@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Sugoi.Core
@@ -18,6 +19,7 @@ namespace Sugoi.Core
 
         public static Argb32 Red    = new Argb32(0xFF, 0x00, 0x00);
         public static Argb32 Green = new Argb32(0x00, 0xFF, 0x00);
+        public static Argb32 Blue = new Argb32(0x00, 0x00, 0xFF);
 
         public bool IsEmpty
         {
@@ -129,6 +131,7 @@ namespace Sugoi.Core
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetColor(byte a, byte r, byte g, byte b)
         {
             this.r = r;
@@ -146,6 +149,7 @@ namespace Sugoi.Core
         /// <param name="g"></param>
         /// <param name="b"></param>
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetColor(byte r, byte g, byte b)
         {
             this.r = r;

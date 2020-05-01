@@ -17,18 +17,26 @@ namespace Sugoi.Core
         /// </summary>
         /// <param name="size"></param>
 
-        public void Start(int size, int screenWidth, int screenHeight)
+        internal void Start(int size, Screen screen)
         {
-            this.screenWidth = screenWidth;
-            this.screenHeight = screenHeight;
+            // seulement pour la creation de sprite de la taille de la fenetre
+            this.screenWidth = screen.Width;
+            this.screenHeight = screen.Height;
+
+            // creation de la mémoire vidéo
             this.Create(size);
+        }
+
+        internal void Stop()
+        {
+            // ici on libère la mémoire
         }
 
         /// <summary>
         /// 
         /// </summary>
 
-        public int CurrentAddress
+        private int CurrentAddress
         {
             get;
             set;

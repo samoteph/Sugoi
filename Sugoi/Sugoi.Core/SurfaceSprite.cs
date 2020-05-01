@@ -43,12 +43,17 @@ namespace Sugoi.Core
             private set;
         }
 
+        private Rectangle BoundsClipped
+        {
+            get;
+            set;
+        }
+
         private void SetClip(Rectangle? value)
         {
             if (value == null)
             {
-                this.WidthClipped = Width;
-                this.HeightClipped = Height;
+                this.BoundsClipped = Bounds;
                 clip = value;
             }
             else
@@ -66,8 +71,7 @@ namespace Sugoi.Core
 
                 rectClipped.Intersect(new Rectangle(0, 0, Width, Height));
 
-                this.WidthClipped = rectClipped.Width;
-                this.HeightClipped = rectClipped.Height;
+                this.BoundsClipped = rectClipped;
 
                 if (clip == null)
                 {
@@ -86,6 +90,8 @@ namespace Sugoi.Core
                 //    }
                 //}
             }
+
+            this.CanClip = (clip == null || clip.Value.IsEmpty == true || clip == Bounds) == false;
         }
 
         /// <summary>
@@ -107,6 +113,12 @@ namespace Sugoi.Core
 
         private Rectangle? clip;
 
+        public bool CanClip
+        {
+            get;
+            private set;
+        }
+
         protected void Create(int width, int height)
         {
             this.Create(width * height);
@@ -124,6 +136,9 @@ namespace Sugoi.Core
             this.Initialize(pixels, address, width * height);
             this.Width = width;
             this.Height = height;
+
+            this.Bounds = new Rectangle(0, 0, width, height);
+
             this.SetClip(clip);
         }
 
@@ -144,7 +159,7 @@ namespace Sugoi.Core
                 heightSprite = surface.Height;
             }
 
-            if(this.WidthClipped <= 0 || this.HeightClipped <= 0)
+            if(this.BoundsClipped.Width <= 0 || this.BoundsClipped.Height <= 0)
             {
                 return;
             }
@@ -193,23 +208,27 @@ namespace Sugoi.Core
                 }
                 else
                 {
-                    if (heightSprite > HeightClipped) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
+                    if (heightSprite > BoundsClipped.Height) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
                     {
-                        var sourceOffsetY = ((yScreen + heightSprite) - this.HeightClipped);
+                        var sourceOffsetY = ((yScreen + heightSprite) - BoundsClipped.Height);
 
                         if (sourceOffsetY >= 0)
                         {
                             sourceAddress += surface.Width * sourceOffsetY;
                         }
+                        else
+                        {
+
+                        }
                     }
                     // on avance la source du nombre de pixel caché par le bord de l'ecran
                 }
             }
-            else if (yScreen + heightSprite >= this.HeightClipped)
+            else if (yScreen + heightSprite >= BoundsClipped.Height)
             {
                 if (isVerticalFlipped == true)
                 {
-                    var sourceOffsetY = ((yScreen + heightSprite) - this.HeightClipped);
+                    var sourceOffsetY = ((yScreen + heightSprite) - BoundsClipped.Height);
                     sourceAddress += surface.Width * sourceOffsetY; // on avance la source du nombre de pixel caché par le bord de l'ecran
                 }
             }
@@ -222,9 +241,9 @@ namespace Sugoi.Core
                 }
                 else
                 {
-                    if (widthSprite > WidthClipped) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
+                    if (widthSprite > BoundsClipped.Width) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
                     {
-                        var sourceOffsetX = ((xScreen + widthSprite) - this.WidthClipped);
+                        var sourceOffsetX = ((xScreen + widthSprite) - BoundsClipped.Width);
 
                         if (sourceOffsetX >= 0)
                         {
@@ -235,11 +254,11 @@ namespace Sugoi.Core
                 }
                 // en mode flip Horizontal on a pas besoin d'avancer car la source address et la derniere pixel de la ligne
             }
-            else if(xScreen + widthSprite >= this.WidthClipped)
+            else if(xScreen + widthSprite >= this.BoundsClipped.Width)
             {
                 if (isHorizontalFlipped == true)
                 {
-                    var sourceOffsetX = ((xScreen + widthSprite) - this.WidthClipped);
+                    var sourceOffsetX = ((xScreen + widthSprite) - BoundsClipped.Width);
                     sourceAddress += sourceOffsetX; // on avance la source du nombre de pixel caché par le bord de l'ecran
                 }
             }
@@ -282,6 +301,15 @@ namespace Sugoi.Core
             {
 
             }
+        }
+
+        /// <summary>
+        /// Reset les valeurs de 
+        /// </summary>
+
+        public void ClearClip()
+        {
+            this.Clip = null;
         }
 
         public void DrawTile(SurfaceTileSheet surface, int tileNumber, int xScreen, int yScreen, bool isHorizontalFlipped, bool isVerticalFlipped)
@@ -394,7 +422,7 @@ namespace Sugoi.Core
 
         public void Clear(Argb32 color)
         {
-            if (clip == null)
+            if (CanClip == false)
             {
                 var size = this.Size;
                 var pixels = this.Pixels;
@@ -409,18 +437,25 @@ namespace Sugoi.Core
             }
             else
             {
-                this.DrawRectangle(0, 0, this.WidthClipped, this.HeightClipped, color);
+                this.DrawRectangle(BoundsClipped.X, BoundsClipped.Y, BoundsClipped.Width, BoundsClipped.Height, color);
             }
         }
 
         public void SetPixel(int x, int y, Argb32 color)
         {
-            var position = this.GetPosition(x, y);
-            var pixels = this.Pixels;
-
-            if (position > -1)
+            try
             {
-                pixels[this.Address + position] = color;
+                var position = this.GetPosition(x, y);
+                var pixels = this.Pixels;
+
+                if (position > -1)
+                {
+                    pixels[this.Address + position] = color;
+                }
+            }
+            catch(Exception ex)
+            {
+
             }
         }
 
@@ -431,30 +466,102 @@ namespace Sugoi.Core
         /// <param name="y"></param>
         /// <param name="color"></param>
 
-        public void DrawRectangle(int x, int y, int width, int height, Argb32 color)
+        public void DrawRectangle(int x, int y, int width, int height, Argb32 color, bool isFilled = true)
         {
-            var rect = this.GetVisibleRectangle(x, y, width, height, false, false);
+            if (isFilled == false)
+            {
+                var right = x + width - 1;
+                var bottom = y + height -1;
+
+                this.DrawHorizontalLine(x, y, right, color);
+                this.DrawVerticalLine(x, y, bottom, color);
+                this.DrawVerticalLine(right, y, bottom, color);
+                this.DrawHorizontalLine(x, bottom, right, color);
+            }
+            else
+            {
+                var rect = this.GetVisibleRectangle(x, y, width, height, false, false);
+
+                if (rect.isVisible == false)
+                {
+                    return;
+                }
+
+                var addressStart = rect.address;
+                var stride = rect.stride;
+                var heightClipped = rect.height;
+                var widthClipped = rect.width;
+                var pixels = this.Pixels;
+
+                for (int iy = 0; iy < heightClipped; iy++)
+                {
+                    for (int ix = 0; ix < widthClipped; ix++)
+                    {
+                        pixels[addressStart] = color;
+                        addressStart++;
+                    }
+
+                    addressStart += stride;
+                }
+            }
+        }
+
+        public void DrawHorizontalLine(int x1, int y, int x2, Argb32 color)
+        {
+            if(x1 > x2)
+            {
+                var temp = x1;
+                x2 = x1;
+                x1 = temp;
+            }
+
+            var width = (x2 - x1) + 1;
+
+            var rect = this.GetVisibleRectangle(x1, y, width, 1, false, false);
+
+            if(rect.isVisible == false)
+            {
+                return;
+            }
+
+            var widthClipped = rect.width;
+            var addressStart = rect.address;
+            var pixels = this.Pixels;
+
+            for (int ix = 0; ix < widthClipped; ix++)
+            {
+                pixels[addressStart] = color;
+                addressStart++;
+            }
+        }
+
+        public void DrawVerticalLine(int x, int y1, int y2, Argb32 color)
+        {
+            if (y1 > y2)
+            {
+                var temp = y1;
+                y2 = y1;
+                y1 = temp;
+            }
+
+            var height = (y2 - y1) + 1;
+
+            var rect = this.GetVisibleRectangle(x, y1, 1, height, false, false);
 
             if (rect.isVisible == false)
             {
                 return;
             }
 
+            var heightClipped = rect.height;
             var addressStart = rect.address;
-            var stride = rect.stride;
-            height = rect.height;
-            width = rect.width;
             var pixels = this.Pixels;
+            var stride = rect.stride;
 
-            for (int iy = 0; iy < height; iy++)
+            for (int iy = 0; iy < heightClipped; iy++)
             {
-                for (int ix = 0; ix < width; ix++)
-                {
-                    pixels[addressStart] = color;
-                    addressStart++;
-                }
-
-                addressStart += stride;
+                pixels[addressStart] = color;
+                addressStart+= stride + 1;
             }
         }
 
@@ -508,8 +615,8 @@ namespace Sugoi.Core
             //var widthClipped = Math.Min(width, this.Width - x);
             //var heightClipped = Math.Min(height, this.Height - y);
 
-            var widthClipped = Math.Min(width, this.WidthClipped - x);
-            var heightClipped = Math.Min(height, this.HeightClipped - y);
+            var widthClipped = Math.Min(width, BoundsClipped.Width - x);
+            var heightClipped = Math.Min(height, BoundsClipped.Height - y);
 
             int position = this.GetPosition(x, y);
 
@@ -577,12 +684,12 @@ namespace Sugoi.Core
 
         private int GetPosition(int x, int y)
         {
-            if (x < 0 || x > this.WidthClipped)
+            if (x < 0 || x >= BoundsClipped.Width)
             {
                 return -1;
             }
 
-            if (y < 0 || y > this.HeightClipped)
+            if (y < 0 || y >= BoundsClipped.Height)
             {
                 return -1;
             }

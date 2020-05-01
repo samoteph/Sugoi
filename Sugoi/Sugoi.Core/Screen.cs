@@ -6,9 +6,13 @@ namespace Sugoi.Core
 {
     public class Screen : SurfaceSprite
     {
-        public void Start(int width, int height)
+        internal void Start(int width, int height)
         {
             this.Create(width, height);
+        }
+
+        internal void Stop()
+        {
         }
     }
 }

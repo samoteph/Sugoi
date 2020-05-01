@@ -292,6 +292,13 @@ namespace SamuelBlanchard.Xaml.Controls
             await me.LoadImage((Uri)e.NewValue);
         }
 
+        protected override void OnGotFocus(RoutedEventArgs e)
+        {
+            base.OnGotFocus(e);
+
+            canvas?.Focus(FocusState.Keyboard);
+        }
+
         protected override void OnApplyTemplate()
         {
             if (this.canvas == null)
@@ -301,11 +308,13 @@ namespace SamuelBlanchard.Xaml.Controls
                 if (this.canvas != null)
                 {
                     this.canvas.Draw += Canvas_Draw;
-
                     this.canvas.CreateResources += Canvas_CreateResources;
+                    this.canvas.Update += (s,args) =>
+                    {
+                        this.Update?.Invoke(s,args);
+                    };
 
                     this.canvas.Unloaded += Canvas_Unloaded;
-                    this.canvas.Update += this.Update;
                 }
             }
 
@@ -330,8 +339,6 @@ namespace SamuelBlanchard.Xaml.Controls
 
         private void Canvas_Draw(ICanvasAnimatedControl sender, CanvasAnimatedDrawEventArgs args)
         {
-            Debug.WriteLine("Draw");
-
             try
             {
                 this.DrawStart?.Invoke(sender, args);
@@ -379,7 +386,6 @@ namespace SamuelBlanchard.Xaml.Controls
                         {
                             if (blurEffect == null)
                             {
-                                Debug.WriteLine("Draw new GaussianBlurEffect");
                                 blurEffect = new GaussianBlurEffect();
                             }
 

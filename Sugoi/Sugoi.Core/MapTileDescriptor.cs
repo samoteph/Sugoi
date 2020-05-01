@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Sugoi.Core
 {
     public struct MapTileDescriptor
     {
-        public static MapTileDescriptor Hidden = new MapTileDescriptor(0) { hidden = true };
+        public static MapTileDescriptor HiddenTile = new MapTileDescriptor(0) { hidden = true };
 
         public MapTileDescriptor(MapTileDescriptor tile)
         {
@@ -30,6 +31,7 @@ namespace Sugoi.Core
         public bool isHorizontalFlipped;
         public bool isVerticalFlipped;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapTileDescriptor Hide(bool hidden)
         {
             return new MapTileDescriptor(this)
@@ -38,6 +40,7 @@ namespace Sugoi.Core
             };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapTileDescriptor SwitchHide()
         {
             return new MapTileDescriptor(this)
@@ -46,6 +49,7 @@ namespace Sugoi.Core
             };
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public MapTileDescriptor Flip(bool isHorizontalFlipped, bool isVerticalFlipped)
         {
             return new MapTileDescriptor()

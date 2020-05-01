@@ -17,6 +17,11 @@ namespace Sugoi.Core
             gamePadKeyValues = new bool[Enum.GetValues(typeof(GamepadKeys)).Length];
         }
 
+        internal void Stop()
+        {
+
+        }
+
         public GamepadKeys HorizontalController
         {
             get

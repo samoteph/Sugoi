@@ -7,6 +7,25 @@ namespace Sugoi.Core
 {
     public class Machine
     {
+        private VideoMemory videoMemory;
+        private Screen screen;
+
+        public VideoMemory VideoMemory
+        {
+            get
+            {
+                return this.videoMemory;
+            }
+        }
+
+        public Screen Screen
+        {
+            get
+            {
+                return this.screen;
+            }
+        }
+
         public Cartridge Cartridge
         {
             get;
@@ -14,12 +33,6 @@ namespace Sugoi.Core
         }
 
         public Gamepad Gamepad
-        {
-            get;
-            private set;
-        }
-
-        public Gpu Gpu
         {
             get;
             private set;
@@ -34,8 +47,8 @@ namespace Sugoi.Core
         public Machine()
         {
             this.Cartridge = new Cartridge();
-            this.Gpu = new Gpu();
             this.Gamepad = new Gamepad();
+            this.videoMemory = new VideoMemory();
         }
 
         public bool IsStarted
@@ -56,8 +69,16 @@ namespace Sugoi.Core
             this.Cartridge = cartridge;
 
             this.Cartridge.Start();
+
             // ici lecture de la cartridge
-            this.Gpu.Start(this.Cartridge.Header.VideoMemorySize, 240, 136); // La resolution du jeu est fixé une fois pour toute ici
+
+            this.screen = new Screen();
+            this.screen.Start(240, 136);
+
+            this.videoMemory.Start(
+                cartridge.Header.VideoMemorySize,
+                screen);
+            
             this.Gamepad.Start();
 
             // Permmet de démarrer d'autres services si la classe est dérivée
@@ -69,27 +90,56 @@ namespace Sugoi.Core
 
         }
 
-        public Action UpdateCallback
+        /// <summary>
+        /// Appel du UpdateCallBack + Update du script
+        /// </summary>
+
+        public void Update()
         {
-            get
+            // appel du script ici
+            this.UpdateCallback?.Invoke();
+        }
+
+        public bool IsDrawing
+        {
+            get;
+            private set;
+        }
+
+        public Argb32[] Draw()
+        {
+            if (IsDrawing == true)
             {
-                return this.Gpu.UpdateCallback;
+                return null;
             }
 
-            set
-            {
-                this.Gpu.UpdateCallback = value;
-            }
+            IsDrawing = true;
+
+            DrawCallback?.Invoke();
+
+            IsDrawing = false;
+
+            return screen.Pixels;
         }
 
         /// <summary>
-        /// Render
+        /// Ici on ecrira le code c# pour le déplacement des objets
         /// </summary>
-        /// <returns></returns>
 
-        public Argb32[] Render()
+        public Action UpdateCallback
         {
-            return this.Gpu.Render();
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// ici on ecrira le code C# pour l'affichage
+        /// </summary>
+
+        public Action DrawCallback
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -105,7 +155,9 @@ namespace Sugoi.Core
 
             this.IsStarted = false;
 
-            this.Gpu.Stop();
+            this.Gamepad.Stop();
+            this.Screen.Stop();
+            this.VideoMemory.Stop();
 
             this.InternalStop();
         }
@@ -115,12 +167,12 @@ namespace Sugoi.Core
         }
 
         /// <summary>
-        /// Transformation du format de l'ecran RGBA en BGRA byte[]
+        /// Transformation du format de l'ecran ARGB en BGRA byte[]
         /// </summary>
         /// <param name="screenRgba32"></param>
         /// <param name="screenByte"></param>
 
-        public void Transform(Argb32[] screenRgba32, byte[] screenByte)
+        public void CopyToBgraByteArray(Argb32[] screenRgba32, byte[] screenByte)
         {
             int address = 0;
 

@@ -10,6 +10,6 @@
     d:DesignWidth="400"
     >
 
-    <my:SlateView x:Name="SlateView" Background="#202020" ElementShown="FrontOnly" />
+    <my:SlateView x:Name="SlateView" ElementShown="FrontOnly" />
     
 </UserControl>

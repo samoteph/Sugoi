@@ -16,7 +16,8 @@
                         BorderThickness="{TemplateBinding BorderThickness}"                        
                         >
                         <canvas:CanvasAnimatedControl                         
-                        x:Name="CanvasControl"                        
+                        x:Name="CanvasControl"
+                        IsTabStop="True"
                         ></canvas:CanvasAnimatedControl>
                     </Border>
                 </ControlTemplate>
