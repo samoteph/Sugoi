@@ -20,6 +20,7 @@ namespace Sugoi.Core
         public static Argb32 Red    = new Argb32(0xFF, 0x00, 0x00);
         public static Argb32 Green = new Argb32(0x00, 0xFF, 0x00);
         public static Argb32 Blue = new Argb32(0x00, 0x00, 0xFF);
+        public static Argb32 Magenta = new Argb32(0xFF, 0x00, 0xFF);
 
         public bool IsEmpty
         {

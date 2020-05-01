@@ -65,14 +65,14 @@ namespace Sugoi.Console
 
             this.map = new Map();
 
-            map.Create(100, 100, spriteTiles, new MapTileDescriptor(6));
+            map.Create(1, 1, spriteTiles, new MapTileDescriptor(10));
 
             map[0, 0] = new MapTileDescriptor(1);
-            map[1, 0] = new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true };
-            map[2, 0] = new MapTileDescriptor(8);
-            map[0, 1] = new MapTileDescriptor(2);
-            map[1, 1] = new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true };
-            map[2, 1] = new MapTileDescriptor(5);
+            //map[1, 0] = new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true };
+            //map[2, 0] = new MapTileDescriptor(8);
+            //map[0, 1] = new MapTileDescriptor(2);
+            //map[1, 1] = new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true };
+            //map[2, 1] = new MapTileDescriptor(5);
 
             this.SugoiControl.FrameDrawn += OnFrameDrawn;
             this.SugoiControl.FrameUpdated += OnFrameUpdate;
@@ -131,30 +131,48 @@ namespace Sugoi.Console
             screen.Clear(Argb32.White);
             //map[0, 0] = map[0, 0].Flip(isFlipHChecked, isFlipVChecked);
 
-            if (flags[0])
+            if (flags[0] || flags[1])
             {
-                screen.Clip = new Rectangle(20, 20, 8 * 5, 8 * 5);
+                //screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
+
+                screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
+
+                if (flags[0])
+                {
+                    screen.Clip = new Rectangle(20, 20, 8 * 5, 8 * 5);
+                }
+                else
+                {
+                    // plus grand que Monkey
+                    screen.Clip = new Rectangle(20, 20, 150, 40);
+                }
+
                 screen.Clear(Argb32.Black);
             }
 
             //screen.DrawRectangle(sprx, spry, screen.Width, screen.Height, Argb32.Red);
             //screen.DrawRectangle(0, 0, 8 * 5, 8 * 5, Argb32.Green);
 
-            if (flags[1])
-            {
-                screen.DrawSpriteMap(map, sprx, spry, flags[2], flags[3]);
-            }
+            //if (flags[1])
+            //{
+            //    screen.DrawSpriteMap(map, sprx, spry, flags[2], flags[3]);
+            //}
 
             if(flags[4])
             {
-                screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Blue, true);
-                screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
+                screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
             }
+
+            //if (flags[4])
+            //{
+            //    screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Blue, true);
+            //    screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
+            //}
 
             screen.ClearClip();
 
             //screen.SetPixel(sprx, spry, Argb32.Green);
-            screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Red, false);
+            //screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Red, false);
 
             //screen.DrawSprite(spriteTiles, sprX, sprY, false, false);
         }
@@ -175,5 +193,26 @@ namespace Sugoi.Console
         }
 
         private bool[] flags = new bool[7];
+
+        private void OnActionClick(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (int.TryParse((string)button.Tag, out var actionNumber))
+            {
+                switch(actionNumber)
+                {
+                    case 0:
+                        this.sprX = 0;
+                        this.sprY = 0;
+                        break;
+                    case 1:
+                        this.sprX--;
+                        break;
+                    case 2:
+                        this.sprX++;
+                        break;
+                }
+            }
+        }
     }
 }

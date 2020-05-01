@@ -91,7 +91,7 @@ namespace Sugoi.Core
                 //}
             }
 
-            this.CanClip = (clip == null || clip.Value.IsEmpty == true || clip == Bounds) == false;
+            this.HaveClip = (clip == null || clip.Value.IsEmpty == true || clip == Bounds) == false;
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace Sugoi.Core
 
         private Rectangle? clip;
 
-        public bool CanClip
+        public bool HaveClip
         {
             get;
             private set;
@@ -164,107 +164,236 @@ namespace Sugoi.Core
                 return;
             }
 
-            // La lecture des pixels commence en négatif (en gros on devrait afficher du transparent)
-            // Pour afficher ces pixels qui n'existent pas on compense en poussant la position à l'écran et en diminuant la taille
+            SurfaceRectangle rectScreen = new SurfaceRectangle();
 
-            if (ySprite < 0)
+            int destinationAddress = 0;
+            int sourceAddress = 0;
+
+            // pas de clipping: La destination ne bouge pas (sauf exception des xscreen/yScreen negatif et la source bouge
+            if (HaveClip == false)
             {
-                yScreen += -ySprite;
-                heightSprite += ySprite;
-                ySprite = 0;
-            }
+                // La lecture des pixels commence en négatif (en gros on devrait afficher du transparent)
+                // Pour afficher ces pixels qui n'existent pas on compense en poussant la position à l'écran et en diminuant la taille
 
-            if (xSprite < 0)
-            {
-                xScreen += -xSprite;
-                widthSprite += xSprite;
-                xSprite = 0;
-            }
-
-            // on genere le rectangle affichable de la source
-            var rectSprite = surface.GetVisibleRectangle(xSprite, ySprite, widthSprite, heightSprite, false, false);
-
-            if(rectSprite.isVisible == false)
-            {
-                return;
-            }
-
-            // on genere le rectangle affichable de l'ecran en prenant la taille de celui du rectangle de la source
-            var rectScreen = this.GetVisibleRectangle(xScreen, yScreen, rectSprite.width, rectSprite.height, isHorizontalFlipped, isVerticalFlipped);
-
-            if (rectScreen.isVisible == false)
-            {
-                return;
-            }
-
-            var sourceAddress = rectSprite.address;
-
-            // On sort de l'ecran mais le rectangle est visible donc on recalcule l'adresse de départ en ajoutant les lignes perdues
-            if (yScreen < 0)
-            {
-                if (isVerticalFlipped == false)
+                if (ySprite < 0)
                 {
-                    sourceAddress += (surface.Width * -yScreen);
+                    yScreen += -ySprite;
+                    heightSprite += ySprite;
+                    ySprite = 0;
                 }
-                else
+
+                if (xSprite < 0)
                 {
-                    if (heightSprite > BoundsClipped.Height) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
+                    xScreen += -xSprite;
+                    widthSprite += xSprite;
+                    xSprite = 0;
+                }
+
+                // on genere le rectangle affichable de la source. Il prend en compte son clipping à lui (souvent inutile) mais pas celui de l'ecran.
+                var rectSprite = surface.GetVisibleRectangle(xSprite, ySprite, widthSprite, heightSprite, false, false);
+
+                if (rectSprite.isVisible == false)
+                {
+                    return;
+                }
+
+                // on genere le rectangle affichable de l'ecran en prenant la taille de celui du rectangle de la source
+                rectScreen = this.GetVisibleRectangle(xScreen, yScreen, rectSprite.width, rectSprite.height, isHorizontalFlipped, isVerticalFlipped);
+
+                if (rectScreen.isVisible == false)
+                {
+                    return;
+                }
+
+                sourceAddress = rectSprite.address;
+
+                // On sort de l'ecran mais le rectangle est visible donc on recalcule l'adresse de départ en ajoutant les lignes perdues
+                if (yScreen < 0)
+                {
+                    if (isVerticalFlipped == false)
+                    {
+                        sourceAddress += (surface.Width * -yScreen);
+                    }
+                    else
+                    {
+                        if (heightSprite > BoundsClipped.Height) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
+                        {
+                            var sourceOffsetY = ((yScreen + heightSprite) - BoundsClipped.Height);
+
+                            if (sourceOffsetY >= 0)
+                            {
+                                sourceAddress += surface.Width * sourceOffsetY;
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    }
+                }
+                else if (yScreen + heightSprite >= BoundsClipped.Height)
+                {
+                    if (isVerticalFlipped == true)
                     {
                         var sourceOffsetY = ((yScreen + heightSprite) - BoundsClipped.Height);
-
-                        if (sourceOffsetY >= 0)
-                        {
-                            sourceAddress += surface.Width * sourceOffsetY;
-                        }
-                        else
-                        {
-
-                        }
+                        sourceAddress += surface.Width * sourceOffsetY; // on avance la source du nombre de pixel caché par le bord de l'ecran
                     }
-                    // on avance la source du nombre de pixel caché par le bord de l'ecran
                 }
-            }
-            else if (yScreen + heightSprite >= BoundsClipped.Height)
-            {
-                if (isVerticalFlipped == true)
+
+                if (xScreen < 0)
                 {
-                    var sourceOffsetY = ((yScreen + heightSprite) - BoundsClipped.Height);
-                    sourceAddress += surface.Width * sourceOffsetY; // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    if (isHorizontalFlipped == false)
+                    {
+                        sourceAddress += -xScreen; // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    }
+                    else
+                    {
+                        if (widthSprite > BoundsClipped.Width) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
+                        {
+                            var sourceOffsetX = ((xScreen + widthSprite) - BoundsClipped.Width);
+
+                            if (sourceOffsetX >= 0)
+                            {
+                                sourceAddress += sourceOffsetX;
+                            }
+                        }
+                        // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    }
+                    // en mode flip Horizontal on a pas besoin d'avancer car la source address et la derniere pixel de la ligne
                 }
+                else if (xScreen + widthSprite >= this.BoundsClipped.Width)
+                {
+                    if (isHorizontalFlipped == true)
+                    {
+                        var sourceOffsetX = ((xScreen + widthSprite) - BoundsClipped.Width);
+                        sourceAddress += sourceOffsetX; // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    }
+                }
+
+                destinationAddress = rectScreen.address;
             }
 
-            if (xScreen < 0)
+            // ** Gestion du clipping : ici le mouvement se fait du coté de la source et la destination (écran) reste fixe **
+            else
             {
+                // on genere le rectangle affichable de la source (il prend en compte son clipping à lui (souvent inutile) et le clipping de l'écran mais qui bouge en xscreen et yscreen )
+
+                var sourceClipped = new Rectangle(this.BoundsClipped.X - xScreen, this.BoundsClipped.Y - yScreen, this.BoundsClipped.Width, this.BoundsClipped.Height);
+                var rectSprite = surface.GetVisibleRectangle(xSprite, ySprite, widthSprite, heightSprite, false, false, sourceClipped);
+
+                if (rectSprite.isVisible == false)
+                {
+                    return;
+                }
+
+                // on genere le rectangle affichable de l'ecran en prenant la taille de celui du rectangle de la source
+                rectScreen = this.GetVisibleRectangle(this.BoundsClipped.X, this.BoundsClipped.Y, rectSprite.width, rectSprite.height, isHorizontalFlipped, isVerticalFlipped);
+
+                if (rectScreen.isVisible == false)
+                {
+                    return;
+                }
+
+                sourceAddress = rectSprite.address;
+                destinationAddress = rectScreen.address;
+
+                // compensation sur la destinationAddress
                 if (isHorizontalFlipped == false)
                 {
-                    sourceAddress += -xScreen; // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    if (rectSprite.x == 0)
+                    {
+                        if (xScreen + widthSprite > BoundsClipped.Right)
+                        {
+                            destinationAddress += (this.BoundsClipped.Width - rectSprite.width);
+                        }
+                        else if (xScreen > BoundsClipped.X)
+                        {
+                            destinationAddress += xScreen - BoundsClipped.X;
+                        }
+                    }
                 }
                 else
                 {
-                    if (widthSprite > BoundsClipped.Width) // cas ou la taille affichable est plus petite que le sprite et que l'on est flipH
+                    if (rectSprite.x == 0)
                     {
-                        var sourceOffsetX = ((xScreen + widthSprite) - BoundsClipped.Width);
-
-                        if (sourceOffsetX >= 0)
+                        if (xScreen + widthSprite > BoundsClipped.Right)
                         {
-                            sourceAddress += sourceOffsetX;
+                            sourceAddress += ((xScreen + widthSprite) - this.BoundsClipped.Right);
+                            destinationAddress += (this.BoundsClipped.Width - rectSprite.width);
+                        }
+                        else if (xScreen > BoundsClipped.X)
+                        {
+                            destinationAddress += xScreen - BoundsClipped.X;
                         }
                     }
-                    // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    else
+                    {
+                        if (xScreen < BoundsClipped.X)
+                        {
+                            if (xScreen + widthSprite > BoundsClipped.Right)
+                            {
+                                // fn de ligne - distance entre xScreen et le x de la zone de clipping 
+                                sourceAddress += ((xScreen + widthSprite) - this.BoundsClipped.Right) - (BoundsClipped.X - xScreen);
+                            }
+                            else
+                            {
+                                sourceAddress += -rectSprite.x;
+                            }
+                        }
+                    }
                 }
-                // en mode flip Horizontal on a pas besoin d'avancer car la source address et la derniere pixel de la ligne
-            }
-            else if(xScreen + widthSprite >= this.BoundsClipped.Width)
-            {
-                if (isHorizontalFlipped == true)
+
+                // Vertical
+
+                if (isVerticalFlipped == false)
                 {
-                    var sourceOffsetX = ((xScreen + widthSprite) - BoundsClipped.Width);
-                    sourceAddress += sourceOffsetX; // on avance la source du nombre de pixel caché par le bord de l'ecran
+                    if (rectSprite.y == 0)
+                    {
+                        if (yScreen + heightSprite > BoundsClipped.Bottom)
+                        {
+                            destinationAddress += (this.BoundsClipped.Height - rectSprite.height) * this.Width;
+                        }
+                        else if (yScreen > BoundsClipped.Y)
+                        {
+                            destinationAddress += (yScreen - BoundsClipped.Y) * this.Width;
+                        }
+                    }
+                }
+                else
+                {
+                    if (rectSprite.y == 0)
+                    {
+                        if (yScreen + heightSprite > BoundsClipped.Bottom)
+                        {
+                            sourceAddress += ((yScreen + heightSprite) - this.BoundsClipped.Bottom) * widthSprite;
+                            destinationAddress += (this.BoundsClipped.Height - rectSprite.height) * this.Width;
+                        }
+                        else if (yScreen > BoundsClipped.Y)
+                        {
+                            destinationAddress += (yScreen - BoundsClipped.Y) * this.Width;
+                        }
+                    }
+                    else
+                    {
+                        if (yScreen < BoundsClipped.Y)
+                        {
+                            if (yScreen + heightSprite > BoundsClipped.Bottom)
+                            {
+                                // fn de ligne - distance entre xScreen et le x de la zone de clipping 
+                                sourceAddress += (((yScreen + heightSprite) - this.BoundsClipped.Bottom) - (BoundsClipped.Y - yScreen)) * widthSprite;
+                            }
+                            else
+                            {
+                                sourceAddress += -rectSprite.y * widthSprite;
+                            }
+                        }
+                    }
                 }
             }
 
-            var destinationAddress = rectScreen.address;
-            
+            // Affichage 
+
             var strideDestination = rectScreen.stride;
             var strideSource = surface.Width - Math.Min(surface.Width, rectScreen.width);
 
@@ -300,6 +429,12 @@ namespace Sugoi.Core
             catch(Exception ex)
             {
 
+            }
+
+            if (HaveClip && isHorizontalFlipped == false)
+            {
+                // test : En Green affiche la source qui sera envoyé à destination
+                DrawRectangle(rectScreen.x, rectScreen.y, rectScreen.width, rectScreen.height, Argb32.Green, false);
             }
         }
 
@@ -422,7 +557,7 @@ namespace Sugoi.Core
 
         public void Clear(Argb32 color)
         {
-            if (CanClip == false)
+            if (HaveClip == false)
             {
                 var size = this.Size;
                 var pixels = this.Pixels;
@@ -566,7 +701,7 @@ namespace Sugoi.Core
         }
 
         /// <summary>
-        /// Obtenir un rectangle à l'interieur de l'ecran (prend en compte le clipping)
+        /// Obtenir un rectangle à l'interieur de l'ecran (prend en compte le clipping de la surface + un clipping externe eventuellement)
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -574,92 +709,110 @@ namespace Sugoi.Core
         /// <param name="height"></param>
         /// <returns></returns>
 
-        private SurfaceRectangle GetVisibleRectangle(int x, int y, int width, int height, bool isFlipHorizontal, bool isFlipVertical)
+        private SurfaceRectangle GetVisibleRectangle(int x, int y, int width, int height, bool isFlipHorizontal, bool isFlipVertical, Rectangle? externalBoundsClipped = null)
         {
-            SurfaceRectangle visibleRect = new SurfaceRectangle();
+            SurfaceRectangle rectVisibility = new SurfaceRectangle();
 
-            if (width <= 0 || height <= 0)
-            {
-                return visibleRect;
-            }
+            //if (width <= 0 || height <= 0)
+            //{
+            //    return visibleRect;
+            //}
 
-            if (x < 0 )
-            {
-                if ((x + width) > 0)
-                {
-                    width = width + x; // ici x est négatif
-                    x = 0;
-                }
-                else
-                {
-                    return visibleRect;
-                }
-            }
+            //if (x < 0 )
+            //{
+            //    if ((x + width) > 0)
+            //    {
+            //        width = width + x; // ici x est négatif
+            //        x = 0;
+            //    }
+            //    else
+            //    {
+            //        return visibleRect;
+            //    }
+            //}
 
-            if (y < 0)
-            {
-                if ((y + height) > 0)
-                {
-                    height = height + y; // ici y est négatif
-                    y = 0;
-                }
-                else
-                {
-                    return visibleRect;
-                }
-            }
+            //if (y < 0)
+            //{
+            //    if ((y + height) > 0)
+            //    {
+            //        height = height + y; // ici y est négatif
+            //        y = 0;
+            //    }
+            //    else
+            //    {
+            //        return visibleRect;
+            //    }
+            //}
+
+            ////var widthClipped = Math.Min(width, this.Width - x);
+            ////var heightClipped = Math.Min(height, this.Height - y);
+
+            //var widthClipped = Math.Min(width, BoundsClipped.Width - x);
+            //var heightClipped = Math.Min(height, BoundsClipped.Height - y);
 
             int direction;
             int stride;
 
-            //var widthClipped = Math.Min(width, this.Width - x);
-            //var heightClipped = Math.Min(height, this.Height - y);
+            var rectRequested = new Rectangle(x, y, width, height); // taille demandé par le client
 
-            var widthClipped = Math.Min(width, BoundsClipped.Width - x);
-            var heightClipped = Math.Min(height, BoundsClipped.Height - y);
+            rectRequested.Intersect(this.BoundsClipped); // BoundsClipped est deja l'intersection entre clip et l'ecran
 
-            int position = this.GetPosition(x, y);
+            // Rajoute la possibilité d'ajouté un clip externe (par exemple celui d'une destination sur une source)
+            if(externalBoundsClipped != null)
+            {
+                rectRequested.Intersect(externalBoundsClipped.Value);
+            }
+
+            // L'interscetion entre la taille demandée et le clipping n'existe pas
+            if (rectRequested.Width == 0 || rectRequested.Height == 0)
+            {
+                return rectVisibility;
+            }
+
+            int position = this.GetPosition(rectRequested.X, rectRequested.Y);
 
             if (isFlipHorizontal == false)
             {
-                stride = this.Width - widthClipped;
+                stride = this.Width - rectRequested.Width;
                 direction = 1;
             }
             else
             {
-                position += (widthClipped - 1);
+                position += (rectRequested.Width - 1);
                 direction = -1;
-                stride = this.Width + widthClipped;
+                stride = this.Width + rectRequested.Width;
             }
 
             if(isFlipVertical == true)
             {
-                position += (this.Width * (heightClipped - 1));
+                position += (this.Width * (rectRequested.Height - 1));
 
                 if (isFlipHorizontal == false)
                 {
-                    stride = -this.Width - widthClipped;
+                    stride = -this.Width - rectRequested.Width;
                 }
                 else
                 {
-                    stride = -this.Width + widthClipped;
+                    stride = -this.Width + rectRequested.Width;
                 }
             }
 
             if (position == -1)
             {
-                return visibleRect;
+                return rectVisibility;
             }
 
-            visibleRect.direction = direction;
-            visibleRect.position = position;
-            visibleRect.address = this.Address + position;
-            visibleRect.stride = stride;
-            visibleRect.width = widthClipped;
-            visibleRect.height = heightClipped;
-            visibleRect.isVisible = true;
+            rectVisibility.direction = direction;
+            rectVisibility.position = position;
+            rectVisibility.address = this.Address + position;
+            rectVisibility.stride = stride;
+            rectVisibility.width = rectRequested.Width;
+            rectVisibility.height = rectRequested.Height;
+            rectVisibility.isVisible = true;
+            rectVisibility.x = rectRequested.X;
+            rectVisibility.y = rectRequested.Y;
 
-            return visibleRect;
+            return rectVisibility;
         }
 
         public Argb32 GetPixel(int x, int y)
@@ -684,12 +837,12 @@ namespace Sugoi.Core
 
         private int GetPosition(int x, int y)
         {
-            if (x < 0 || x >= BoundsClipped.Width)
+            if (x < BoundsClipped.X || x > BoundsClipped.Right)
             {
                 return -1;
             }
 
-            if (y < 0 || y >= BoundsClipped.Height)
+            if (y < BoundsClipped.Y || y > BoundsClipped.Bottom)
             {
                 return -1;
             }
@@ -720,6 +873,8 @@ namespace Sugoi.Core
         public int width;
         public int height;
         public int direction;
+        public int x;
+        public int y;
 
         public bool isVisible;
     }
