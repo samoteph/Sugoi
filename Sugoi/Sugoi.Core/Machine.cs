@@ -68,8 +68,6 @@ namespace Sugoi.Core
 
             this.Cartridge = cartridge;
 
-            this.Cartridge.Start();
-
             // ici lecture de la cartridge
 
             this.screen = new Screen();
@@ -88,6 +86,12 @@ namespace Sugoi.Core
         protected virtual void InternalStart()
         {
 
+        }
+
+        public void Init()
+        {
+            // appel du script ici
+            this.InitCallback?.Invoke();
         }
 
         /// <summary>
@@ -120,6 +124,12 @@ namespace Sugoi.Core
             IsDrawing = false;
 
             return screen.Pixels;
+        }
+
+        public Action InitCallback
+        {
+            get;
+            set;
         }
 
         /// <summary>

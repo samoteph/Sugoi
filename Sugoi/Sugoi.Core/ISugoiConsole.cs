@@ -56,6 +56,8 @@ namespace Sugoi.Core
             get;
         }
 
+        event SugoiInitializedHandler Initialized;
+
         /// <summary>
         /// Mise à jour d'une frame
         /// </summary>
@@ -75,6 +77,7 @@ namespace Sugoi.Core
         void ExecuteScript(string script);
     }
 
+    public delegate void SugoiInitializedHandler();
     public delegate void SugoiFrameUpdatedHandler();
     public delegate void SugoiFrameDrawnHandler();
 }

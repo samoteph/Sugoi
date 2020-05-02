@@ -1,4 +1,5 @@
-﻿using Microsoft.Graphics.Canvas.UI.Xaml;
+﻿using Microsoft.Graphics.Canvas.UI;
+using Microsoft.Graphics.Canvas.UI.Xaml;
 using Sugoi.Core;
 using Sugoi.Core.IO;
 using System;
@@ -29,6 +30,7 @@ namespace Sugoi.Console.Controls
             {
                 this.machine.Start(cartridge);
 
+                this.cartridge = this.machine.Cartridge;
                 this.screen = this.machine.Screen;
                 this.videoMemory = this.machine.VideoMemory;
                 this.gamepad = this.machine.Gamepad;
@@ -37,6 +39,14 @@ namespace Sugoi.Console.Controls
 
                 Window.Current.CoreWindow.KeyDown += OnKeyDown;
                 Window.Current.CoreWindow.KeyUp += OnKeyUp;
+
+                this.machine.InitCallback = () =>
+                {
+                    this.Initialized?.Invoke();
+                };
+
+                // initialisation du code de l'application
+                this.machine.Init();
 
                 // On appelle Update de la machine pour lancer le callback
                 this.machine.UpdateCallback = () =>
@@ -54,8 +64,6 @@ namespace Sugoi.Console.Controls
                 this.SlateView.Update += OnSlateViewUpdate;
             }
         }
-
-        private bool isAltKeyPressed;
 
         public void Stop()
         {
@@ -114,6 +122,21 @@ namespace Sugoi.Console.Controls
         }
 
         private VideoMemory videoMemory;
+
+        public Cartridge Cartridge
+        {
+            get
+            {
+                return cartridge;
+            }
+        }
+
+        private Cartridge cartridge;
+
+        /// <summary>
+        /// Mise à jour d'une frame
+        /// </summary>
+        public event SugoiInitializedHandler Initialized;
 
         /// <summary>
         /// Mise à jour d'une frame
@@ -178,27 +201,37 @@ namespace Sugoi.Console.Controls
         {
             switch (e.VirtualKey)
             {
-                case Windows.System.VirtualKey.Up:
+                case VirtualKey.Up:
                     this.machine.Gamepad.Release(GamepadKeys.Up);
                     break;
-                case Windows.System.VirtualKey.Down:
+                case VirtualKey.Down:
                     this.machine.Gamepad.Release(GamepadKeys.Down);
                     break;
-                case Windows.System.VirtualKey.Right:
+                case VirtualKey.Right:
                     this.machine.Gamepad.Release(GamepadKeys.Right);
                     break;
-                case Windows.System.VirtualKey.Left:
+                case VirtualKey.Left:
                     this.machine.Gamepad.Release(GamepadKeys.Left);
                     break;
-                case Windows.System.VirtualKey.GamepadA:
-                case Windows.System.VirtualKey.W:
+                case VirtualKey.GamepadA:
+                case VirtualKey.W:
                     this.machine.Gamepad.Release(GamepadKeys.ButtonA);
                     break;
-                case Windows.System.VirtualKey.GamepadB:
-                case Windows.System.VirtualKey.X:
+                case VirtualKey.GamepadB:
+                case VirtualKey.X:
                     this.machine.Gamepad.Release(GamepadKeys.ButtonB);
                     break;
             }
+        }
+
+        /// <summary>
+        /// Initilaisation du Slateview
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void OnSlateViewInitialized(CanvasAnimatedControl sender, CanvasCreateResourcesEventArgs args)
+        {
+            this.machine.Init();
         }
 
         /// <summary>

@@ -8,21 +8,16 @@ namespace Sugoi.Core.IO
     {
         Dictionary<string, Asset> assets;
 
+        public Cartridge()
+        {
+            this.assets = new Dictionary<string, Asset>(100);
+            this.Header = new CartridgeHeader();
+        }
+
         public CartridgeHeader Header
         {
             get;
             set;
-        }
-
-        public void Start()
-        {
-            assets = new Dictionary<string, Asset>(100);
-            this.Header = new CartridgeHeader();
-        }
-
-        internal void Stop()
-        {
-
         }
 
         public void LoadHeader(string filename)

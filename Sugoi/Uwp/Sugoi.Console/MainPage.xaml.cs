@@ -51,14 +51,31 @@ namespace Sugoi.Console
             var assetMonkey = await AssetTools.LoadSpriteFromApplicationAsync("ms-appx:///Assets/Images/monkey.png","monkey");
 
             // normalement cartridge doit copier dans VideoMemory tous les Assets image au démarrage ou alors ils seront chargé à la demande
-            //cartridge.Import(assetTiles);
-            //cartridge.Import(assetMonkey);
-            //var assetTiles = cartridge.GetAsset<AssetTileSheet>("tiles");
+            cartridge.Import(assetTiles);
+            cartridge.Import(assetMonkey);
+
+            this.SugoiControl.Initialized += OnInitialized;
+            this.SugoiControl.FrameDrawn += OnFrameDrawn;
+            this.SugoiControl.FrameUpdated += OnFrameUpdate;
 
             // DEMARRAGE
             this.SugoiControl.Start(cartridge);
+        }
 
+        int sprX;
+        int sprY;
+
+        /// <summary>
+        /// Initialisation
+        /// </summary>
+
+        private void OnInitialized()
+        {
             var videoMemory = this.SugoiControl.VideoMemory;
+            var cartridge = this.SugoiControl.Cartridge;
+
+            var assetTiles = cartridge.GetAsset<AssetTileSheet>("tiles");
+            var assetMonkey = cartridge.GetAsset<AssetSprite>("monkey");
 
             this.spriteTiles = videoMemory.CreateTileSheet(assetTiles);
             this.spriteMonkey = videoMemory.CreateSprite(assetMonkey);
@@ -73,13 +90,7 @@ namespace Sugoi.Console
             map[0, 1] = new MapTileDescriptor(2);
             map[1, 1] = new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true };
             map[2, 1] = new MapTileDescriptor(5);
-
-            this.SugoiControl.FrameDrawn += OnFrameDrawn;
-            this.SugoiControl.FrameUpdated += OnFrameUpdate;
         }
-
-        int sprX;
-        int sprY;
 
         /// <summary>
         /// Mise à jour de la frame
