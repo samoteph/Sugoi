@@ -279,7 +279,7 @@ namespace Sugoi.Core
             {
                 // on genere le rectangle affichable de la source (il prend en compte son clipping à lui (souvent inutile) et le clipping de l'écran mais qui bouge en xscreen et yscreen )
 
-                var sourceClipped = new Rectangle(this.BoundsClipped.X - xScreen, this.BoundsClipped.Y - yScreen, this.BoundsClipped.Width, this.BoundsClipped.Height);
+                var sourceClipped = new Rectangle(this.BoundsClipped.X - xScreen + xSprite, this.BoundsClipped.Y - yScreen + ySprite, this.BoundsClipped.Width, this.BoundsClipped.Height);
                 var rectSprite = surface.GetVisibleRectangle(xSprite, ySprite, widthSprite, heightSprite, false, false, sourceClipped);
 
                 if (rectSprite.isVisible == false)
@@ -301,8 +301,8 @@ namespace Sugoi.Core
                 // compensation sur la destinationAddress
                 if (isHorizontalFlipped == false)
                 {
-                    if (rectSprite.x == 0)
-                    {
+                    //if (rectSprite.x == 0)
+                    //{
                         if (xScreen + widthSprite > BoundsClipped.Right)
                         {
                             destinationAddress += (this.BoundsClipped.Width - rectSprite.width);
@@ -311,11 +311,11 @@ namespace Sugoi.Core
                         {
                             destinationAddress += xScreen - BoundsClipped.X;
                         }
-                    }
+                    //}
                 }
                 else
                 {
-                    if (rectSprite.x == 0)
+                    if (rectSprite.x == xSprite)
                     {
                         if (xScreen + widthSprite > BoundsClipped.Right)
                         {
@@ -338,7 +338,7 @@ namespace Sugoi.Core
                             }
                             else
                             {
-                                sourceAddress += -rectSprite.x;
+                                sourceAddress += -rectSprite.x + xSprite;
                             }
                         }
                     }
@@ -348,8 +348,8 @@ namespace Sugoi.Core
 
                 if (isVerticalFlipped == false)
                 {
-                    if (rectSprite.y == 0)
-                    {
+                    //if (rectSprite.y == 0)
+                    //{
                         if (yScreen + heightSprite > BoundsClipped.Bottom)
                         {
                             destinationAddress += (this.BoundsClipped.Height - rectSprite.height) * this.Width;
@@ -358,15 +358,15 @@ namespace Sugoi.Core
                         {
                             destinationAddress += (yScreen - BoundsClipped.Y) * this.Width;
                         }
-                    }
+                    //}
                 }
                 else
                 {
-                    if (rectSprite.y == 0)
+                    if (rectSprite.y == ySprite)
                     {
                         if (yScreen + heightSprite > BoundsClipped.Bottom)
                         {
-                            sourceAddress += ((yScreen + heightSprite) - this.BoundsClipped.Bottom) * widthSprite;
+                            sourceAddress += ((yScreen + heightSprite) - this.BoundsClipped.Bottom) * surface.Width;
                             destinationAddress += (this.BoundsClipped.Height - rectSprite.height) * this.Width;
                         }
                         else if (yScreen > BoundsClipped.Y)
@@ -381,11 +381,11 @@ namespace Sugoi.Core
                             if (yScreen + heightSprite > BoundsClipped.Bottom)
                             {
                                 // fn de ligne - distance entre xScreen et le x de la zone de clipping 
-                                sourceAddress += (((yScreen + heightSprite) - this.BoundsClipped.Bottom) - (BoundsClipped.Y - yScreen)) * widthSprite;
+                                sourceAddress += (((yScreen + heightSprite) - this.BoundsClipped.Bottom) - (BoundsClipped.Y - yScreen)) * surface.Width;
                             }
                             else
                             {
-                                sourceAddress += -rectSprite.y * widthSprite;
+                                sourceAddress += (-rectSprite.y + ySprite) * surface.Width;
                             }
                         }
                     }
@@ -426,16 +426,16 @@ namespace Sugoi.Core
                     sourceAddress += strideSource;
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
 
             }
 
-            if (HaveClip && isHorizontalFlipped == false)
-            {
-                // test : En Green affiche la source qui sera envoyé à destination
-                DrawRectangle(rectScreen.x, rectScreen.y, rectScreen.width, rectScreen.height, Argb32.Green, false);
-            }
+            //if (HaveClip)
+            //{
+            //    // test : En Green affiche la source qui sera envoyé à destination
+            //    DrawRectangle(rectScreen.x, rectScreen.y, rectScreen.width, rectScreen.height, Argb32.Green, false);
+            //}
         }
 
         /// <summary>
@@ -450,7 +450,7 @@ namespace Sugoi.Core
         public void DrawTile(SurfaceTileSheet surface, int tileNumber, int xScreen, int yScreen, bool isHorizontalFlipped, bool isVerticalFlipped)
         {
             var rows = tileNumber / surface.TileSheetHeight;
-            var columns = tileNumber - (rows * tileNumber);
+            var columns = tileNumber - (rows * surface.TileSheetWidth);
 
             var ySprite = rows * surface.TileHeight;
             var xSprite = columns * surface.TileWidth;

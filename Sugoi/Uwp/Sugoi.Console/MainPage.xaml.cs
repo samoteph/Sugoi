@@ -65,14 +65,14 @@ namespace Sugoi.Console
 
             this.map = new Map();
 
-            map.Create(1, 1, spriteTiles, new MapTileDescriptor(10));
+            map.Create(10, 10, spriteTiles, new MapTileDescriptor(10));
 
-            map[0, 0] = new MapTileDescriptor(1);
-            //map[1, 0] = new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true };
-            //map[2, 0] = new MapTileDescriptor(8);
-            //map[0, 1] = new MapTileDescriptor(2);
-            //map[1, 1] = new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true };
-            //map[2, 1] = new MapTileDescriptor(5);
+            map[0, 0] = new MapTileDescriptor(20);
+            map[1, 0] = new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true };
+            map[2, 0] = new MapTileDescriptor(8);
+            map[0, 1] = new MapTileDescriptor(2);
+            map[1, 1] = new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true };
+            map[2, 1] = new MapTileDescriptor(5);
 
             this.SugoiControl.FrameDrawn += OnFrameDrawn;
             this.SugoiControl.FrameUpdated += OnFrameUpdate;
@@ -133,13 +133,20 @@ namespace Sugoi.Console
 
             if (flags[0] || flags[1])
             {
-                //screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
+                if (flags[3])
+                {
+                    screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
+                }
 
-                screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
+                if (flags[4])
+                {
+                    screen.DrawSpriteMap(map, 0, 0, flags[5], flags[6]);
+                    screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
+                }
 
                 if (flags[0])
                 {
-                    screen.Clip = new Rectangle(20, 20, 8 * 5, 8 * 5);
+                    screen.Clip = new Rectangle(20, 20, 6, 6);
                 }
                 else
                 {
@@ -163,11 +170,11 @@ namespace Sugoi.Console
                 screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
             }
 
-            //if (flags[4])
-            //{
-            //    screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Blue, true);
-            //    screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
-            //}
+            if (flags[3])
+            {
+                screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Blue, true);
+                screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
+            }
 
             screen.ClearClip();
 

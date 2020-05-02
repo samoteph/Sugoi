@@ -80,8 +80,8 @@ namespace Sugoi.Core
             var columns = this.Width / tileWidth;
             var rows = this.Height / tileHeight;
 
-            this.TileSheetHeight = columns;
-            this.TileSheetWidth = rows;
+            this.TileSheetHeight = rows;
+            this.TileSheetWidth = columns;
         }
     }
 }
