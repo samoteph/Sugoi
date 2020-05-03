@@ -64,6 +64,7 @@ namespace Sugoi.Console
 
         int sprX;
         int sprY;
+        int sprZ = 44;
 
         /// <summary>
         /// Initialisation
@@ -82,14 +83,15 @@ namespace Sugoi.Console
 
             this.map = new Map();
 
-            map.Create(10, 10, spriteTiles, new MapTileDescriptor(10));
+            map.Create(4, 4, spriteTiles, new MapTileDescriptor(1));
 
-            map[0, 0] = new MapTileDescriptor(20);
-            map[1, 0] = new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true };
-            map[2, 0] = new MapTileDescriptor(8);
-            map[0, 1] = new MapTileDescriptor(2);
-            map[1, 1] = new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true };
-            map[2, 1] = new MapTileDescriptor(5);
+            map.SetTile(0, 0, new MapTileDescriptor(20));
+            map.SetTile(1, 0, new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true });
+            map.SetTile(2, 0, new MapTileDescriptor(8));
+            map.SetTile(0, 1, new MapTileDescriptor(2));
+            map.SetTile(1, 1, new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true });
+            map.SetTile(2, 1, new MapTileDescriptor(5));
+            map.SetTile(0, 19, new MapTileDescriptor(8));
         }
 
         /// <summary>
@@ -144,14 +146,8 @@ namespace Sugoi.Console
 
             if (flags[0] || flags[1])
             {
-                if (flags[3])
+                if (flags[2])
                 {
-                    screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
-                }
-
-                if (flags[4])
-                {
-                    screen.DrawSpriteMap(map, 0, 0, flags[5], flags[6]);
                     screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
                 }
 
@@ -162,29 +158,20 @@ namespace Sugoi.Console
                 else
                 {
                     // plus grand que Monkey
-                    screen.Clip = new Rectangle(20, 20, 150, 40);
+                    screen.Clip = new Rectangle(20, 20, sprZ, 44);
                 }
 
                 screen.Clear(Argb32.Black);
             }
 
-            //screen.DrawRectangle(sprx, spry, screen.Width, screen.Height, Argb32.Red);
-            //screen.DrawRectangle(0, 0, 8 * 5, 8 * 5, Argb32.Green);
-
-            //if (flags[1])
-            //{
-            //    screen.DrawSpriteMap(map, sprx, spry, flags[2], flags[3]);
-            //}
-
-            if(flags[4])
+            if (flags[4])
             {
-                screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
+                screen.DrawSpriteMap(map, 0, 0);
             }
 
             if (flags[3])
             {
-                screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Blue, true);
-                screen.DrawSprite(spriteMonkey, sprX, sprY, flags[5], flags[6]);
+                screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
             }
 
             screen.ClearClip();
@@ -228,6 +215,12 @@ namespace Sugoi.Console
                         break;
                     case 2:
                         this.sprX++;
+                        break;
+                    case 3:
+                        this.sprZ--;
+                        break;
+                    case 4:
+                        this.sprZ++;
                         break;
                 }
             }

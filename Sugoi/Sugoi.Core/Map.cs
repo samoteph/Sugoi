@@ -12,6 +12,13 @@ namespace Sugoi.Core
             private set;
         }
 
+        /// <summary>
+        /// Récupération sans control 
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
+
         public MapTileDescriptor this[int x, int y]
         {
             get
@@ -25,13 +32,41 @@ namespace Sugoi.Core
             }
         }
 
+        /// <summary>
+        /// Largeur exprimée en tuile
+        /// </summary>
+
         public int MapWidth
         {
             get;
             private set;
         }
 
+        /// <summary>
+        /// Largeur exprimée en pixel
+        /// </summary>
+
+        public int Width
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Hauteur exprimé en tuile
+        /// </summary>
+
         public int MapHeight
+        {
+            get;
+            private set;
+        }
+
+        /// <summary>
+        /// Hauteur exprimée en pixels
+        /// </summary>
+
+        public int Height
         {
             get;
             private set;
@@ -57,6 +92,9 @@ namespace Sugoi.Core
             this.MapHeight = mapHeight;
             this.Tiles = new MapTileDescriptor[mapWidth * mapHeight];
             this.TileSheet = surfaceTileSheet;
+
+            this.Width = mapWidth * surfaceTileSheet.TileWidth;
+            this.Height = mapHeight * surfaceTileSheet.TileHeight;
 
             this.Clear(defaultTile);
         }
@@ -86,11 +124,18 @@ namespace Sugoi.Core
             return this.Tiles[index];
         }
 
+        /// <summary>
+        /// Affectation managée de tile 
+        /// </summary>
+        /// <param name="xMap"></param>
+        /// <param name="yMap"></param>
+        /// <param name="tile"></param>
+
         public void SetTile(int xMap, int yMap, MapTileDescriptor tile)
         {
             var index = xMap + yMap * MapWidth;
 
-            if (index < 0 && index >= Tiles.Length)
+            if (index < 0 || index >= Tiles.Length)
             {
                 return;
             }

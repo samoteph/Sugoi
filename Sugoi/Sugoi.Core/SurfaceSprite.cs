@@ -378,6 +378,8 @@ namespace Sugoi.Core
                     {
                         if (yScreen < BoundsClipped.Y)
                         {
+                            // Peut-on virer ce if ? et laisser seulement le else
+                            // s'il n'arrive jamais dans le point d'arret c'est le cas
                             if (yScreen + heightSprite > BoundsClipped.Bottom)
                             {
                                 // fn de ligne - distance entre xScreen et le x de la zone de clipping 
@@ -405,8 +407,8 @@ namespace Sugoi.Core
 
             int destinationDirection = rectScreen.direction;
 
-            try
-            {
+            //try
+            //{
                 for (int iy = 0; iy < heightScreen; iy++)
                 {
                     for (int ix = 0; ix < widthScreen; ix++)
@@ -425,11 +427,11 @@ namespace Sugoi.Core
                     destinationAddress += strideDestination;
                     sourceAddress += strideSource;
                 }
-            }
-            catch (Exception ex)
-            {
+            //}
+            //catch (Exception ex)
+            //{
 
-            }
+            //}
 
             //if (HaveClip)
             //{
@@ -485,44 +487,128 @@ namespace Sugoi.Core
                 heightMap = map.MapHeight;
             }
 
-            if(xMap + widthMap > map.MapWidth)
+            var tileWidth = map.TileSheet.TileWidth;
+            var tileHeight = map.TileSheet.TileHeight;
+
+            // les flip sont prise en compte plus tard
+            var rectScreen = this.GetVisibleRectangle(xScreen, yScreen, map.Width, map.Height, false, false);
+
+            if (rectScreen.isVisible == false)
             {
-                widthMap = map.MapWidth - xMap;
+                return;
             }
 
-            if (yMap + heightMap > map.MapHeight)
-            {
-                heightMap = map.MapHeight - yMap;
-            }
+            // on recalcule xMap et yMap et la taille selon le clipping
 
-            var tileSheet = map.TileSheet;
+            var xMapClipped = xMap + ((rectScreen.x - xScreen) / tileWidth);
+            var yMapClipped = yMap + ((rectScreen.y - yScreen) / tileHeight);
+
+            // gestion de la longueur
+
+            var offsetX = (BoundsClipped.X - xScreen) % tileWidth;
             
-            var tileWidth = tileSheet.TileWidth;
-            var tileHeight = tileSheet.TileHeight;
+            int widthMapClipped;
+            int size;
 
-            var xScreenSart = xScreen;
-
-            var xFlip = 0;
-            var yFlip = 0;
-
-            for (int y = yMap; y < heightMap; y++)
+            if (offsetX >= 0)
             {
-                for (int x = xMap; x < widthMap; x++)
+                size = offsetX + rectScreen.width;
+            }
+            else
+            {
+                size = rectScreen.width;
+            }
+
+            widthMapClipped = size / tileWidth;
+
+            if(size % tileWidth > 0)
+            {
+                widthMapClipped++;
+            }
+
+            if (xMapClipped + widthMapClipped > map.MapWidth)
+            {
+                widthMapClipped = map.MapWidth - xMapClipped;
+            }
+
+            // gestion de la hauteur
+
+            var offsetY = (BoundsClipped.Y - yScreen) % tileHeight;
+
+            int heightMapClipped;
+
+            if (offsetY >= 0)
+            {
+                size = offsetY + rectScreen.height;
+            }
+            else
+            {
+                size = rectScreen.height;
+            }
+
+            heightMapClipped = size / tileHeight;
+
+            if (size % tileHeight > 0)
+            {
+                heightMapClipped++;
+            }
+
+            if (yMapClipped + heightMapClipped > map.MapHeight)
+            {
+                heightMapClipped = map.MapHeight - yMapClipped;
+            }
+
+            // fin du clipping début de l'affichage
+            var tileSheet = map.TileSheet;
+
+            // l'offsetX permet le scrolling lorsque xScreen est négatif (mais juste sur les 8 premiers pixels négatifs)
+            var xPixel = rectScreen.x;
+
+            if (xScreen < BoundsClipped.X)
+            {
+                xPixel -= offsetX;
+            }
+
+            // l'offsetY permet le scrolling lorsque yScreen est négatif (mais juste sur les 8 premiers pixels négatifs)
+            var yPixel = rectScreen.y;
+
+            if (yScreen < BoundsClipped.Y)
+            {
+                yPixel -= offsetY;
+            }
+
+            // lancement de l'affichage
+            var xPixelSart = xPixel;
+
+            var xTile = 0;
+            var yTile = 0;
+
+            //if (this.HaveClip)
+            //{
+            //    var clip = this.Clip;
+            //    this.SetClip(null);
+            //    DrawRectangle(xPixel, yPixel, widthMapClipped * tileWidth, heightMapClipped * tileHeight, Argb32.Blue);
+            //    this.SetClip(clip);
+            //}
+
+            for (int y = 0; y < heightMapClipped; y++)
+            {
+                for (int x = 0; x < widthMapClipped; x++)
                 {
-                    xFlip = x;
-                    yFlip = y;
+                    xTile = x + xMapClipped;
+                    yTile = y + yMapClipped;
 
                     if (isHorizontalFlipped == true)
                     {
-                        xFlip = widthMap - 1 - x;
+                        xTile = map.MapWidth - 1 - xTile;
                     }
 
                     if (isVerticalFlipped == true)
                     {
-                        yFlip = heightMap - 1 - y;
+                        yTile = map.MapHeight - 1 - yTile;
                     }
 
-                    var tile = map[xFlip, yFlip];
+                    var tile = map[xTile, yTile];
 
                     var isHFlip = tile.isHorizontalFlipped;
                     var isVFlip = tile.isVerticalFlipped;
@@ -539,14 +625,14 @@ namespace Sugoi.Core
 
                     if (tile.hidden == false)
                     {
-                        this.DrawTile(tileSheet, tile.number, xScreen, yScreen, isHFlip, isVFlip);
+                        this.DrawTile(tileSheet, tile.number, xPixel, yPixel, isHFlip, isVFlip);
                     }
 
-                    xScreen += tileWidth;
+                    xPixel += tileWidth;
                 }
 
-                xScreen = xScreenSart;
-                yScreen += tileHeight;
+                xPixel = xPixelSart;
+                yPixel += tileHeight;
             }
         }
 
