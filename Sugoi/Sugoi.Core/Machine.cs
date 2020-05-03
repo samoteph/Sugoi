@@ -98,7 +98,7 @@ namespace Sugoi.Core
         /// Appel du UpdateCallBack + Update du script
         /// </summary>
 
-        public void Update()
+        private void Update()
         {
             // appel du script ici
             this.UpdateCallback?.Invoke();
@@ -119,6 +119,7 @@ namespace Sugoi.Core
 
             IsDrawing = true;
 
+            Update();
             DrawCallback?.Invoke();
 
             IsDrawing = false;

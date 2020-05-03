@@ -583,14 +583,6 @@ namespace Sugoi.Core
             var xTile = 0;
             var yTile = 0;
 
-            //if (this.HaveClip)
-            //{
-            //    var clip = this.Clip;
-            //    this.SetClip(null);
-            //    DrawRectangle(xPixel, yPixel, widthMapClipped * tileWidth, heightMapClipped * tileHeight, Argb32.Blue);
-            //    this.SetClip(clip);
-            //}
-
             for (int y = 0; y < heightMapClipped; y++)
             {
                 for (int x = 0; x < widthMapClipped; x++)
@@ -634,6 +626,76 @@ namespace Sugoi.Core
                 xPixel = xPixelSart;
                 yPixel += tileHeight;
             }
+        }
+
+        public bool CanScrollMap(Map map, int scrollX, int scrollY, int xScreen = 0, int yScreen = 0, int width = int.MaxValue, int height = int.MaxValue)
+        {
+            if (scrollX > 0)
+            {
+                return false;
+            }
+
+            if (scrollY > 0)
+            {
+                return false;
+            }
+
+            if (width == int.MaxValue)
+            {
+                width = this.Width - xScreen;
+            }
+
+            if (height == int.MaxValue)
+            {
+                height = this.Height - yScreen;
+            }
+
+            var currentClip = this.BoundsClipped;
+            currentClip.Intersect(new Rectangle(xScreen, yScreen, width, height));
+
+            var tileWidth = map.TileSheet.TileWidth;
+            var scrollWidth = (currentClip.Width / tileWidth) * tileWidth;
+            var offsetWidth = scrollWidth % tileWidth;
+
+            if (offsetWidth > 0)
+            {
+                scrollWidth += tileWidth;
+            }
+
+            if (scrollX < -(map.Width - scrollWidth))
+            {
+                return false;
+            }
+
+            var tileHeight = map.TileSheet.TileHeight;
+            var scrollHeight = (currentClip.Height /tileHeight) * tileHeight;
+            var offsetHeight = scrollHeight % tileHeight;
+
+            if(offsetHeight > 0)
+            {
+                scrollHeight += tileHeight;
+            }
+
+            if (scrollY < -(map.Height - scrollHeight))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void DrawScrollMap(Map map, int scrollX, int scrollY,  int xScreen = 0, int yScreen = 0, int width = int.MaxValue, int height = int.MaxValue, bool isHorizontalFlip = false, bool isVerticalFlip = false, int xMap = 0, int yMap = 0)
+        {
+            var clip = this.Clip;
+
+            var currentClip = this.BoundsClipped;    
+            currentClip.Intersect(new Rectangle(xScreen, yScreen, width, height));
+
+            this.SetClip(currentClip);
+
+            this.DrawSpriteMap(map, xScreen + scrollX, yScreen + scrollY, isHorizontalFlip, isVerticalFlip, xMap, yMap, int.MaxValue, int.MaxValue);
+            
+            this.SetClip(clip);
         }
 
         public void Clear()

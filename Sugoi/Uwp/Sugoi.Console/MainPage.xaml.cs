@@ -63,7 +63,11 @@ namespace Sugoi.Console
         }
 
         int sprX;
+        int speedX;
+        
         int sprY;
+        int speedY;
+
         int sprZ = 44;
 
         /// <summary>
@@ -83,14 +87,14 @@ namespace Sugoi.Console
 
             this.map = new Map();
 
-            map.Create(4, 4, spriteTiles, new MapTileDescriptor(1));
+            map.Create(30*2, 17*2, spriteTiles, new MapTileDescriptor(1));
 
-            map.SetTile(0, 0, new MapTileDescriptor(20));
-            map.SetTile(1, 0, new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true });
-            map.SetTile(2, 0, new MapTileDescriptor(8));
-            map.SetTile(0, 1, new MapTileDescriptor(2));
-            map.SetTile(1, 1, new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true });
-            map.SetTile(2, 1, new MapTileDescriptor(5));
+            map.SetTile(0,  0, new MapTileDescriptor(20));
+            map.SetTile(1,  0, new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true });
+            map.SetTile(2,  0, new MapTileDescriptor(8));
+            map.SetTile(0,  1, new MapTileDescriptor(2));
+            map.SetTile(1,  1, new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true });
+            map.SetTile(2,  1, new MapTileDescriptor(5));
             map.SetTile(0, 19, new MapTileDescriptor(8));
         }
 
@@ -101,27 +105,56 @@ namespace Sugoi.Console
         private void OnFrameUpdate()
         {
             var gamepad = this.SugoiControl.Gamepad;
+            var screen = this.SugoiControl.Screen;
 
             var hc = gamepad.HorizontalController;
 
             if (hc == GamepadKeys.Right)
             {
-                sprX++;
+                if (flags[3])
+                {
+                    speedX = 1;
+                }
+                else
+                {
+                    sprX++;
+                }
             }
             else if (hc == GamepadKeys.Left)
             {
-                sprX--;
+                if (flags[3])
+                {
+                    speedX = -1;
+                }
+                else
+                {
+                    sprX--;
+                }
             }
 
             var vc = gamepad.VerticalController;
 
             if (vc == GamepadKeys.Up)
             {
-                sprY++;
+                if (flags[3])
+                {
+                    speedY = 1;
+                }
+                else
+                {
+                    sprY++;
+                }
             }
             else if (vc == GamepadKeys.Down)
             {
-                sprY--;
+                if (flags[3])
+                {
+                    speedY = -1;
+                }
+                else
+                {
+                    sprY--;
+                }
             }
         }
 
@@ -136,7 +169,11 @@ namespace Sugoi.Console
         private void OnFrameDrawn()
         {
             var sprx = this.sprX;
-            var spry = this.sprY; 
+            var spry = this.sprY;
+            var speedX = this.speedX;
+            var speedY = this.speedY;
+            
+            
             var screen = this.SugoiControl.Screen;
 
             screen.ClearClip();
@@ -148,7 +185,7 @@ namespace Sugoi.Console
             {
                 if (flags[2])
                 {
-                    screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
+                    //screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
                 }
 
                 if (flags[0])
@@ -171,7 +208,27 @@ namespace Sugoi.Console
 
             if (flags[3])
             {
-                screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
+                if(speedX != 0)
+                {
+                    if( screen.CanScrollMap(map, sprX + speedX, sprY, 9, 9, 8 * 5 + 3, 8 * 5 + 3))
+                    {
+                        sprX += speedX;
+                    }
+
+                    speedX = 0;
+                }
+
+                if (speedY != 0)
+                {
+                    if (screen.CanScrollMap(map, sprX, sprY + speedY, 9, 9, 8 * 5 + 3, 8 * 5 + 3))
+                    {
+                        sprY += speedY;
+                    }
+
+                    speedY = 0;
+                }
+
+                screen.DrawScrollMap(map, sprX, sprY, 8, 8, 8 * 5, 8 * 5, flags[5], flags[6]);
             }
 
             screen.ClearClip();

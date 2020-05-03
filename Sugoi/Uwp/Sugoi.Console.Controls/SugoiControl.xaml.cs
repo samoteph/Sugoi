@@ -61,7 +61,7 @@ namespace Sugoi.Console.Controls
                 };
 
                 this.SlateView.DrawStart += OnSlateViewDraw;
-                this.SlateView.Update += OnSlateViewUpdate;
+                //this.SlateView.Update += OnSlateViewUpdate;
             }
         }
 
@@ -70,7 +70,7 @@ namespace Sugoi.Console.Controls
             if (IsStarted == true)
             {
                 this.SlateView.DrawStart -= OnSlateViewDraw;
-                this.SlateView.Update -= OnSlateViewUpdate;
+                //this.SlateView.Update -= OnSlateViewUpdate;
 
                 this.screen = null;
                 this.machine.Stop();
@@ -239,10 +239,10 @@ namespace Sugoi.Console.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        private void OnSlateViewUpdate(ICanvasAnimatedControl sender, CanvasAnimatedUpdateEventArgs args)
-        {
-            this.machine.Update();
-        }
+        //private void OnSlateViewUpdate(ICanvasAnimatedControl sender, CanvasAnimatedUpdateEventArgs args)
+        //{
+        //    this.machine.Update();
+        //}
 
         /// <summary>
         /// Drw du SlateView
