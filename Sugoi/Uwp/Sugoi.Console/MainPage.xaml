@@ -16,7 +16,7 @@
 
         <my:SugoiControl x:Name="SugoiControl" />
 
-        <StackPanel Grid.Column="1" Width="200">
+        <StackPanel Grid.Column="1" Width="200" Visibility="Collapsed">
 
             <CheckBox Content="Flag0" Tag="0" Click="OnFlagClick"></CheckBox>
             <CheckBox Content="Flag1" Tag="1" Click="OnFlagClick"></CheckBox>

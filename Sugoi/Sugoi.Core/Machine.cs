@@ -1,6 +1,7 @@
 ﻿using Sugoi.Core.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Sugoi.Core
@@ -110,6 +111,8 @@ namespace Sugoi.Core
             private set;
         }
 
+        Stopwatch watcherFrame = new Stopwatch();
+
         public Argb32[] Draw()
         {
             if (IsDrawing == true)
@@ -119,7 +122,18 @@ namespace Sugoi.Core
 
             IsDrawing = true;
 
-            Update();
+            watcherFrame.Stop();
+
+            int updateRepeat = watcherFrame.ElapsedMilliseconds < 16 ? 1 : 2;
+
+            //Debug.WriteLine(watcherFrame.ElapsedMilliseconds + "ms updateRepeat=" + updateRepeat);
+
+            watcherFrame.Restart();
+
+            //for (int i = 0; i < updateRepeat; i++)
+            //{
+                Update();
+            //}
             DrawCallback?.Invoke();
 
             IsDrawing = false;

@@ -30,6 +30,7 @@ namespace Sugoi.Console
         SurfaceTileSheet spriteTiles;
         SurfaceSprite spriteMonkey;
         Map map;
+        Map mapBack;
 
         public MainPage()
         {
@@ -96,6 +97,18 @@ namespace Sugoi.Console
             map.SetTile(1,  1, new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true });
             map.SetTile(2,  1, new MapTileDescriptor(5));
             map.SetTile(0, 19, new MapTileDescriptor(8));
+
+            this.mapBack = new Map();
+
+            mapBack.Create(30 * 2, 17 * 2, spriteTiles, new MapTileDescriptor(4));
+
+            mapBack.SetTile(0, 0, new MapTileDescriptor(20));
+            mapBack.SetTile(1, 0, new MapTileDescriptor(4) { isVerticalFlipped = true, isHorizontalFlipped = true });
+            mapBack.SetTile(2, 0, new MapTileDescriptor(8));
+            mapBack.SetTile(0, 1, new MapTileDescriptor(2));
+            mapBack.SetTile(1, 1, new MapTileDescriptor(3) { isVerticalFlipped = true, isHorizontalFlipped = true });
+            mapBack.SetTile(2, 1, new MapTileDescriptor(5));
+            mapBack.SetTile(0, 19, new MapTileDescriptor(8));
         }
 
         /// <summary>
@@ -170,73 +183,35 @@ namespace Sugoi.Console
         {
             var sprx = this.sprX;
             var spry = this.sprY;
-            var speedX = this.speedX;
-            var speedY = this.speedY;
-            
-            
+                        
             var screen = this.SugoiControl.Screen;
 
-            screen.ClearClip();
-
             screen.Clear(Argb32.White);
-            //map[0, 0] = map[0, 0].Flip(isFlipHChecked, isFlipVChecked);
 
-            if (flags[0] || flags[1])
+            if(speedX != 0)
             {
-                if (flags[2])
+                if( screen.CanScrollMap(map, sprX + speedX, sprY))
                 {
-                    //screen.DrawSpriteMap(map, sprX, sprY, flags[5], flags[6]);
+                    sprX += speedX;
                 }
 
-                if (flags[0])
-                {
-                    screen.Clip = new Rectangle(20, 20, 6, 6);
-                }
-                else
-                {
-                    // plus grand que Monkey
-                    screen.Clip = new Rectangle(20, 20, sprZ, 44);
-                }
-
-                screen.Clear(Argb32.Black);
+                speedX = 0;
             }
 
-            if (flags[4])
+            if (speedY != 0)
             {
-                screen.DrawSpriteMap(map, 0, 0);
-            }
-
-            if (flags[3])
-            {
-                if(speedX != 0)
+                if (screen.CanScrollMap(map, sprX, sprY+speedY))
                 {
-                    if( screen.CanScrollMap(map, sprX + speedX, sprY, 9, 9, 8 * 5 + 3, 8 * 5 + 3))
-                    {
-                        sprX += speedX;
-                    }
-
-                    speedX = 0;
+                    sprY += speedY;
                 }
 
-                if (speedY != 0)
-                {
-                    if (screen.CanScrollMap(map, sprX, sprY + speedY, 9, 9, 8 * 5 + 3, 8 * 5 + 3))
-                    {
-                        sprY += speedY;
-                    }
-
-                    speedY = 0;
-                }
-
-                screen.DrawScrollMap(map, sprX, sprY, 8, 8, 8 * 5, 8 * 5, flags[5], flags[6]);
+                speedY = 0;
             }
 
-            screen.ClearClip();
-
-            //screen.SetPixel(sprx, spry, Argb32.Green);
-            //screen.DrawRectangle(sprX, sprY, spriteMonkey.Width, spriteMonkey.Height, Argb32.Red, false);
-
-            //screen.DrawSprite(spriteTiles, sprX, sprY, false, false);
+            screen.DrawScrollMap(mapBack, 0, 0);
+            screen.DrawSprite(spriteMonkey, 0, 0);
+            screen.DrawScrollMap(mapBack, 4, 4);
+            screen.DrawScrollMap(map, sprX, sprY);
         }
 
         /// <summary>

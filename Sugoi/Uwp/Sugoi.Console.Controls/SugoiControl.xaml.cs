@@ -159,15 +159,19 @@ namespace Sugoi.Console.Controls
             switch (e.VirtualKey)
             {
                 case VirtualKey.Up:
+                case VirtualKey.GamepadDPadUp:
                     this.machine.Gamepad.Press(GamepadKeys.Up);
                     break;
                 case VirtualKey.Down:
+                case VirtualKey.GamepadDPadDown:
                     this.machine.Gamepad.Press(GamepadKeys.Down);
                     break;
                 case VirtualKey.Right:
+                case VirtualKey.GamepadDPadRight:
                     this.machine.Gamepad.Press(GamepadKeys.Right);
                     break;
                 case VirtualKey.Left:
+                case VirtualKey.GamepadDPadLeft:
                     this.machine.Gamepad.Press(GamepadKeys.Left);
                     break;
                 case VirtualKey.GamepadA:
@@ -202,15 +206,19 @@ namespace Sugoi.Console.Controls
             switch (e.VirtualKey)
             {
                 case VirtualKey.Up:
+                case VirtualKey.GamepadDPadUp:
                     this.machine.Gamepad.Release(GamepadKeys.Up);
                     break;
                 case VirtualKey.Down:
+                case VirtualKey.GamepadDPadDown:
                     this.machine.Gamepad.Release(GamepadKeys.Down);
                     break;
                 case VirtualKey.Right:
+                case VirtualKey.GamepadDPadRight:
                     this.machine.Gamepad.Release(GamepadKeys.Right);
                     break;
                 case VirtualKey.Left:
+                case VirtualKey.GamepadDPadLeft:
                     this.machine.Gamepad.Release(GamepadKeys.Left);
                     break;
                 case VirtualKey.GamepadA:
