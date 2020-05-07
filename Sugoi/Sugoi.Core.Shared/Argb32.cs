@@ -30,6 +30,22 @@ namespace Sugoi.Core
             }
         }
 
+        public bool IsTransparent
+        {
+            get
+            {
+                return this.A == 0;
+            }
+        }
+
+        public bool IsOpaque
+        {
+            get
+            {
+                return this.A == 0xFF;
+            }
+        }
+
         public Argb32(Argb32 color)
         {
             uint c = color.Color;

@@ -1,5 +1,4 @@
-﻿using SixLabors.Primitives;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -49,11 +48,19 @@ namespace Sugoi.Core
             set;
         }
 
-        private void SetClip(Rectangle? value)
+        private Rectangle? oldClip;
+
+        public void ReverseClip()
+        {
+            this.SetClip(oldClip);
+        }
+
+        public void SetClip(Rectangle? value)
         {
             if (value == null)
             {
                 this.BoundsClipped = Bounds;
+                oldClip = clip;
                 clip = value;
             }
             else
@@ -75,20 +82,18 @@ namespace Sugoi.Core
 
                 if (clip == null)
                 {
+                    // clip == null et le nouveau clipping fait la taille de la Surface -> on le laisse à null
                     if (rectClipped != Bounds)
                     {
+                        oldClip = clip;
                         clip = rectClipped;
                     }
                 }
-                // on ne remet pas à null automatiquement
-                // C'est à l'utilisateur de se souvenir
-                //else
-                //{
-                //    if (rectClipped == Size)
-                //    {
-                //        clip = null;
-                //    }
-                //}
+                else
+                {
+                    oldClip = value;
+                    clip = value;
+                }
             }
 
             this.HaveClip = (clip == null || clip.Value.IsEmpty == true || clip == Bounds) == false;
@@ -103,11 +108,6 @@ namespace Sugoi.Core
             get
             {
                 return clip;
-            }
-
-            set
-            {
-                this.SetClip(value);
             }
         }
 
@@ -223,10 +223,6 @@ namespace Sugoi.Core
                             if (sourceOffsetY >= 0)
                             {
                                 sourceAddress += surface.Width * sourceOffsetY;
-                            }
-                            else
-                            {
-
                             }
                         }
                         // on avance la source du nombre de pixel caché par le bord de l'ecran
@@ -446,12 +442,12 @@ namespace Sugoi.Core
 
         public void ClearClip()
         {
-            this.Clip = null;
+            this.SetClip(null);
         }
 
-        public void DrawTile(SurfaceTileSheet surface, int tileNumber, int xScreen, int yScreen, bool isHorizontalFlipped, bool isVerticalFlipped)
+        public void DrawTile(SurfaceTileSheet surface, int tileNumber, int xScreen, int yScreen, bool isHorizontalFlipped = false, bool isVerticalFlipped = false)
         {
-            var rows = tileNumber / surface.TileSheetHeight;
+            var rows = tileNumber / surface.TileSheetWidth;
             var columns = tileNumber - (rows * surface.TileSheetWidth);
 
             var ySprite = rows * surface.TileHeight;
@@ -463,6 +459,151 @@ namespace Sugoi.Core
         public void DrawSpriteMap(Map map, int xScreen, int yScreen)
         {
             this.DrawSpriteMap(map, xScreen, yScreen, false, false, 0, 0);
+        }
+
+        private void DrawInfiniteSpriteMap(Map map, int xScreen, int yScreen, bool isHorizontalFlipped, bool isVerticalFlipped, int xMap = 0, int yMap = 0, int widthMap = int.MaxValue, int heightMap = int.MaxValue)
+        {
+            if (xMap < 0)
+            {
+                xMap = 0;
+            }
+
+            if (yMap < 0)
+            {
+                yMap = 0;
+            }
+
+            if (widthMap == int.MaxValue)
+            {
+                widthMap = map.MapWidth;
+            }
+
+            if (heightMap == int.MaxValue)
+            {
+                heightMap = map.MapHeight;
+            }
+
+            var tileWidth = map.TileSheet.TileWidth;
+            var tileHeight = map.TileSheet.TileHeight;
+
+            var xMapClipped = xMap + ((BoundsClipped.X - xScreen) / tileWidth);
+            var yMapClipped = yMap + ((BoundsClipped.Y - yScreen) / tileHeight);
+
+            // gestion de la longueur
+            var offsetX = (BoundsClipped.X - xScreen) % tileWidth;
+
+            Debug.WriteLine("OffsetX=" + offsetX);
+
+            if (offsetX < 0)
+            {
+                offsetX = tileWidth + offsetX;
+                xMapClipped = map.MapWidth + xMapClipped - 1;
+            }
+
+            int widthMapClipped;
+            int size = BoundsClipped.Width + offsetX;
+
+            //widthMapClipped = size / tileWidth;
+            widthMapClipped = BoundsClipped.Width / tileWidth;
+
+            if (size % tileWidth > 0)
+            {
+                widthMapClipped++;
+            }
+
+            // gestion de la hauteur
+            var offsetY = (BoundsClipped.Y - yScreen) % tileHeight;
+
+            if (offsetY < 0)
+            {
+                offsetY = tileHeight + offsetY;
+                yMapClipped = map.MapHeight + yMapClipped - 1;
+            }
+
+            int heightMapClipped;
+            size = BoundsClipped.Height + offsetY;
+
+            heightMapClipped = BoundsClipped.Height / tileHeight;
+
+            if (size % tileHeight > 0)
+            {
+                heightMapClipped++;
+            }
+
+            // fin du clipping début de l'affichage
+            var tileSheet = map.TileSheet;
+
+            // l'offsetX permet le scrolling lorsque xScreen est négatif (mais juste sur les 8 premiers pixels négatifs)
+            var xPixel = BoundsClipped.X - offsetX;
+
+            // l'offsetY permet le scrolling lorsque yScreen est négatif (mais juste sur les 8 premiers pixels négatifs)
+            var yPixel = BoundsClipped.Y - offsetY;
+
+            // lancement de l'affichage
+            var xPixelSart = xPixel;
+
+            var xTile = 0;
+            var yTile = 0;
+
+            Debug.WriteLine(widthMapClipped);
+
+            for (int y = 0; y < heightMapClipped; y++)
+            {
+                for (int x = 0; x < widthMapClipped; x++)
+                {
+                    xTile = x + xMapClipped;
+                    yTile = y + yMapClipped;
+
+                    if (isHorizontalFlipped == true)
+                    {
+                        xTile = map.MapWidth - 1 - xTile;
+                    }
+
+                    if (isVerticalFlipped == true)
+                    {
+                        yTile = map.MapHeight - 1 - yTile;
+                    }
+
+                    // les tiles sont forcement dans la map
+                    xTile = xTile % map.MapWidth;
+                    yTile = yTile % map.MapHeight;
+
+                    if(xTile < 0)
+                    {
+                        xTile = map.MapWidth + xTile;
+                    }
+
+                    if (yTile < 0)
+                    {
+                        yTile = map.MapHeight + yTile;
+                    }
+
+                    var tile = map[xTile, yTile];
+
+                    var isHFlip = tile.isHorizontalFlipped;
+                    var isVFlip = tile.isVerticalFlipped;
+
+                    if (isHorizontalFlipped == true)
+                    {
+                        isHFlip = !isHFlip;
+                    }
+
+                    if (isVerticalFlipped == true)
+                    {
+                        isVFlip = !isVFlip;
+                    }
+
+                    if (tile.hidden == false)
+                    {
+                        this.DrawTile(tileSheet, tile.number, xPixel, yPixel, isHFlip, isVFlip);
+                    }
+
+                    xPixel += tileWidth;
+                }
+
+                xPixel = xPixelSart;
+                yPixel += tileHeight;
+            }
         }
 
         public void DrawSpriteMap(Map map, int xScreen, int yScreen, bool isHorizontalFlipped, bool isVerticalFlipped, int xMap = 0, int yMap = 0, int widthMap = int.MaxValue, int heightMap = int.MaxValue)
@@ -490,7 +631,7 @@ namespace Sugoi.Core
             var tileWidth = map.TileSheet.TileWidth;
             var tileHeight = map.TileSheet.TileHeight;
 
-            // les flip sont prise en compte plus tard
+            // les flip sont pris en compte plus tard
             var rectScreen = this.GetVisibleRectangle(xScreen, yScreen, map.Width, map.Height, false, false);
 
             if (rectScreen.isVisible == false)
@@ -628,6 +769,18 @@ namespace Sugoi.Core
             }
         }
 
+        /// <summary>
+        /// Permet de savoir si l'on atteint un bord ou non
+        /// </summary>
+        /// <param name="map"></param>
+        /// <param name="scrollX"></param>
+        /// <param name="scrollY"></param>
+        /// <param name="xScreen"></param>
+        /// <param name="yScreen"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+
         public bool CanScrollMap(Map map, int scrollX, int scrollY, int xScreen = 0, int yScreen = 0, int width = int.MaxValue, int height = int.MaxValue)
         {
             if (scrollX > 0)
@@ -684,7 +837,7 @@ namespace Sugoi.Core
             return true;
         }
 
-        public void DrawScrollMap(Map map, int scrollX, int scrollY,  int xScreen = 0, int yScreen = 0, int width = int.MaxValue, int height = int.MaxValue, bool isHorizontalFlip = false, bool isVerticalFlip = false, int xMap = 0, int yMap = 0)
+        public void DrawScrollMap(Map map, bool isInfinite, int scrollX, int scrollY,  int xScreen = 0, int yScreen = 0, int width = int.MaxValue, int height = int.MaxValue, bool isHorizontalFlip = false, bool isVerticalFlip = false, int xMap = 0, int yMap = 0)
         {
             var clip = this.Clip;
 
@@ -693,9 +846,34 @@ namespace Sugoi.Core
 
             this.SetClip(currentClip);
 
-            this.DrawSpriteMap(map, xScreen + scrollX, yScreen + scrollY, isHorizontalFlip, isVerticalFlip, xMap, yMap, int.MaxValue, int.MaxValue);
-            
+            if (isInfinite == false)
+            {
+                this.DrawSpriteMap(map, xScreen + scrollX, yScreen + scrollY, isHorizontalFlip, isVerticalFlip, xMap, yMap, int.MaxValue, int.MaxValue);
+            }
+            else
+            {
+                this.DrawInfiniteSpriteMap(map, xScreen + scrollX, yScreen + scrollY, isHorizontalFlip, isVerticalFlip, xMap, yMap, int.MaxValue, int.MaxValue);
+            }
+
             this.SetClip(clip);
+        }
+
+        public void DrawText(Font font, string text, int xScreen = 0, int yScreen = 0, int bank = 0)
+        {
+            if(text==null || text.Length == 0)
+            {
+                return;
+            }
+
+            int tileWidth = font.FontSheet.TileWidth;
+
+            font.FontSheet.SetBank(bank);
+
+            for(int x=0; x<text.Length; x++)
+            {
+                var tileNumber = font.GetTileNumber(text[x]);
+                this.DrawTile(font.FontSheet, tileNumber, xScreen + x * tileWidth, yScreen);
+            }
         }
 
         public void Clear()
@@ -860,43 +1038,6 @@ namespace Sugoi.Core
         private SurfaceRectangle GetVisibleRectangle(int x, int y, int width, int height, bool isFlipHorizontal, bool isFlipVertical, Rectangle? externalBoundsClipped = null)
         {
             SurfaceRectangle rectVisibility = new SurfaceRectangle();
-
-            //if (width <= 0 || height <= 0)
-            //{
-            //    return visibleRect;
-            //}
-
-            //if (x < 0 )
-            //{
-            //    if ((x + width) > 0)
-            //    {
-            //        width = width + x; // ici x est négatif
-            //        x = 0;
-            //    }
-            //    else
-            //    {
-            //        return visibleRect;
-            //    }
-            //}
-
-            //if (y < 0)
-            //{
-            //    if ((y + height) > 0)
-            //    {
-            //        height = height + y; // ici y est négatif
-            //        y = 0;
-            //    }
-            //    else
-            //    {
-            //        return visibleRect;
-            //    }
-            //}
-
-            ////var widthClipped = Math.Min(width, this.Width - x);
-            ////var heightClipped = Math.Min(height, this.Height - y);
-
-            //var widthClipped = Math.Min(width, BoundsClipped.Width - x);
-            //var heightClipped = Math.Min(height, BoundsClipped.Height - y);
 
             int direction;
             int stride;

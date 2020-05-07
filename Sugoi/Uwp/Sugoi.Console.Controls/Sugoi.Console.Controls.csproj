@@ -120,6 +120,7 @@
     <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="FocusableControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SlateView.cs" />
     <Compile Include="Tools.cs" />

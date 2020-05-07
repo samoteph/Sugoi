@@ -22,6 +22,13 @@ namespace Sugoi.Console.Controls
         public SugoiControl()
         {
             this.InitializeComponent();
+            this.IsTabStop = true;
+            this.Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            this.Focus(FocusState.Programmatic);
         }
 
         public void Start(Cartridge cartridge)
@@ -62,7 +69,23 @@ namespace Sugoi.Console.Controls
 
                 this.SlateView.DrawStart += OnSlateViewDraw;
                 //this.SlateView.Update += OnSlateViewUpdate;
+
+                this.GotFocus += OnSugoiGotFocus;
+                this.LostFocus += OnSugoiLostFocus;
             }
+        }
+
+        private void OnSugoiLostFocus(object sender, RoutedEventArgs e)
+        {
+            haveFocus = false;
+            System.Diagnostics.Debug.WriteLine("SUGOI LostFocus");
+        }
+
+        private void OnSugoiGotFocus(object sender, RoutedEventArgs e)
+        {
+            haveFocus = true;
+            this.Focus(FocusState.Programmatic);
+            System.Diagnostics.Debug.WriteLine("SUGOI GotFocus");
         }
 
         public void Stop()
@@ -72,10 +95,18 @@ namespace Sugoi.Console.Controls
                 this.SlateView.DrawStart -= OnSlateViewDraw;
                 //this.SlateView.Update -= OnSlateViewUpdate;
 
+                Window.Current.CoreWindow.KeyDown -= OnKeyDown;
+                Window.Current.CoreWindow.KeyUp -= OnKeyUp;
+
+                this.GotFocus -= OnSugoiGotFocus;
+                this.LostFocus -= OnSugoiLostFocus;
+
                 this.screen = null;
                 this.machine.Stop();
             }
         }
+
+        bool haveFocus = false;
 
         public bool IsStarted
         {
@@ -155,7 +186,13 @@ namespace Sugoi.Console.Controls
         /// <param name="e"></param>
 
         private void OnKeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs e)
+        //private void OnKeyDown(object sender, KeyRoutedEventArgs e)
         {
+            if(haveFocus == false)
+            {
+                return;
+            }
+
             switch (e.VirtualKey)
             {
                 case VirtualKey.Up:
@@ -202,7 +239,13 @@ namespace Sugoi.Console.Controls
         }
 
         private void OnKeyUp(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs e)
+        //private void OnKeyUp(object sender, KeyRoutedEventArgs e)
         {
+            if(haveFocus == false)
+            {
+                return;
+            }
+
             switch (e.VirtualKey)
             {
                 case VirtualKey.Up:

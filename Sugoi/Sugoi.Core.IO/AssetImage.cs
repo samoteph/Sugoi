@@ -48,7 +48,10 @@ namespace Sugoi.Core.IO
 
             using (Image<Rgba32> image = Image.Load<Rgba32>(streamImage))
             {
-                array = image.GetPixelSpan().ToArray();
+                if(image.TryGetSinglePixelSpan(out var span))
+                {
+                    array = span.ToArray();
+                }
                 this.Width = image.Width;
                 this.Height = image.Height;
             }

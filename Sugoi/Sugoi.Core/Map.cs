@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sugoi.Core.IO;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -84,6 +85,25 @@ namespace Sugoi.Core
             {
                 this.Tiles[i] = tile;
             }
+        }
+
+        public void Create(AssetMap map, VideoMemory videoMemory)
+        {
+            var surfaceTileSheet = videoMemory.GetSprite<SurfaceTileSheet>(map.AssetTileSheetName);
+
+            this.MapWidth = map.MapWidth;
+            this.MapHeight = map.MapHeight;
+            this.Tiles = new MapTileDescriptor[map.MapWidth * map.MapHeight];
+
+            for(int index=0; index < this.Tiles.Length; index++)
+            {
+                this.Tiles[index] = map.Tiles[index];
+            }
+
+            this.TileSheet = surfaceTileSheet;
+
+            this.Width = map.MapWidth * surfaceTileSheet.TileWidth;
+            this.Height = map.MapHeight * surfaceTileSheet.TileHeight;
         }
 
         public void Create(int mapWidth, int mapHeight, SurfaceTileSheet surfaceTileSheet, MapTileDescriptor defaultTile)

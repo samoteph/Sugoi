@@ -292,13 +292,6 @@ namespace SamuelBlanchard.Xaml.Controls
             await me.LoadImage((Uri)e.NewValue);
         }
 
-        protected override void OnGotFocus(RoutedEventArgs e)
-        {
-            base.OnGotFocus(e);
-
-            canvas?.Focus(FocusState.Keyboard);
-        }
-
         protected override void OnApplyTemplate()
         {
             if (this.canvas == null)

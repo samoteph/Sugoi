@@ -13,11 +13,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sugoi.Editor", "Uwp\Sugoi.E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sugoi.Console.Controls", "Uwp\Sugoi.Console.Controls\Sugoi.Console.Controls.csproj", "{614794D4-F806-4C32-A314-9828A2274CBD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sugoi.Core.Scripts", "Sugoi.Core.Scripts\Sugoi.Core.Scripts.csproj", "{0D670852-7B50-49EB-A268-76CA0317C388}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sugoi.Core.Scripts", "Sugoi.Core.Scripts\Sugoi.Core.Scripts.csproj", "{0D670852-7B50-49EB-A268-76CA0317C388}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sugoi.Core.IO", "Sugoi.Core.IO\Sugoi.Core.IO.csproj", "{93A2BC20-FC27-43F1-AD94-24114AAFA069}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sugoi.Core.IO", "Sugoi.Core.IO\Sugoi.Core.IO.csproj", "{93A2BC20-FC27-43F1-AD94-24114AAFA069}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sugoi.Core.Shared", "Sugoi.Core.Shared\Sugoi.Core.Shared.csproj", "{3633BA3B-0E19-48A5-976D-16F7EABF2FC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sugoi.Core.Shared", "Sugoi.Core.Shared\Sugoi.Core.Shared.csproj", "{3633BA3B-0E19-48A5-976D-16F7EABF2FC8}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MonoGame", "MonoGame", "{E455BECB-26E6-4661-AB7A-58D63B093CA1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -15,7 +15,7 @@ namespace Sugoi.Core
         public int Address
         {
             get;
-            private set;
+            protected set;
         }
 
         public int Size

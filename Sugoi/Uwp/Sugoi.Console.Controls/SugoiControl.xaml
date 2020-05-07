@@ -10,6 +10,9 @@
     d:DesignWidth="400"
     >
 
-    <my:SlateView x:Name="SlateView" ElementShown="FrontOnly" />
-    
+    <!-- permet d'obtenir le focus en cliquant dessus-->
+    <my:FocusableControl x:Name="FocusableControl">
+        <my:SlateView x:Name="SlateView" ElementShown="FrontOnly" />
+    </my:FocusableControl>
+
 </UserControl>

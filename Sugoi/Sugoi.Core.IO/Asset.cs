@@ -34,6 +34,7 @@ namespace Sugoi.Core.IO
         Sprite,
         Map,
         TileSheet,
+        Font,
         Sound,
         File
     }

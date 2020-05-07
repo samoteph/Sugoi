@@ -14,10 +14,12 @@
             <ColumnDefinition Width="Auto"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <my:SugoiControl x:Name="SugoiControl" />
+        <my:SugoiControl x:Name="SugoiControl"/>
+        
+        <StackPanel Grid.Column="1" Width="200" Margin="10">
 
-        <StackPanel Grid.Column="1" Width="200" Visibility="Collapsed">
-
+            <TextBox TextChanged="OnTextChanged" Text="Hello!"></TextBox>
+            
             <CheckBox Content="Flag0" Tag="0" Click="OnFlagClick"></CheckBox>
             <CheckBox Content="Flag1" Tag="1" Click="OnFlagClick"></CheckBox>
             <CheckBox Content="Flag2" Tag="2" Click="OnFlagClick"></CheckBox>

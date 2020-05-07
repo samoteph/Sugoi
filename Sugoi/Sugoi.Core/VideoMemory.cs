@@ -69,6 +69,67 @@ namespace Sugoi.Core
             return tileSheet;
         }
 
+        public SurfaceFontSheet CreateFontSheetMonoChromeDynamic(AssetFont asset, params Argb32[] monoChromeDynamicFontColors)
+        {
+            if (asset.FontType != FontTypes.MonoChromeDynamic)
+            {
+                throw new Exception("The asset is not of type MonoChromeDynamic!");
+            }
+
+            if(monoChromeDynamicFontColors.Length == 0)
+            {
+                monoChromeDynamicFontColors = new Argb32[] { Argb32.Black };
+            }
+
+            var font = new SurfaceFontSheet();
+
+            var address = ReserveEmptySprite(font, asset.Name, asset.Width, asset.Height * monoChromeDynamicFontColors.Length);            
+            var addressDestination = address;
+
+            for (int bankNumber = 0; bankNumber < monoChromeDynamicFontColors.Length; bankNumber++)
+            {
+                var color = monoChromeDynamicFontColors[bankNumber];
+
+                for (int index = 0; index < asset.Pixels.Length; index++)
+                {
+                    var pixel = asset.Pixels[index];
+
+                    if (pixel.IsTransparent)
+                    {
+                        this.Pixels[addressDestination] = pixel;
+                    }
+                    else
+                    {
+                        this.Pixels[addressDestination] = color;
+                    }
+
+                    addressDestination++;
+                }
+            }
+
+            font.Initialize(this.Pixels, address, asset.FontType, asset.Width, asset.Height * monoChromeDynamicFontColors.Length, asset.TileWidth, asset.TileHeight, asset.MapHeightBank, monoChromeDynamicFontColors.Length);
+
+            return font;
+        }
+
+        public SurfaceFontSheet CreateFontSheetPolyChromeStatic(AssetFont asset)
+        {
+            if (asset.FontType != FontTypes.PolyChromeStatic)
+            {
+                throw new Exception("The asset is not of type PolyChromeStatic!");
+            }
+
+            var font = new SurfaceFontSheet();
+
+            var address = ReserveEmptySprite(font, asset.Name, asset.Width, asset.Height);
+
+            font.Initialize(this.Pixels, address, asset.FontType, asset.Width, asset.Height, asset.TileWidth, asset.TileHeight, asset.MapHeightBank, asset.BankCount);
+            // Copier les pixels de Asset et les mettre à l'address reservé
+            this.Copy(asset.Pixels, 0, 0, font.AddressBank0);
+
+            return font;
+        }
+
         public SurfaceSprite CreateEmptySprite(string name, int width, int height)
         {
             var sprite = new SurfaceSprite();
