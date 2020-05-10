@@ -1,22 +1,24 @@
-﻿using System;
+﻿using Sugoi.Core.Shared;
+using System;
 using System.IO;
 
 namespace Sugoi.Core.IO
 {
     public class CartridgeHeader
     {
-        public const string HEADER_FILE = "MCP";
-        public const int TITLE_LENGTH = 15;
-
         /// <summary>
-        /// Format du fichier (1 correspond à la version 1 du format fichier)
+        /// Format de la cartouche (1 correspond à la version 1 du format fichier)
         /// </summary>
 
-        public byte Format
+        public int Format
         {
             get;
             set;
         } = 1;
+
+        /// <summary>
+        /// Version du jeu
+        /// </summary>
 
         public int Version
         {
@@ -24,10 +26,22 @@ namespace Sugoi.Core.IO
             set;
         } = 0;
 
-        public string GameTitle
+        public string Title
         {
             get;
-            private set;
+            set;
+        }
+
+        public string Publisher
+        {
+            get;
+            set;
+        }
+
+        public string Description
+        {
+            get;
+            set;
         }
 
         /// <summary>
@@ -37,25 +51,44 @@ namespace Sugoi.Core.IO
         public int VideoMemorySize
         {
             get;
-            private set;
+            set;
         } = 1000 * 1000 * 20; // 20 mo par defaut de VideoMemory 
 
-        public void Read(Stream stream)
+        public void Read(BinaryReader reader)
         {
-            using( var reader = new BinaryReader(stream) )
+            var headerFile = new string(reader.ReadChars(CartridgeFileFormat.HEADER_FILE.Length));
+
+            if (headerFile != CartridgeFileFormat.HEADER_FILE)
             {
-                var headerFile = new string(reader.ReadChars(HEADER_FILE.Length));
-
-                if(headerFile != HEADER_FILE)
-                {
-                    throw new Exception("this file is not a compatible package for this console!");
-                }
-
-                Format = reader.ReadByte();
-                Version = reader.ReadInt32();
-                GameTitle = new string(reader.ReadChars(TITLE_LENGTH));
-                VideoMemorySize = reader.ReadInt32();
+                throw new Exception("this file is not a compatible package for this console!");
             }
+
+            Format = reader.ReadByte();
+            Version = reader.ReadInt32();
+
+            Title = ReadString(reader, CartridgeFileFormat.TITLE_LENGTH); 
+            Publisher = ReadString(reader, CartridgeFileFormat.PUBLISHER_LENGTH);  
+            Description = ReadString(reader, CartridgeFileFormat.DESCRIPTION_LENGTH);
+
+            VideoMemorySize = reader.ReadInt32();
+        }
+
+        protected string ReadString(BinaryReader reader, int maxLength)
+        {
+            // peut contenir des \0 pour boucher
+            var characters = reader.ReadChars(maxLength);
+
+            int index;
+            
+            for(index=0; index < characters.Length; index++)
+            {
+                if(characters[index] == 0)
+                {
+                    break;
+                }
+            }
+
+            return new string(characters, 0, index);
         }
     }
 }

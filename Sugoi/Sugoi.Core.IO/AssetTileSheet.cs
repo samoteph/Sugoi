@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sugoi.Core.Shared;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,24 +8,33 @@ namespace Sugoi.Core.IO
 {
     public class AssetTileSheet : AssetImage
     {
-        public override AssetType Type
+        public override AssetTypes Type
         {
             get
             {
-                return AssetType.TileSheet;
+                return AssetTypes.TileSheet;
             }
         }
 
         public int TileWidth
         {
             get;
-            private set;
+            protected set;
         }
 
         public int TileHeight
         {
             get;
-            private set;
+            protected set;
+        }
+
+        protected override void ReadHeader(BinaryReader reader)
+        {
+            // lecture du nom ici
+            base.ReadHeader(reader);
+
+            this.TileWidth = reader.ReadInt32();
+            this.TileHeight = reader.ReadInt32();
         }
 
         public static AssetTileSheet Import(string assetName, Stream stream, int tileWidth, int tileHeight)

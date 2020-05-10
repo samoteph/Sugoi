@@ -130,11 +130,6 @@
     </AppxManifest>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Assets\Images\atlas.png" />
-    <Content Include="Assets\Images\FontMono.png" />
-    <Content Include="Assets\Images\monkey.png" />
-    <Content Include="Assets\Images\FontPoly.png" />
-    <Content Include="Assets\Images\TileSheet.png" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\LockScreenLogo.scale-200.png" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
@@ -160,6 +155,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Games\CrazyZone\CrazyZone\CrazyZone.csproj">
+      <Project>{aecb6fed-3003-4442-bdb1-4c4a968e8510}</Project>
+      <Name>CrazyZone</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Sugoi.Core.IO\Sugoi.Core.IO.csproj">
       <Project>{93A2BC20-FC27-43F1-AD94-24114AAFA069}</Project>
       <Name>Sugoi.Core.IO</Name>
@@ -176,9 +175,6 @@
       <Project>{614794d4-f806-4c32-a314-9828a2274cbd}</Project>
       <Name>Sugoi.Console.Controls</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Assets\Maps\Map.tmx" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "Sugoi.Core.IO.Builders": {
+      "commandName": "Project",
+      "commandLineArgs": "C:\\Sam\\Dev\\Sugoi\\Sugoi\\Sugoi.Core.IO.Builders\\Cartridge\\"
+    }
+  }
+}

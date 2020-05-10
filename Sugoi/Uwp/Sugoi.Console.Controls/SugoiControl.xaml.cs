@@ -35,8 +35,9 @@ namespace Sugoi.Console.Controls
         {
             if (this.machine.IsStarted == false)
             {
-                this.machine.Start(cartridge);
+                cartridge.Load();
 
+                this.machine.Start(cartridge);
                 this.cartridge = this.machine.Cartridge;
                 this.screen = this.machine.Screen;
                 this.videoMemory = this.machine.VideoMemory;
@@ -47,24 +48,33 @@ namespace Sugoi.Console.Controls
                 Window.Current.CoreWindow.KeyDown += OnKeyDown;
                 Window.Current.CoreWindow.KeyUp += OnKeyUp;
 
-                this.machine.InitCallback = () =>
+                // elle sera remplie si la cartouche est executable
+                var cartridgeInitCallback = this.machine.InitializeCallback;
+                
+                this.machine.InitializeCallback = () =>
                 {
+                    cartridgeInitCallback?.Invoke();
                     this.Initialized?.Invoke();
                 };
 
                 // initialisation du code de l'application
-                this.machine.Init();
+                this.machine.Initialize();
 
                 // On appelle Update de la machine pour lancer le callback
+                var cartridgeUpdateCallback = this.machine.UpdateCallback;
+
                 this.machine.UpdateCallback = () =>
                 {
+                    cartridgeUpdateCallback?.Invoke();
                     this.FrameUpdated?.Invoke();
                 };
 
                 // la machine appelera le FrameDrawn à chaque Render
-                this.machine.DrawCallback = () =>
+                var cartridgeDrawCallback = this.machine.DrawCallback;
+                this.machine.DrawCallback = (frameExecuted) =>
                 {
-                    this.FrameDrawn?.Invoke();
+                    cartridgeDrawCallback?.Invoke(frameExecuted);
+                    this.FrameDrawn?.Invoke(frameExecuted);
                 };
 
                 this.SlateView.DrawStart += OnSlateViewDraw;
@@ -106,7 +116,7 @@ namespace Sugoi.Console.Controls
             }
         }
 
-        bool haveFocus = false;
+        bool haveFocus = true;
 
         public bool IsStarted
         {
@@ -282,7 +292,7 @@ namespace Sugoi.Console.Controls
         /// <param name="args"></param>
         private void OnSlateViewInitialized(CanvasAnimatedControl sender, CanvasCreateResourcesEventArgs args)
         {
-            this.machine.Init();
+            this.machine.Initialize();
         }
 
         /// <summary>
@@ -304,7 +314,7 @@ namespace Sugoi.Console.Controls
         private void OnSlateViewDraw(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedDrawEventArgs args)
         {
             // appel du UpdateCallback
-            var screenArgb32Array = this.machine.Draw();
+            var screenArgb32Array = this.machine.Draw(args.Timing.IsRunningSlowly);
             this.machine.CopyToBgraByteArray(screenArgb32Array, screenArray);
 
             var screen = this.machine.Screen;

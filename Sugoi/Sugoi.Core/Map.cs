@@ -1,13 +1,21 @@
 ﻿using Sugoi.Core.IO;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Sugoi.Core
 {
+    [DebuggerDisplay("Map '{Name}'")]
     public class Map
     {
         public MapTileDescriptor[] Tiles
+        {
+            get;
+            private set;
+        }
+
+        public string Name
         {
             get;
             private set;
@@ -91,6 +99,7 @@ namespace Sugoi.Core
         {
             var surfaceTileSheet = videoMemory.GetSprite<SurfaceTileSheet>(map.AssetTileSheetName);
 
+            this.Name = map.Name;
             this.MapWidth = map.MapWidth;
             this.MapHeight = map.MapHeight;
             this.Tiles = new MapTileDescriptor[map.MapWidth * map.MapHeight];
@@ -106,8 +115,9 @@ namespace Sugoi.Core
             this.Height = map.MapHeight * surfaceTileSheet.TileHeight;
         }
 
-        public void Create(int mapWidth, int mapHeight, SurfaceTileSheet surfaceTileSheet, MapTileDescriptor defaultTile)
+        public void Create(string name, int mapWidth, int mapHeight, SurfaceTileSheet surfaceTileSheet, MapTileDescriptor defaultTile)
         {
+            this.Name = name;
             this.MapWidth = mapWidth;
             this.MapHeight = mapHeight;
             this.Tiles = new MapTileDescriptor[mapWidth * mapHeight];
@@ -119,12 +129,14 @@ namespace Sugoi.Core
             this.Clear(defaultTile);
         }
 
-        public void Initialize(MapTileDescriptor[] tiles, int mapWidth, int mapHeight, SurfaceTileSheet surfaceTileSheet)
+        public void Initialize(string name, MapTileDescriptor[] tiles, int mapWidth, int mapHeight, SurfaceTileSheet surfaceTileSheet)
         {
             if(tiles.Length != mapWidth * mapHeight)
             {
                 throw new Exception("The size of the tiles must be equal mapWidth * mapHeight!");
             }
+
+            this.Name = name;
 
             this.TileSheet = surfaceTileSheet;
             this.Tiles = tiles;

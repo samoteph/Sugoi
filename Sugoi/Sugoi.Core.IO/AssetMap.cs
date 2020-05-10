@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Sugoi.Core.Shared;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -8,77 +9,106 @@ namespace Sugoi.Core.IO
 {
     public class AssetMap : Asset
     {
+        public override AssetTypes Type
+        {
+            get
+            {
+                return AssetTypes.Map;
+            }
+        }
+
         public int MapWidth
         {
             get;
-            private set;
+            protected set;
         }
 
         public int MapHeight
         {
             get;
-            private set;
+            protected set;
         }
 
         public MapTileDescriptor[] Tiles
         {
             get;
-            private set;
+            protected set;
         }
 
         public string AssetTileSheetName
         {
             get;
-            private set;
+            protected set;
         }
 
-        public override void ReadPackage(Stream stream)
+        public override void Read(BinaryReader reader)
         {
         }
 
-        public static List<AssetMap> Import(string assetTileSheetName, Stream stream)
+        /// <summary>
+        /// A VIRER va partir du coté de TmxMap
+        /// </summary>
+        /// <param name="assetTileSheetName"></param>
+        /// <param name="stream"></param>
+        /// <returns></returns>
+
+        //public static List<AssetMap> Import(string assetTileSheetName, Stream stream)
+        //{
+        //    List<AssetMap> maps = new List<AssetMap>();
+        //    TmxMap tmxMap = new TmxMap(stream);
+
+        //    foreach(var layer in tmxMap.Layers)
+        //    {
+        //        AssetMap map = new AssetMap();
+
+        //        map.Name = layer.Name;
+        //        map.Tiles = new MapTileDescriptor[layer.Tiles.Count];
+
+        //        map.MapWidth = tmxMap.Width;
+        //        map.MapHeight = tmxMap.Height;
+
+        //        map.AssetTileSheetName = assetTileSheetName;
+
+        //        for(int index = 0; index < layer.Tiles.Count; index++)
+        //        {
+        //            var tile = layer.Tiles[index];
+
+        //            int number = tile.Gid - 1;
+
+        //            var isHidden = number == -1;
+
+        //            if (isHidden == true)
+        //            {
+        //                number = 0;
+        //            }
+
+        //            if(number != 0)
+        //            {
+
+        //            }
+
+        //            map.Tiles[index] = new MapTileDescriptor() { number = number, hidden = isHidden, isHorizontalFlipped = tile.HorizontalFlip, isVerticalFlipped = tile.VerticalFlip };
+        //        }
+
+        //        maps.Add(map);
+        //    }
+
+        //    return maps;
+        //}
+
+        public static AssetMap Import(string assetName, string assetTileSheetName, int mapWidth, int mapHeight, MapTileDescriptor[] tiles)
         {
-            List<AssetMap> maps = new List<AssetMap>();
-            TmxMap tmxMap = new TmxMap(stream);
+            AssetMap map = new AssetMap();
+            map.Name = assetName;
 
-            foreach(var layer in tmxMap.Layers)
-            {
-                AssetMap map = new AssetMap();
+            map.Tiles = tiles;
 
-                map.Name = layer.Name;
-                map.Tiles = new MapTileDescriptor[layer.Tiles.Count];
+            map.MapWidth = mapWidth;
+            map.MapHeight = mapHeight;
 
-                map.MapWidth = tmxMap.Width;
-                map.MapHeight = tmxMap.Height;
+            map.AssetTileSheetName = assetTileSheetName;
 
-                map.AssetTileSheetName = assetTileSheetName;
-
-                for(int index = 0; index < layer.Tiles.Count; index++)
-                {
-                    var tile = layer.Tiles[index];
-
-                    int number = tile.Gid - 1;
-
-                    var isHidden = number == -1;
-
-                    if (isHidden == true)
-                    {
-                        number = 0;
-                    }
-
-                    if(number != 0)
-                    {
-
-                    }
-
-                    map.Tiles[index] = new MapTileDescriptor() { number = number, hidden = isHidden, isHorizontalFlipped = tile.HorizontalFlip, isVerticalFlipped = tile.VerticalFlip };
-                }
-
-                maps.Add(map);
-            }
-
-            return maps;
-
+            return map;
         }
 
         /// <summary>

@@ -47,7 +47,6 @@ namespace Sugoi.Core
 
         public Machine()
         {
-            this.Cartridge = new Cartridge();
             this.Gamepad = new Gamepad();
             this.videoMemory = new VideoMemory();
         }
@@ -56,11 +55,11 @@ namespace Sugoi.Core
         {
             get;
             private set;
-        }   
+        }
 
         public void Start(Cartridge cartridge)
         {
-            if(this.IsStarted == true)
+            if (this.IsStarted == true)
             {
                 return;
             }
@@ -69,19 +68,32 @@ namespace Sugoi.Core
 
             this.Cartridge = cartridge;
 
-            // ici lecture de la cartridge
+            if(this.Cartridge.IsLoaded == false)
+            {
+                throw new Exception("The cartridge is not loaded! Please load the cartridge before launching the machine!");
+            }
 
             this.screen = new Screen();
-            this.screen.Start(240, 136);
+
+            this.screen.Start(320, 180);
 
             this.videoMemory.Start(
                 cartridge.Header.VideoMemorySize,
-                screen);
-            
+                this);
+
             this.Gamepad.Start();
 
             // Permmet de démarrer d'autres services si la classe est dérivée
             InternalStart();
+
+            // démarrage du code contenu dans la cartouche
+
+            var executableCartridge = cartridge as ExecutableCartridge;
+
+            if (executableCartridge != null)
+            {
+                executableCartridge.Start(this);
+            }
         }
 
         protected virtual void InternalStart()
@@ -89,10 +101,10 @@ namespace Sugoi.Core
 
         }
 
-        public void Init()
+        public void Initialize()
         {
             // appel du script ici
-            this.InitCallback?.Invoke();
+            this.InitializeCallback?.Invoke();
         }
 
         /// <summary>
@@ -111,9 +123,9 @@ namespace Sugoi.Core
             private set;
         }
 
-        Stopwatch watcherFrame = new Stopwatch();
+        //Stopwatch watcherFrame = new Stopwatch();
 
-        public Argb32[] Draw()
+        public Argb32[] Draw(bool isRunningSlow)
         {
             if (IsDrawing == true)
             {
@@ -122,26 +134,27 @@ namespace Sugoi.Core
 
             IsDrawing = true;
 
-            watcherFrame.Stop();
+            //watcherFrame.Stop();
 
-            int updateRepeat = watcherFrame.ElapsedMilliseconds < 16 ? 1 : 2;
+            //int frameExecuted = watcherFrame.ElapsedMilliseconds < 30 ? 1 : 2;
 
-            //Debug.WriteLine(watcherFrame.ElapsedMilliseconds + "ms updateRepeat=" + updateRepeat);
+            //watcherFrame.Restart();
 
-            watcherFrame.Restart();
+            var updateExecutedCount = isRunningSlow ? 2 : 1;
 
-            //for (int i = 0; i < updateRepeat; i++)
-            //{
+            for (int i = 0; i < updateExecutedCount; i++)
+            {
                 Update();
-            //}
-            DrawCallback?.Invoke();
+            }
+
+            DrawCallback?.Invoke(updateExecutedCount);
 
             IsDrawing = false;
 
             return screen.Pixels;
         }
 
-        public Action InitCallback
+        public Action InitializeCallback
         {
             get;
             set;
@@ -161,7 +174,7 @@ namespace Sugoi.Core
         /// ici on ecrira le code C# pour l'affichage
         /// </summary>
 
-        public Action DrawCallback
+        public Action<int> DrawCallback
         {
             get;
             set;
@@ -173,7 +186,7 @@ namespace Sugoi.Core
 
         public void Stop()
         {
-            if(this.IsStarted == false)
+            if (this.IsStarted == false)
             {
                 return;
             }
@@ -201,12 +214,12 @@ namespace Sugoi.Core
         {
             int address = 0;
 
-            if(screenRgba32 == null || screenByte == null)
+            if (screenRgba32 == null || screenByte == null)
             {
                 return;
             }
 
-            for(int i=0; i < screenRgba32.Length; i++)
+            for (int i = 0; i < screenRgba32.Length; i++)
             {
                 var argb = screenRgba32[i];
 

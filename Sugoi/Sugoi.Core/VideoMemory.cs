@@ -7,8 +7,9 @@ namespace Sugoi.Core
 {
     public class VideoMemory : SurfacePixel
     {
-        int screenWidth;
-        int screenHeight;
+        private int screenWidth;
+        private int screenHeight;
+        private Machine machine;
 
         public Dictionary<string, SurfaceSprite> sprites = new Dictionary<string, SurfaceSprite>(1000);
 
@@ -17,8 +18,11 @@ namespace Sugoi.Core
         /// </summary>
         /// <param name="size"></param>
 
-        internal void Start(int size, Screen screen)
+        internal void Start(int size, Machine machine)
         {
+            this.machine = machine;
+            var screen = machine.Screen;
+
             // seulement pour la creation de sprite de la taille de la fenetre
             this.screenWidth = screen.Width;
             this.screenHeight = screen.Height;
@@ -56,6 +60,55 @@ namespace Sugoi.Core
             return sprite;
         }
 
+        public SurfaceSprite CreateSprite(string assetName)
+        {
+            return this.CreateSprite(this.machine.Cartridge.GetAsset<AssetSprite>(assetName));
+        }
+
+        public SurfaceTileSheet CreateTileSheet(string assetName)
+        {
+            return this.CreateTileSheet(this.machine.Cartridge.GetAsset<AssetTileSheet>(assetName));
+        }
+
+        public SurfaceFontSheet CreateFontSheet(string assetName)
+        {
+            var asset = this.machine.Cartridge.GetAsset<AssetFontSheet>(assetName);
+            return CreateFontSheet(asset);
+        }
+
+        public SurfaceFontSheet CreateFontSheet(AssetFontSheet asset)
+        {
+            switch (asset.FontType)
+            {
+                case FontTypes.PolychromeStatic:
+                    return CreateFontSheetPolyChromeStatic(asset);
+                case FontTypes.MonochromeDynamic:
+                    return CreateFontSheetMonoChromeDynamic(asset);
+            }
+
+            throw new Exception("The fontType is unknown !");
+        }
+
+        public Map[] CreateMapTmx(string assetMapTmxName)
+        {
+            var cartridge = this.machine.Cartridge;
+            return this.CreateMapTmx(cartridge.GetAsset<AssetMapTmx>(assetMapTmxName));
+        }
+
+        public Map[] CreateMapTmx(AssetMapTmx asset)
+        {
+            var videoMemory = this.machine.VideoMemory;
+            var maps = new Map[asset.Maps.Count];
+
+            for (int l = 0; l < maps.Length; l++)
+            {
+                maps[l] = new Map();
+                maps[l].Create(asset.Maps[l], videoMemory);
+            }
+
+            return maps;
+        }
+
         public SurfaceTileSheet CreateTileSheet(AssetTileSheet asset)
         {
             var tileSheet = new SurfaceTileSheet();
@@ -69,16 +122,16 @@ namespace Sugoi.Core
             return tileSheet;
         }
 
-        public SurfaceFontSheet CreateFontSheetMonoChromeDynamic(AssetFont asset, params Argb32[] monoChromeDynamicFontColors)
+        public SurfaceFontSheet CreateFontSheetMonoChromeDynamic(AssetFontSheet asset, params Argb32[] monoChromeDynamicFontColors)
         {
-            if (asset.FontType != FontTypes.MonoChromeDynamic)
+            if (asset.FontType != FontTypes.MonochromeDynamic)
             {
                 throw new Exception("The asset is not of type MonoChromeDynamic!");
             }
 
             if(monoChromeDynamicFontColors.Length == 0)
             {
-                monoChromeDynamicFontColors = new Argb32[] { Argb32.Black };
+                monoChromeDynamicFontColors = asset.BankColors;
             }
 
             var font = new SurfaceFontSheet();
@@ -112,9 +165,9 @@ namespace Sugoi.Core
             return font;
         }
 
-        public SurfaceFontSheet CreateFontSheetPolyChromeStatic(AssetFont asset)
+        public SurfaceFontSheet CreateFontSheetPolyChromeStatic(AssetFontSheet asset)
         {
-            if (asset.FontType != FontTypes.PolyChromeStatic)
+            if (asset.FontType != FontTypes.PolychromeStatic)
             {
                 throw new Exception("The asset is not of type PolyChromeStatic!");
             }

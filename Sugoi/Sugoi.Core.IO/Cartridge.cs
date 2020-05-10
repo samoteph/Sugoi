@@ -1,12 +1,20 @@
-﻿using System;
+﻿using Sugoi.Core.Shared;
+using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace Sugoi.Core.IO
 {
-    public class Cartridge
+    public abstract class Cartridge
     {
         Dictionary<string, Asset> assets;
+
+        public bool IsLoaded
+        {
+            get;
+            private set;
+        } = false;
 
         public Cartridge()
         {
@@ -17,35 +25,74 @@ namespace Sugoi.Core.IO
         public CartridgeHeader Header
         {
             get;
-            set;
+            private set;
         }
 
-        public void LoadHeader(string filename)
+        public void LoadHeader(BinaryReader reader)
         {
-            using (var fileStream = File.OpenRead(filename))
+            this.Header = new CartridgeHeader();
+            this.Header.Read(reader);
+        }
+
+        public abstract void Load();
+
+        /// <summary>
+        /// Chargement de la cartridge qui doit se trouver en ressource embedded
+        /// "CrazyZone.Cartridge.Cartridge.sugoi" -> Projet.Repertoire.Nom de fichier
+        /// </summary>
+
+        protected void LoadFromResource(string resourceName)
+        {
+            var assembly = this.GetType().Assembly;
+
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
             {
-                this.Header = new CartridgeHeader();
-                this.Header.Read(fileStream);
+                this.Load(stream);
             }
         }
 
-        public void Load(string filename)
+        protected virtual void Load(Stream stream)
         {
-            using (var fileStream = File.OpenRead(filename))
+            using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
             {
-                this.Header = new CartridgeHeader();
-                this.Header.Read(fileStream);
+                this.LoadHeader(reader);
 
-                //while(fileStream.CanRead)
-                //{
-                //    // Lecture des Assets
-                //    // Ajout dans le dico
-                //}
+                while (stream.Position != stream.Length)
+                {
+                    var assetSize = reader.ReadInt32();
+                    var assetType = (AssetTypes)reader.ReadInt32();
+
+                    Asset asset = null;
+
+                    switch(assetType)
+                    {
+                        default:
+                            throw new Exception("Unknow assetType '" + assetType + "' !");
+
+                        case AssetTypes.Sprite:
+                            asset = new AssetSprite();
+                            break;
+
+                        case AssetTypes.TileSheet:
+                            asset = new AssetTileSheet();
+                            break;
+
+                        case AssetTypes.FontSheet:
+                            asset = new AssetFontSheet();
+                            break;
+
+                        case AssetTypes.MapTmx:
+                            // MapTmx contient une liste d'AssetMap
+                            asset = new AssetMapTmx();
+                            break;
+                    }
+
+                    asset.Read(reader);
+                    this.assets.Add(asset.Name, asset);
+                }
             }
-        }
 
-        public void Save(string filename)
-        {
+            this.IsLoaded = true;
         }
 
         /// <summary>
@@ -58,7 +105,7 @@ namespace Sugoi.Core.IO
         {
             string assetName = asset.Name;
 
-            if(this.assets.ContainsKey(assetName) == true)
+            if (this.assets.ContainsKey(assetName) == true)
             {
                 throw new Exception("Cette clé existe déjà");
             }
@@ -72,9 +119,14 @@ namespace Sugoi.Core.IO
         /// <param name="assetName"></param>
         /// <returns></returns>
 
-        public T GetAsset<T>(string assetName) where T:Asset
+        public T GetAsset<T>(string assetName) where T : Asset
         {
             return (T)this.assets[assetName];
+        }
+
+        public virtual void Stop()
+        {
+
         }
     }
 }

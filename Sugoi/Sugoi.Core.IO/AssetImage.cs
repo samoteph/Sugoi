@@ -1,6 +1,7 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using Sugoi.Core.Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,8 +34,10 @@ namespace Sugoi.Core.IO
         /// </summary>
         /// <param name="stream"></param>
 
-        public override void ReadPackage(Stream stream)
+        public override void Read(BinaryReader reader)
         {
+            this.ReadHeader(reader);
+            this.ImportImage(reader.BaseStream);
         }
 
         /// <summary>

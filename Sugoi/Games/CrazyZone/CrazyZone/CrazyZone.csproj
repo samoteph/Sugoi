@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Cartridge\Cartridge.sugoi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Cartridge\Cartridge.sugoi" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Sugoi.Core\Sugoi.Core.csproj" />
+  </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="C:\Sam\Dev\Sugoi\Sugoi\Sugoi.Core.IO.Builders\bin\Release\netcoreapp3.1\publish\SugoiCartridgeBuilder.exe $(ProjectDir)Cartridge&#xD;&#xA;" />
+  </Target>
+
+</Project>

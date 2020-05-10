@@ -1,6 +1,7 @@
 ﻿using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
 using SixLabors.ImageSharp.PixelFormats;
+using Sugoi.Core.Shared;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,11 +15,11 @@ namespace Sugoi.Core.IO
 
     public class AssetSprite : AssetImage
     {
-        public override AssetType Type
+        public override AssetTypes Type
         {
             get
             {
-                return AssetType.Sprite;
+                return AssetTypes.Sprite;
             }
         }
 

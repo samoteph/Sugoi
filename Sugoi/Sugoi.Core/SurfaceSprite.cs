@@ -490,9 +490,8 @@ namespace Sugoi.Core
             var yMapClipped = yMap + ((BoundsClipped.Y - yScreen) / tileHeight);
 
             // gestion de la longueur
+            int widthMapClipped = BoundsClipped.Width / tileWidth;
             var offsetX = (BoundsClipped.X - xScreen) % tileWidth;
-
-            Debug.WriteLine("OffsetX=" + offsetX);
 
             if (offsetX < 0)
             {
@@ -500,18 +499,22 @@ namespace Sugoi.Core
                 xMapClipped = map.MapWidth + xMapClipped - 1;
             }
 
-            int widthMapClipped;
+            //Debug.WriteLine("OffsetX=" + offsetX);
+
             int size = BoundsClipped.Width + offsetX;
 
-            //widthMapClipped = size / tileWidth;
-            widthMapClipped = BoundsClipped.Width / tileWidth;
-
-            if (size % tileWidth > 0)
+            if(BoundsClipped.Width % tileWidth > 0)
             {
                 widthMapClipped++;
             }
 
+            if (size % tileWidth > 0)
+            {
+                widthMapClipped++;            
+            }
+
             // gestion de la hauteur
+            int heightMapClipped = BoundsClipped.Height / tileHeight;
             var offsetY = (BoundsClipped.Y - yScreen) % tileHeight;
 
             if (offsetY < 0)
@@ -520,10 +523,12 @@ namespace Sugoi.Core
                 yMapClipped = map.MapHeight + yMapClipped - 1;
             }
 
-            int heightMapClipped;
             size = BoundsClipped.Height + offsetY;
 
-            heightMapClipped = BoundsClipped.Height / tileHeight;
+            if (BoundsClipped.Height % tileHeight > 0)
+            {
+                heightMapClipped++;
+            }
 
             if (size % tileHeight > 0)
             {
@@ -545,7 +550,7 @@ namespace Sugoi.Core
             var xTile = 0;
             var yTile = 0;
 
-            Debug.WriteLine(widthMapClipped);
+            //Debug.WriteLine(widthMapClipped);
 
             for (int y = 0; y < heightMapClipped; y++)
             {
@@ -837,6 +842,12 @@ namespace Sugoi.Core
             return true;
         }
 
+        public Font Font
+        {
+            get;
+            set;
+        }
+
         public void DrawScrollMap(Map map, bool isInfinite, int scrollX, int scrollY,  int xScreen = 0, int yScreen = 0, int width = int.MaxValue, int height = int.MaxValue, bool isHorizontalFlip = false, bool isVerticalFlip = false, int xMap = 0, int yMap = 0)
         {
             var clip = this.Clip;
@@ -870,6 +881,26 @@ namespace Sugoi.Core
             font.FontSheet.SetBank(bank);
 
             for(int x=0; x<text.Length; x++)
+            {
+                var tileNumber = font.GetTileNumber(text[x]);
+                this.DrawTile(font.FontSheet, tileNumber, xScreen + x * tileWidth, yScreen);
+            }
+        }
+
+        public void DrawText(string text, int xScreen = 0, int yScreen = 0, int bank = 0)
+        {
+            var font = this.Font;
+
+            if (text == null || text.Length == 0)
+            {
+                return;
+            }
+
+            int tileWidth = font.FontSheet.TileWidth;
+
+            font.FontSheet.SetBank(bank);
+
+            for (int x = 0; x < text.Length; x++)
             {
                 var tileNumber = font.GetTileNumber(text[x]);
                 this.DrawTile(font.FontSheet, tileNumber, xScreen + x * tileWidth, yScreen);

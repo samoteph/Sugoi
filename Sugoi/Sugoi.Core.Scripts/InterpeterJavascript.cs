@@ -11,7 +11,10 @@ namespace Sugoi.Core.Scripts
     public class InterpeterJavascript
     {
         Engine jintEngine;
+        
         JsValue functionUpdate;
+        JsValue functionDraw;
+        JsValue functionInit;
 
         public bool IsDebugging
         {
@@ -64,12 +67,25 @@ namespace Sugoi.Core.Scripts
         public void LoadScript(string script)
         {
             this.jintEngine.Execute(script);
+
+            this.functionInit = this.jintEngine.GetValue("init");
+            this.functionDraw = this.jintEngine.GetValue("draw");
             this.functionUpdate = this.jintEngine.GetValue("update");        
         }
 
         public void ExecuteFunctionUpdate()
         {
             this.functionUpdate?.Invoke();
+        }
+
+        public void ExecuteFunctionDraw()
+        {
+            this.functionDraw?.Invoke();
+        }
+
+        public void ExecuteFunctionInit()
+        {
+            this.functionInit?.Invoke();
         }
 
         public void Declare(string function)

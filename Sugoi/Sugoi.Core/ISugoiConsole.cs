@@ -79,5 +79,5 @@ namespace Sugoi.Core
 
     public delegate void SugoiInitializedHandler();
     public delegate void SugoiFrameUpdatedHandler();
-    public delegate void SugoiFrameDrawnHandler();
+    public delegate void SugoiFrameDrawnHandler(int frameExecuted);
 }
