@@ -94,6 +94,19 @@ namespace Sugoi.Core
         {
             return gamePadKeyValues[(int)key];
         }
+
+        public bool IsRelease()
+        {
+            for (int i = 0; i < gamePadKeyValues.Length; i++)
+            {
+                if (gamePadKeyValues[i] == true)
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 
     public enum GamepadKeys

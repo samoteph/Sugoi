@@ -174,5 +174,20 @@ namespace Sugoi.Core
 
             this.Tiles[index] = tile;
         }
+
+        public void SetTiles(params int[] numbers)
+        {
+            var length = numbers.Length;
+
+            if(Tiles.Length < numbers.Length)
+            {
+                length = Tiles.Length;
+            }
+
+            for(int i=0; i < numbers.Length; i++)
+            {
+                this.Tiles[i] = new MapTileDescriptor(numbers[i]);
+            }
+        }
     }
 }
