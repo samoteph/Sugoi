@@ -1,6 +1,8 @@
 ﻿using Sugoi.Core;
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CrazyZone.Pages
@@ -84,16 +86,6 @@ namespace CrazyZone.Pages
         {
             var gamepad = this.machine.Gamepad;
 
-            if (mustWaitForUnpress)
-            {
-                if (gamepad.IsRelease() == true)
-                {
-                    mustWaitForUnpress = false;
-                }
-
-                return;
-            }
-
             switch (homeState)
             {
                 case HomeStates.Start:
@@ -101,8 +93,12 @@ namespace CrazyZone.Pages
                     // detection du bouton Start        
                     if (gamepad.IsPressed(GamepadKeys.ButtonA))
                     {
-                        homeState = HomeStates.Menu;
-                        mustWaitForUnpress = true;
+                        Debug.WriteLine("Wait for release ButtonA Start");
+
+                        gamepad.WaitForRelease(() =>
+                        {
+                            homeState = HomeStates.Menu;
+                        });
                     }
                     break;
 
@@ -111,19 +107,19 @@ namespace CrazyZone.Pages
                     // retour en arrière        
                     if (gamepad.IsPressed(GamepadKeys.ButtonB))
                     {
-                        homeState = HomeStates.Start;
-                        return;
+                        gamepad.WaitForRelease(() =>
+                       {
+                           homeState = HomeStates.Start;
+                       });
                     }
 
-                    if(gamepad.VerticalController == GamepadKeys.Down)
+                    if (gamepad.VerticalController == GamepadKeys.Down)
                     {
-                        mustWaitForUnpress = true;
                         menuPosition = (menuPosition + 1) % 2;
+                        gamepad.WaitForRelease();
                     }
                     else if(gamepad.VerticalController == GamepadKeys.Up)
                     {
-                        mustWaitForUnpress = true;
-                        
                         var value = menuPosition - 1;
 
                         if (value < 0)
@@ -134,14 +130,20 @@ namespace CrazyZone.Pages
                         {
                             menuPosition = (menuPosition + 1) % 2;
                         }
+
+                        gamepad.WaitForRelease();
                     }
 
-                    if(gamepad.IsPressed(GamepadKeys.ButtonA))
+                    if (gamepad.IsPressed(GamepadKeys.ButtonA))
                     {
-                        game.Navigate(typeof(PlayPage));
+                        gamepad.WaitForRelease(() =>
+                        {
+                            machine.WaitForFrame(100, () =>
+                            {
+                                game.Navigate(typeof(PlayPage));
+                            });
+                        });
                     }
-
-                    frameCursor = (frame % 30) < 15 ? 0 : 1;
 
                     break;
             }
@@ -186,7 +188,9 @@ namespace CrazyZone.Pages
 
                     screen.DrawText(MENU_LINE1, centerX, 120);
                     screen.DrawText(MENU_LINE2, centerX, 132);
-                    
+
+                    frameCursor = (frame % 30) < 15 ? 0 : 1;
+
                     screen.DrawSpriteMap(cursor[frameCursor], centerX - 24, (120 - 4) + menuPosition * 12, true, false);
 
                     break;

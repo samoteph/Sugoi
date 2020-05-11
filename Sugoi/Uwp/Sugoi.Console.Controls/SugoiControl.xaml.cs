@@ -3,6 +3,7 @@ using Microsoft.Graphics.Canvas.UI.Xaml;
 using Sugoi.Core;
 using Sugoi.Core.IO;
 using System;
+using System.Collections;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -30,6 +31,8 @@ namespace Sugoi.Console.Controls
         {
             this.Focus(FocusState.Programmatic);
         }
+
+        IEnumerator updateEnumerator = null;
 
         public void Start(Cartridge cartridge)
         {

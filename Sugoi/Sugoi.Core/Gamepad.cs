@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Sugoi.Core
@@ -7,13 +9,15 @@ namespace Sugoi.Core
     public class Gamepad
     {
         bool[] gamePadKeyValues;
+        Machine machine;
 
         public Gamepad()
         {
         }
 
-        internal void Start()
+        internal void Start(Machine machine)
         {
+            this.machine = machine;
             gamePadKeyValues = new bool[Enum.GetValues(typeof(GamepadKeys)).Length];
         }
 
@@ -106,6 +110,18 @@ namespace Sugoi.Core
             }
 
             return true;
+        }
+
+        public void WaitForRelease(Action completed = null)
+        {
+            Debug.WriteLine("WaitForRelease");
+
+            this.machine.PrepareWaiting( () =>
+            {
+                return this.IsRelease() == false;
+            },
+            completed
+            );
         }
     }
 

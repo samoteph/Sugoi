@@ -1,7 +1,9 @@
 ﻿using Sugoi.Core.IO;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace Sugoi.Core
@@ -81,7 +83,7 @@ namespace Sugoi.Core
                 cartridge.Header.VideoMemorySize,
                 this);
 
-            this.Gamepad.Start();
+            this.Gamepad.Start(this);
 
             // Permmet de démarrer d'autres services si la classe est dérivée
             InternalStart();
@@ -113,33 +115,38 @@ namespace Sugoi.Core
 
         private void Update()
         {
-            // appel du script ici
-            this.UpdateCallback?.Invoke();
+            // ici une methode wait s'execute prioritairement à l'update
+            if (this.Wait() == false)
+            {
+                // appel du script ici
+                this.UpdateCallback?.Invoke();
+            }
         }
 
-        public bool IsDrawing
+        public int Frame
         {
             get;
-            private set;
+            set;
         }
 
-        //Stopwatch watcherFrame = new Stopwatch();
+        private int endWaitFrame;
+
+        public void WaitForFrame(int frameToWait, Action completed = null)
+        {
+            endWaitFrame = this.Frame + frameToWait;
+
+            Debug.WriteLine("Init WaitForFrame " + endWaitFrame);
+
+            this.PrepareWaiting(() =>
+           {
+               return this.Frame < endWaitFrame;
+           },
+           completed
+           );
+        }
 
         public Argb32[] Draw(bool isRunningSlow)
         {
-            if (IsDrawing == true)
-            {
-                return null;
-            }
-
-            IsDrawing = true;
-
-            //watcherFrame.Stop();
-
-            //int frameExecuted = watcherFrame.ElapsedMilliseconds < 30 ? 1 : 2;
-
-            //watcherFrame.Restart();
-
             var updateExecutedCount = isRunningSlow ? 2 : 1;
 
             for (int i = 0; i < updateExecutedCount; i++)
@@ -149,7 +156,7 @@ namespace Sugoi.Core
 
             DrawCallback?.Invoke(updateExecutedCount);
 
-            IsDrawing = false;
+            this.Frame += updateExecutedCount;
 
             return screen.Pixels;
         }
@@ -178,6 +185,61 @@ namespace Sugoi.Core
         {
             get;
             set;
+        }
+
+        private Func<bool> MustWaitCallBack
+        {
+            get;
+            set;
+        }
+
+        public void PrepareWaiting(Func<bool> waitConditionFunction, Action completed)
+        {
+            this.MustWaitCallBack = () =>
+            {
+                if (waitConditionFunction != null)
+                {
+                    if (waitConditionFunction() == true)
+                    {
+                        return true;
+                    }
+                }
+
+                completed?.Invoke();
+
+                return false;
+            };
+        }
+
+        /// <summary>
+        /// Return true s'il doit attendre que le MustWaitCallBack soit terminé
+        /// </summary>
+        /// <returns></returns>
+
+        public bool Wait()
+        {
+            var currentCallBack = this.MustWaitCallBack;
+
+            if (currentCallBack != null)
+            {
+                if( currentCallBack() == false )
+                {
+                    // après l'execution on lance un completed qui peut effectuer une PrepareWaiting et xhanger le MustWaitCallBack
+                    // On doit alors continuer à attendre
+                    if (currentCallBack == this.MustWaitCallBack)
+                    {
+                        // C'est terminé
+                        MustWaitCallBack = null;
+                        return false;
+                    }
+                }
+
+                // on continue d'attendre
+                return true;
+                
+            }
+
+            return false;
         }
 
         /// <summary>
