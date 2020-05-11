@@ -35,7 +35,6 @@ namespace CrazyZone
             game = new Game();
 
             game.Start(this.machine);
-            game.Navigate(typeof(HomePage));
         }
 
         public override void Load()

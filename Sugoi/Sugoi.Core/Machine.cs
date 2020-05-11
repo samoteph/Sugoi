@@ -109,17 +109,26 @@ namespace Sugoi.Core
             this.InitializeCallback?.Invoke();
         }
 
+        public bool ExecuteWaitManually
+        {
+            get;
+            set;
+        } = false;
+
         /// <summary>
         /// Appel du UpdateCallBack + Update du script
         /// </summary>
 
         private void Update()
         {
+            // Toujours executé car avant le Wait
+            this.UpdatingCallback?.Invoke();
+
             // ici une methode wait s'execute prioritairement à l'update
             if (this.Wait() == false)
             {
                 // appel du script ici
-                this.UpdateCallback?.Invoke();
+                this.UpdatedCallback?.Invoke();
             }
         }
 
@@ -168,10 +177,20 @@ namespace Sugoi.Core
         }
 
         /// <summary>
-        /// Ici on ecrira le code c# pour le déplacement des objets
+        /// Ici on ecrira le code c# pour le déplacement des objets avant le wait (toujours executé meme en case de wait)
         /// </summary>
 
-        public Action UpdateCallback
+        public Action UpdatingCallback
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Ici on ecrira le code c# pour le déplacement des objets après le wait (pas executé en cas de wait)
+        /// </summary>
+
+        public Action UpdatedCallback
         {
             get;
             set;

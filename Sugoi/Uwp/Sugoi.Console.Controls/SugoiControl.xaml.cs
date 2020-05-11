@@ -4,6 +4,7 @@ using Sugoi.Core;
 using Sugoi.Core.IO;
 using System;
 using System.Collections;
+using System.Diagnostics;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -64,9 +65,9 @@ namespace Sugoi.Console.Controls
                 this.machine.Initialize();
 
                 // On appelle Update de la machine pour lancer le callback
-                var cartridgeUpdateCallback = this.machine.UpdateCallback;
+                var cartridgeUpdateCallback = this.machine.UpdatedCallback;
 
-                this.machine.UpdateCallback = () =>
+                this.machine.UpdatedCallback = () =>
                 {
                     cartridgeUpdateCallback?.Invoke();
                     this.FrameUpdated?.Invoke();

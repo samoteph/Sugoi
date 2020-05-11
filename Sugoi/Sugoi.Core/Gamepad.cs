@@ -89,12 +89,44 @@ namespace Sugoi.Core
             }
         }
 
+        public bool IsPressed(GamepadKeys key)
+        {
+            return gamePadKeyValues[(int)key];
+        }
+
+        public bool IsButtonsPressed()
+        {
+            if(IsPressed(GamepadKeys.ButtonA))
+            {
+                return true;
+            }
+            else if(IsPressed(GamepadKeys.ButtonB))
+            {
+                return true;
+            }
+            else if(IsPressed(GamepadKeys.ButtonC))
+            {
+                return true;
+            }
+            else if(IsPressed(GamepadKeys.ButtonD))
+            {
+                return true;
+            }
+            else if(IsPressed(GamepadKeys.ButtonStart))
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+
         public void Release(GamepadKeys key)
         {
             gamePadKeyValues[(int)key] = false;
         }
 
-        public bool IsPressed(GamepadKeys key)
+        public bool IsRelease(GamepadKeys key)
         {
             return gamePadKeyValues[(int)key];
         }

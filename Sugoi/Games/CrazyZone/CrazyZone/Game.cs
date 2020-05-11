@@ -29,6 +29,9 @@ namespace CrazyZone
             // ajout des pages
             Pages.Add(typeof(HomePage), new HomePage(this));
             Pages.Add(typeof(PlayPage), new PlayPage(this));
+
+            // Lancement du jeu
+            this.Navigate(typeof(PlayPage));
         }
 
         public void Navigate(Type typePage)
@@ -38,7 +41,8 @@ namespace CrazyZone
             page.Initialize();
 
             this.Machine.InitializeCallback = null;
-            this.Machine.UpdateCallback = page.Update;
+            this.Machine.UpdatingCallback = page.Updating;
+            this.Machine.UpdatedCallback = page.Updated;
             this.Machine.DrawCallback = page.Draw;
         }
     }

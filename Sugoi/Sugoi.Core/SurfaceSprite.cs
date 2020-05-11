@@ -42,10 +42,10 @@ namespace Sugoi.Core
             private set;
         }
 
-        private Rectangle BoundsClipped
+        public Rectangle BoundsClipped
         {
             get;
-            set;
+            private set;
         }
 
         private Rectangle? oldClip;

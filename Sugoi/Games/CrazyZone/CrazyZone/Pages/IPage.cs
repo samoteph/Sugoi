@@ -8,7 +8,8 @@ namespace CrazyZone.Pages
     public interface IPage
     {
         void Initialize();
-        void Update();
+        void Updating(); 
+        void Updated();
         void Draw(int frameExecuted);
     }
 }

@@ -18,15 +18,29 @@ namespace CrazyZone.Pages
         private const string MENU_LINE2 = "credits";
 
 
+
         private Game game;
         private Machine machine;
-        private int frame;
 
         private int frameCursor;
-        private int menuPosition;
-        private bool mustWaitForUnpress = false;
+        private int frameScroll;
 
-        SurfaceSprite title;
+        private int menuPosition;
+
+        private string[] credits_lines = new string[]
+        {
+            "code:",
+            "samuel blanchard",
+            "",
+            "music:",
+            "eric matyas",
+            "www.soundimage.org",
+            "",
+            "redesigned logo:",
+            "alessandra sada"
+        };
+
+    SurfaceSprite title;
         SurfaceTileSheet tiles;
 
         Map[] maps;
@@ -34,11 +48,11 @@ namespace CrazyZone.Pages
  
         enum HomeStates
         {
-            Start,
+            Home,
             Menu,
             P1OrP2,
-            Options,
-            Stop
+            Credits,
+            Quit,
         }
 
         /// <summary>
@@ -55,40 +69,33 @@ namespace CrazyZone.Pages
 
         public void Initialize()
         {
-            frame = 0;
+            this.machine.Frame = 0;
 
-            mustWaitForUnpress = false;
-
-            this.homeState = HomeStates.Start;
+            this.homeState = HomeStates.Home;
 
             this.title = AssetStore.Title;
             this.maps = AssetStore.ParallaxMaps;
             this.tiles = AssetStore.Tiles;
 
-            cursor = new Map[2];
-            
-            Map map;
-
-            map = new Map();
-            map.Create("OpaCursor1", 2, 2, tiles, MapTileDescriptor.HiddenTile);
-            map.SetTiles(182, 183, 192, 193);
-            cursor[0] = map;
-
-            map = new Map();
-            map.Create("OpaCursor2", 2, 2, tiles, MapTileDescriptor.HiddenTile);
-            map.SetTiles(184, 185, 194, 195);
-            cursor[1] = map;
-
+            cursor = AssetStore.OpaCursorMaps;
             menuPosition = 0;
         }
 
-        public void Update()
+        public void Updating()
+        {
+            var frame = this.machine.Frame;
+
+            frameCursor = (frame % 30) < 15 ? 0 : 1;
+            frameScroll = (int)(frame * 0.5);
+        }
+
+        public void Updated()
         {
             var gamepad = this.machine.Gamepad;
 
             switch (homeState)
             {
-                case HomeStates.Start:
+                case HomeStates.Home:
                     
                     // detection du bouton Start        
                     if (gamepad.IsPressed(GamepadKeys.ButtonA))
@@ -109,7 +116,7 @@ namespace CrazyZone.Pages
                     {
                         gamepad.WaitForRelease(() =>
                        {
-                           homeState = HomeStates.Start;
+                           homeState = HomeStates.Home;
                        });
                     }
 
@@ -138,12 +145,39 @@ namespace CrazyZone.Pages
                     {
                         gamepad.WaitForRelease(() =>
                         {
-                            machine.WaitForFrame(100, () =>
+                            if(menuPosition == 0)
                             {
-                                game.Navigate(typeof(PlayPage));
-                            });
+                                this.homeState = HomeStates.Quit;
+                            }
+                            else
+                            {
+                                // clique sur Credits
+                                this.homeState = HomeStates.Credits;
+                            } 
                         });
                     }
+
+                    break;
+
+                case HomeStates.Credits:
+
+                    if (gamepad.IsButtonsPressed())
+                    {
+                        gamepad.WaitForRelease(() =>
+                        {
+                            this.menuPosition = 0;
+                            this.homeState = HomeStates.Home;
+                        });
+                    }
+
+                    break;
+
+                case HomeStates.Quit:
+
+                    machine.WaitForFrame(30, () =>
+                    {
+                        game.Navigate(typeof(PlayPage));
+                    });
 
                     break;
             }
@@ -153,12 +187,9 @@ namespace CrazyZone.Pages
         {
             var screen = this.machine.Screen;
             var font = screen.Font;
+            var frame = this.machine.Frame;
 
-            screen.Clear(new Argb32(0xeeeecc));
-
-            frame += frameExecuted;
-
-            int frameScroll = (int)(frame * 0.5);
+            //screen.Clear(new Argb32(0xeeeecc));
 
             screen.DrawScrollMap(maps[0], true, (int)(-frameScroll * 0.25), 0, 0, screen.Height - maps[0].Height - 32, 320, 136);
             screen.DrawScrollMap(maps[1], true, (int)(-frameScroll * 0.50), 0, 0, screen.Height - maps[1].Height - 16, 320, 136);
@@ -167,11 +198,16 @@ namespace CrazyZone.Pages
             screen.DrawScrollMap(maps[4], true, (int)(-frameScroll * 1.50), 0, 0, screen.Height - maps[4].Height, 320, 136);
             screen.DrawScrollMap(maps[5], true, (int)(-frameScroll * 2.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
 
-            screen.DrawSprite(title, (screen.Width - title.Width) / 2, 16);
+            // pas affiché dans les crédits
+            if (homeState != HomeStates.Credits)
+            {
+                // Titre FantazyZone
+                screen.DrawSprite(title, (screen.Width - title.Width) / 2, 16);
+            }
 
             switch (homeState)
             {
-                case HomeStates.Start:
+                case HomeStates.Home:
                     screen.DrawText(TITLE_LINE1, (screen.Width - TITLE_LINE1.Length * font.FontSheet.TileWidth) / 2, 120);
                     screen.DrawText(TITLE_LINE2, (screen.Width - TITLE_LINE2.Length * font.FontSheet.TileWidth) / 2, 132);
 
@@ -189,10 +225,27 @@ namespace CrazyZone.Pages
                     screen.DrawText(MENU_LINE1, centerX, 120);
                     screen.DrawText(MENU_LINE2, centerX, 132);
 
-                    frameCursor = (frame % 30) < 15 ? 0 : 1;
-
                     screen.DrawSpriteMap(cursor[frameCursor], centerX - 24, (120 - 4) + menuPosition * 12, true, false);
 
+                    break;
+
+                case HomeStates.Credits:
+
+                    int y = 50;
+
+                    for (int i = 0; i < this.credits_lines.Length; i++)
+                    {
+                        var line = credits_lines[i];
+                        screen.DrawText(line, (screen.Width - line.Length * font.FontSheet.TileWidth) / 2, y);
+                        y += 8;
+                    }
+
+                    break;
+
+                case HomeStates.Quit:
+
+                    screen.Clear(Argb32.Black);
+                    
                     break;
             }
 
