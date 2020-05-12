@@ -9,10 +9,15 @@ namespace CrazyZone.Sprites
     {
         private Machine machine;
         private SurfaceTileSheet tiles;
+
         private Map[] flightMaps;
+        private int opaFlightIndex;
+
+        private Map[] walkMaps;
+        private int opaWalkIndex;
 
         private bool isOpaHorizontalFlipped;
-        private int opaFlightIndex;
+
         private Rectangle rectScroll;
 
         private AmmoSprite ammoSprite;
@@ -23,8 +28,10 @@ namespace CrazyZone.Sprites
 
             tiles = AssetStore.Tiles;
             flightMaps = AssetStore.OpaFlightMaps;
+            walkMaps = AssetStore.OpaWalkMaps;
 
             isOpaHorizontalFlipped = true;
+            ammoSprite = new AmmoSprite(machine);
 
             Initialize();
         }
@@ -64,6 +71,12 @@ namespace CrazyZone.Sprites
             set;
         }
 
+        public bool IsWalking
+        {
+            get;
+            private set;
+        }
+
         public void Initialize() 
         {
             this.IsAlive = true;
@@ -77,12 +90,14 @@ namespace CrazyZone.Sprites
             Speed = 1;
             this.IsMoving = true;
 
+            opaFlightIndex = 0;
+            opaWalkIndex = 0;
+
             var widthScroll = (screen.BoundsClipped.Width * 1) / 3;
             var xScroll = (screen.BoundsClipped.Width - widthScroll) / 2;
 
             this.rectScroll = new Rectangle(xScroll, screen.BoundsClipped.Y, widthScroll, screen.BoundsClipped.Height);
 
-            ammoSprite = new AmmoSprite(machine);
             ammoSprite.Initialize();
         }
 
@@ -111,10 +126,10 @@ namespace CrazyZone.Sprites
             switch (gamepad.VerticalController)
             {
                 case GamepadKeys.Up:
-                    Y++;
+                    Y+=2;
                     break;
                 case GamepadKeys.Down:
-                    Y--;
+                    Y-=2;
                     break;
             }
 
@@ -123,19 +138,54 @@ namespace CrazyZone.Sprites
                 ammoSprite.Fire(X, Y, Direction);
             }
 
-            if( X + Speed > rectScroll.Right )
+            if( X + Speed >= rectScroll.Right )
             {
                 X = rectScroll.Right;
+                
+                if (this.IsMoving)
+                {
+                    Speed = 2;
+                }
             }
-            else if(X + Speed < rectScroll.X)
+            else if(X + Speed <= rectScroll.X)
             {
                 X = rectScroll.X;
+                
+                if (this.IsMoving)
+                {
+                    Speed = -2;
+                }
             }
             else
             {
                 X += (int)Speed;
             }
 
+            if(Y <= (rectScroll.Y - 1))
+            {
+                Y = -1;
+            }
+            else if(Y >= rectScroll.Bottom - 16)
+            {
+                Y = rectScroll.Bottom - 16;
+                IsWalking = true;
+            }
+            else if(IsWalking == true)
+            {
+                IsWalking = false;
+            }
+
+            if(IsWalking)
+            {
+                if (Direction != 0)
+                {
+                    opaWalkIndex = (this.machine.Frame % 20) > 10 ? 0 : 1;
+                }
+                else
+                {
+                    opaWalkIndex = (this.machine.Frame % 10) > 5 ? 0 : 1;
+                }
+            }
 
             // retournement
             if (IsMoving == true)
@@ -170,6 +220,11 @@ namespace CrazyZone.Sprites
 
             ammoSprite.Draw(frameExecuted);
             screen.DrawSpriteMap(flightMaps[opaFlightIndex], X, Y, isOpaHorizontalFlipped, false);
+
+            if(IsWalking)
+            {
+                screen.DrawSpriteMap(walkMaps[opaWalkIndex], X, Y + 8, isOpaHorizontalFlipped, false);
+            }
         }
     }
 }

@@ -29,6 +29,23 @@ namespace CrazyZone
             return font;
         }
 
+        private static Map[] CreateOpaWalkAnimation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[2];
+
+            var map = new Map();
+            map.Create("OpaWalk1", 2, 1, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(200, 201);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("OpaWalk2", 2, 1, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(202, 203);
+            maps[1] = map;
+
+            return maps;
+        }
+
         private static Map[] CreateOpaCursorAnimation(SurfaceTileSheet tileSheet)
         {
             Map[] maps = new Map[2];
@@ -85,6 +102,7 @@ namespace CrazyZone
 
             OpaCursorMaps = CreateOpaCursorAnimation(Tiles);
             OpaFlightMaps = CreateOpaFlightAnimation(Tiles);
+            OpaWalkMaps = CreateOpaWalkAnimation(Tiles);
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
@@ -115,6 +133,12 @@ namespace CrazyZone
         }
 
         public static Map[] OpaFlightMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] OpaWalkMaps
         {
             get;
             private set;

@@ -83,6 +83,7 @@ namespace CrazyZone.Sprites
                 if(X > bounds.Right || X < bounds.X )
                 {
                     IsFiring = false;
+                    IsAlive = false;
                 }
             }
         }
@@ -92,7 +93,7 @@ namespace CrazyZone.Sprites
             if (IsFiring == true)
             {
                 var screen = this.machine.Screen;
-                screen.DrawTile(tiles, 85,  X, Y, isOpaHorizontalFlipped, false);
+                screen.DrawTile(tiles, 188,  X, Y, isOpaHorizontalFlipped, false);
             }
         }
     }
