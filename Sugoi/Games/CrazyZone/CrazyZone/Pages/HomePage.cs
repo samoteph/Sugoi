@@ -191,7 +191,7 @@ namespace CrazyZone.Pages
 
             //screen.Clear(new Argb32(0xeeeecc));
 
-            screen.DrawScrollMap(maps[0], true, (int)(-frameScroll * 0.25), 0, 0, screen.Height - maps[0].Height - 32, 320, 136);
+            screen.DrawScrollMap(maps[0], true, (int)(-frameScroll * 0.25), 0, 0, 0, 320, 136);
             screen.DrawScrollMap(maps[1], true, (int)(-frameScroll * 0.50), 0, 0, screen.Height - maps[1].Height - 16, 320, 136);
             screen.DrawScrollMap(maps[3], true, (int)(-frameScroll * 1.00), 0, 0, screen.Height - maps[3].Height - 16, 320, 136);
             screen.DrawScrollMap(maps[2], true, (int)(-frameScroll * 1.25), 0, 0, screen.Height - maps[2].Height, 320, 136);

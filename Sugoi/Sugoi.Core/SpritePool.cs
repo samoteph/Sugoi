@@ -4,13 +4,19 @@ using System.Text;
 
 namespace Sugoi.Core
 {
-    public class SpritePool
+    public class SpritePool<TSprite> where TSprite : ISprite
     {
-        public ISprite[] sprites;
+        public TSprite[] sprites;
 
-        public void Initialize(int size)
+        public SpritePool(int size)
         {
-            this.sprites = new ISprite[size];
+            this.sprites = (TSprite[])Array.CreateInstance(typeof(TSprite), size);
+            
+            for(int i=0; i< size; i++)
+            {
+                this.sprites[i] = Activator.CreateInstance<TSprite>();
+            }
+            
             this.CurrentIndex = 0;
         }
 
@@ -20,7 +26,11 @@ namespace Sugoi.Core
             private set;
         }
 
-        public void ReserveSprite(ISprite sprite)
+        /// <summary>
+        /// Obtenir un sprite disponible (mort)
+        /// </summary>
+
+        public TSprite GetSprite()
         {
             var index = this.SearchDeadSpriteIndex(this.CurrentIndex);
 
@@ -30,10 +40,8 @@ namespace Sugoi.Core
             }
             else
             {
-                sprite.Initialize();
-                sprite.IsAlive = true;
-
-                this.sprites[index] = sprite;
+                this.CurrentIndex = index;
+                return this.sprites[index];
             }
         }
 
@@ -48,7 +56,7 @@ namespace Sugoi.Core
 
                 var sprite = this.sprites[index];
 
-                if (sprite == null || sprite.IsAlive == false)
+                if (sprite.IsAlive == false)
                 {
                     return index;
                 }
@@ -58,7 +66,21 @@ namespace Sugoi.Core
             return -1;
         }
 
-        public void Update()
+        public void SetScroll(int scrollX, int scrollY)
+        {
+            for (int i = 0; i < this.sprites.Length; i++)
+            {
+                var sprite = this.sprites[i];
+
+                if (sprite.IsAlive)
+                {
+                    sprite.ScrollX = scrollX;
+                    sprite.ScrollY = scrollY;
+                }
+            }
+        }
+
+        public void Updated()
         {
             for(int i=0; i<this.sprites.Length;i++)
             {
@@ -66,7 +88,20 @@ namespace Sugoi.Core
 
                 if (sprite.IsAlive)
                 {
-                    sprite.Update();
+                    sprite.Updated();
+                }
+            }
+        }
+
+        public void Updating()
+        {
+            for (int i = 0; i < this.sprites.Length; i++)
+            {
+                var sprite = this.sprites[i];
+
+                if (sprite.IsAlive)
+                {
+                    sprite.Updating();
                 }
             }
         }
@@ -83,32 +118,68 @@ namespace Sugoi.Core
                 }
             }
         }
-    }
 
-    public interface ISprite
-    {
-        bool IsAlive
+        public void Reset()
         {
-            get;
-            set;
+            this.CurrentIndex = 0;
+
+            for(int i=0; i<this.sprites.Length;i++)
+            {
+                var sprite = this.sprites[i];
+
+                sprite.IsAlive = false;
+            }
         }
 
-        int X
+        public bool CheckCollision<TCollider>(SpritePool<TCollider> colliderPool) where TCollider : ISprite
         {
-            get;
-            set;
+            bool haveCollision = false;
+            var colliderSprites = colliderPool.sprites;
+
+            for (int i = 0; i < colliderSprites.Length; i++)
+            {
+                var colliderSprite = colliderSprites[i];
+
+                if (this.CheckCollision(colliderSprite) == true)
+                {
+                    haveCollision = true;
+                }
+            }
+
+            return haveCollision;
         }
 
-        int Y
+        public bool CheckCollision<TCollider>(TCollider collider) where TCollider : ISprite
         {
-            get;
-            set;
+            if(collider == null || collider.IsAlive == false || collider.CanCollide == false)
+            {
+                return false;
+            }
+
+            bool haveCollision = false;
+            var colliderCollisionRect = new Rectangle(collider.XScrolled + collider.CollisionBounds.X, collider.YScrolled + collider.CollisionBounds.Y, collider.CollisionBounds.Width, collider.CollisionBounds.Height);
+
+            for (int i = 0; i < this.sprites.Length; i++)
+            {
+                var sprite = this.sprites[i];
+
+                if(sprite.IsAlive == false || sprite.CanCollide == false)
+                {
+                    continue;
+                }
+
+                var spriteCollisionRect = new Rectangle(sprite.XScrolled + sprite.CollisionBounds.X, sprite.YScrolled + sprite.CollisionBounds.Y, sprite.CollisionBounds.Width, sprite.CollisionBounds.Height);
+
+                if(spriteCollisionRect.IntersectsWith(colliderCollisionRect) == true )
+                {
+                    haveCollision = true;
+
+                    sprite.Collide(collider);
+                    collider.Collide(sprite);
+                }
+            }
+
+            return haveCollision;
         }
-
-        void Initialize();
-
-        void Update();
-
-        void Draw(int frameExecuted);
     }
 }

@@ -29,6 +29,54 @@ namespace CrazyZone
             return font;
         }
 
+        private static Map[] CreateMotherOpenAnimation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[2];
+
+            var map = new Map();
+            map.Create("MotherOpen1", 4, 3, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(42, 43, 44, 45, 52, 53, 54, 55, 46, 47, 48, 49);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("MotherOpen2", 4, 4, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(42, 43, 44, 45, 52, 53, 54, 55, 56, 57, 58, 59, 66, 67, 68, 69);
+            maps[1] = map;
+
+            return maps;
+        }
+
+        private static Map CreateMotherTiredMap(SurfaceTileSheet tileSheet)
+        {
+            var map = new Map();
+            map.Create("MotherTired1", 6, 3, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(80, 81, 82, 83, 84, 80, 90, 91, 92, 93, 94, 95, 100,101,102,103,104, 105);
+            
+            return map;
+        }
+
+        private static Map[] CreateMotherFlyAnimation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[3];
+
+            var map = new Map();
+            map.Create("MotherFly1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(60, 61, 70, 71);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("MotherFly2", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(62, 63, 72, 73);
+            maps[1] = map;
+
+            map = new Map();
+            map.Create("MotherFly3", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(64, 65, 74, 75);
+            maps[2] = map;
+
+            return maps;
+        }
+
         private static Map[] CreateOpaWalkAnimation(SurfaceTileSheet tileSheet)
         {
             Map[] maps = new Map[2];
@@ -94,6 +142,23 @@ namespace CrazyZone
             return maps;
         }
 
+        private static Map[] CreateKaboomAnimation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[2];
+
+            var map = new Map();
+            map.Create("Kaboom1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(76, 77, 86, 87);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("Kaboom2", 3, 3, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(97, 98, 99, 107, 108, 109, 117, 118, 119);
+            maps[1] = map;
+
+            return maps;
+        }
+
         public static void Start(VideoMemory videoMemory)
         {
             Title = videoMemory.CreateSprite("title");
@@ -103,6 +168,13 @@ namespace CrazyZone
             OpaCursorMaps = CreateOpaCursorAnimation(Tiles);
             OpaFlightMaps = CreateOpaFlightAnimation(Tiles);
             OpaWalkMaps = CreateOpaWalkAnimation(Tiles);
+
+            MotherFlyMaps = CreateMotherFlyAnimation(Tiles);
+            MotherOpenMaps = CreateMotherOpenAnimation(Tiles);
+
+            MotherTired = CreateMotherTiredMap(Tiles);
+
+            KaboomMaps = CreateKaboomAnimation(Tiles);
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
@@ -139,6 +211,30 @@ namespace CrazyZone
         }
 
         public static Map[] OpaWalkMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] MotherOpenMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] MotherFlyMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map MotherTired
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] KaboomMaps
         {
             get;
             private set;

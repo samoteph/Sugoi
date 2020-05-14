@@ -33,6 +33,7 @@ namespace Sugoi.Console
         {
             this.InitializeComponent();
             this.SugoiControl.Loaded += OnSugoiLoaded;
+                
         }
 
         /// <summary>

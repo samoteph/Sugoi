@@ -1,24 +1,33 @@
 ﻿using Sugoi.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CrazyZone.Sprites
 {
-    public class AmmoSprite : Sprite
+    public class BombSprite : Sprite
     {
         private Machine machine;
         private SurfaceTileSheet tiles;
 
         private bool isHorizontalFlipped;
+        
+        private double easingCounter = 0;
+        private double stepCounter = 0;
+        private int originalX = 0;
 
-        public AmmoSprite Create(Machine machine)
+        public BombSprite Create(Machine machine, int scrollWidth)
         {
             this.machine = machine;
 
             tiles = AssetStore.Tiles;
- 
+
             isHorizontalFlipped = true;
+
+            stepCounter = 1d / (double)machine.Screen.BoundsClipped.Height;
+
+            this.ScrollWidth = scrollWidth;
 
             Initialize();
 
@@ -31,12 +40,6 @@ namespace CrazyZone.Sprites
             set;
         }
 
-        public bool IsFiring
-        {
-            get;
-            private set;
-        }
-
         public override void Collide(ISprite collider)
         {
             this.IsAlive = false;
@@ -44,25 +47,21 @@ namespace CrazyZone.Sprites
 
         public void Fire(int x, int y, int direction)
         {
-            if(this.IsAlive == false)
+            if (this.IsAlive == false)
             {
                 return;
             }
 
-            if (IsFiring == true) return;
-
-            IsFiring = true;
-
             this.Direction = direction;
             this.X = x;
             this.Y = y + 4;
+            originalX = x;
         }
 
         public override void Initialize()
         {
             this.IsAlive = true;
 
-            this.IsFiring = false;
             this.Width = 8;
             this.Height = 8;
 
@@ -76,25 +75,25 @@ namespace CrazyZone.Sprites
                 return;
             }
 
-            if (this.IsFiring == true)
-            {
-                // retournement
-                isHorizontalFlipped = Direction == -1 ? false : true;
+            // retournement
+            isHorizontalFlipped = Direction == -1 ? false : true;
+
+            // on avance de 8 toutes les frames
+            easingCounter += stepCounter;
                 
-                // on avance de 8 toutes les frames
-                X += Direction * 8;
+            if(easingCounter < 1)
+            {
+                X = originalX; // originalX + (int)(Easings.CircularEaseOut(easingCounter) * 20d);  
+            }
+                
+            Y++;
 
-                var bounds = this.machine.Screen.BoundsClipped;
-
-                if(X > bounds.Right || X < bounds.X )
-                {
-                    IsFiring = false;
-                    IsAlive = false;
-                }
+            if (Y > machine.Screen.BoundsClipped.Bottom + 8)
+            {
+                IsAlive = false;
             }
 
             base.Updated();
-
         }
 
         public override void Draw(int frameExecuted)
@@ -104,11 +103,10 @@ namespace CrazyZone.Sprites
                 return;
             }
 
-            if (IsFiring == true)
-            {
-                var screen = this.machine.Screen;
-                screen.DrawTile(tiles, 188,  X, Y, isHorizontalFlipped, false);
-            }
+            var screen = this.machine.Screen;
+            screen.DrawTile(tiles, 96, XScrolled, YScrolled, isHorizontalFlipped, false);
+
+            Debug.WriteLine("X=" + X + " XScrolled=" + XScrolled);
         }
     }
 }

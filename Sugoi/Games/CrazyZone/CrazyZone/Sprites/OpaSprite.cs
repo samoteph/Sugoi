@@ -1,11 +1,12 @@
-﻿using Sugoi.Core;
+﻿using CrazyZone.Pages;
+using Sugoi.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace CrazyZone.Sprites
 {
-    public struct OpaSprite : ISprite
+    public sealed class OpaSprite : Sprite
     {
         private Machine machine;
         private SurfaceTileSheet tiles;
@@ -20,18 +21,34 @@ namespace CrazyZone.Sprites
 
         private Rectangle rectScroll;
 
-        private AmmoSprite ammoSprite;
+        private int frameAmmo;
+        private int frameBomb;
 
-        public OpaSprite(Machine machine) : this()
+        PlayPage page;
+
+        public bool CanFireAmmo
+        {
+            get;
+            private set;
+        }
+
+        public bool CanFireBomb
+        {
+            get;
+            private set;
+        }
+
+        public OpaSprite(Machine machine, PlayPage page)
         {
             this.machine = machine;
+
+            this.page = page;
 
             tiles = AssetStore.Tiles;
             flightMaps = AssetStore.OpaFlightMaps;
             walkMaps = AssetStore.OpaWalkMaps;
 
             isOpaHorizontalFlipped = true;
-            ammoSprite = new AmmoSprite(machine);
 
             Initialize();
         }
@@ -54,32 +71,16 @@ namespace CrazyZone.Sprites
             private set;
         }
 
-        public bool IsAlive
-        {
-            get;
-            set;
-        }
-        public int X 
-        {
-            get;
-            set;
-        }
-
-        public int Y 
-        {
-            get;
-            set;
-        }
-
         public bool IsWalking
         {
             get;
             private set;
         }
 
-        public void Initialize() 
+        public override void Initialize() 
         {
             this.IsAlive = true;
+            this.CanFireAmmo = true;
 
             var screen = this.machine.Screen;
 
@@ -98,10 +99,13 @@ namespace CrazyZone.Sprites
 
             this.rectScroll = new Rectangle(xScroll, screen.BoundsClipped.Y, widthScroll, screen.BoundsClipped.Height);
 
-            ammoSprite.Initialize();
+            this.Width = flightMaps[0].Width;
+            this.Height = flightMaps[0].Height;
+
+            this.CreateCollisionBounds(3);
         }
 
-        public void Update()
+        public override void Updated()
         {
             var gamepad = machine.Gamepad;
 
@@ -133,12 +137,56 @@ namespace CrazyZone.Sprites
                     break;
             }
 
-            if(gamepad.IsPressed(GamepadKeys.ButtonA))
+            // on attends un peu de pouvoir tire uà nouveau
+            if(CanFireAmmo == false)
             {
-                ammoSprite.Fire(X, Y, Direction);
+                if (frameAmmo > 5)
+                {
+                    CanFireAmmo = true;
+                }
+                else
+                {
+                    frameAmmo++;
+                }
             }
 
-            if( X + Speed >= rectScroll.Right )
+            // on attends un peu de pouvoir tire uà nouveau
+            if (CanFireBomb == false)
+            {
+                if (frameBomb > 5)
+                {
+                    CanFireBomb = true;
+                }
+                else
+                {
+                    frameBomb++;
+                }
+            }
+
+            // On tire !
+            if (CanFireAmmo == true && gamepad.IsPressed(GamepadKeys.ButtonA))
+            {
+                frameAmmo = 0;
+                CanFireAmmo = false;
+
+                page.Ammos.GetSprite()
+                    .Create(machine)
+                    .Fire(X, Y, Direction);
+            }
+
+            // On largue une bombe !
+            if (CanFireBomb == true && gamepad.IsPressed(GamepadKeys.ButtonB))
+            {
+                frameBomb = 0;
+                CanFireBomb = false;
+
+                page.Bombs.GetSprite()
+                    .Create(machine, page.ScrollWidth)
+                    .Fire(X + (int)page.ScrollX, Y, Direction);
+            }
+
+            /// Bornes
+            if ( X + Speed >= rectScroll.Right )
             {
                 X = rectScroll.Right;
                 
@@ -211,20 +259,30 @@ namespace CrazyZone.Sprites
                 else opaFlightIndex = 0;
             }
 
-            ammoSprite.Update();
+            base.Updated();
         } 
 
-        public void Draw(int frameExecuted)
+        public override void Draw(int frameExecuted)
         {
-            var screen = this.machine.Screen;
+            if(this.IsAlive == false)
+            {
+                return;
+            }
 
-            ammoSprite.Draw(frameExecuted);
+            var screen = this.machine.Screen;
+            
             screen.DrawSpriteMap(flightMaps[opaFlightIndex], X, Y, isOpaHorizontalFlipped, false);
 
             if(IsWalking)
             {
                 screen.DrawSpriteMap(walkMaps[opaWalkIndex], X, Y + 8, isOpaHorizontalFlipped, false);
             }
+        }
+
+        public override void Collide(ISprite collider)
+        {
+            // GameOver
+            this.IsAlive = false;
         }
     }
 }
