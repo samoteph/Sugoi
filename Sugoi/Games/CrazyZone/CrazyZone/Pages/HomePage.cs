@@ -79,6 +79,9 @@ namespace CrazyZone.Pages
 
             cursor = AssetStore.OpaCursorMaps;
             menuPosition = 0;
+
+            frameScroll = 0;
+            frameCursor = 0;
         }
 
         public void Updating()

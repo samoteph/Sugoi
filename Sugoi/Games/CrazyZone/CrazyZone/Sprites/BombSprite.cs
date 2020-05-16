@@ -78,7 +78,7 @@ namespace CrazyZone.Sprites
             originalY = Y;
 
             var width = 65 + machine.GetRandomInteger(-5, 5);
-            path.Initialize(EasingFunctions.QuadraticEaseOut, EasingFunctions.CircularEaseIn, width, machine.Screen.BoundsClipped.Height + Height, 60);
+            path.Initialize(EasingFunctions.QuadraticEaseOut, EasingFunctions.CircularEaseIn, width, machine.Screen.BoundsClipped.Height + Height, 1,1, 60);
         }
 
         public override void Initialize()

@@ -17,6 +17,22 @@ namespace CrazyZone.Sprites
         private Map[] walkMaps;
         private int walkIndex = 0;
         private int frameWalkAnimation = 0;
+        private int framePath = 0;
+
+        private int originalX = 0;
+        private int originalY = 0;
+
+        static GroupPath path = new GroupPath();
+
+        static BabySprite()
+        {
+            path.AddPath(new VerticalPath().Initialize(20, 1, 100));
+
+            path.AddPath(new EllipticalPath().Initialize(0, 90, 50, 50, -1, 1, 50));
+
+            path.AddPath(new HorizontalPath().Initialize(100, 1, 100));
+            path.AddPath(new VerticalPath().Initialize(100, -1, 100));
+        }
 
         public BabySprite Create(Machine machine, PlayPage page, int x, int y)
         {
@@ -35,6 +51,9 @@ namespace CrazyZone.Sprites
             this.X = x;
             this.Y = y;
 
+            this.originalY = y;
+            this.originalX = x;
+
             Initialize();
 
             return this;
@@ -44,6 +63,8 @@ namespace CrazyZone.Sprites
         {
             this.Width = 16;
             this.Height = 16;
+
+            framePath = 0;
 
             this.InitializeCollision(3);
         }
@@ -78,7 +99,19 @@ namespace CrazyZone.Sprites
                 frameWalkAnimation++;
             }
 
-            Y++;
+            if (framePath <= path.MaximumFrame)
+            {
+                path.GetPosition(framePath, out var offsetX, out var offsetY);
+
+                X = originalX + offsetX;
+                Y = originalY + offsetY;
+
+                framePath++;
+            }
+            else
+            {
+                this.IsAlive = false;
+            }
 
             if(Y > screen.BoundsClipped.Bottom + this.Height)
             {

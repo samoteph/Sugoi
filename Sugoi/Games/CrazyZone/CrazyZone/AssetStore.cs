@@ -181,6 +181,15 @@ namespace CrazyZone
             return maps;
         }
 
+        private static Map CreateDeathStartMap(SurfaceTileSheet tileSheet)
+        {
+            var map = new Map();
+            map.Create("Star1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(78, 79, 88, 89);
+
+            return map;
+        }
+
         public static void Start(VideoMemory videoMemory)
         {
             Title = videoMemory.CreateSprite("title");
@@ -199,6 +208,8 @@ namespace CrazyZone
             KaboomMaps = CreateKaboomAnimation(Tiles);
 
             BabyMaps = CreateBabyAnimation(Tiles);
+
+            DeathStarMap = CreateDeathStartMap(Tiles);
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
@@ -265,6 +276,12 @@ namespace CrazyZone
         }
 
         public static Map[] BabyMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map DeathStarMap
         {
             get;
             private set;

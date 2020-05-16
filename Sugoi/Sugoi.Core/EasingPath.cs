@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Sugoi.Core
 {
-    public class EasingPath
+    public sealed class EasingPath : ItemPath
     {
         public EasingFunctions EasingX
         {
@@ -18,38 +18,22 @@ namespace Sugoi.Core
             private set;
         }
 
-        public int Width
-        {
-            get;
-            private set;
-        }
-
-        public int Height
-        {
-            get;
-            private set;
-        }
-
-        public int MaximumFrame
-        {
-            get;
-            private set;
-        }
-
         public EasingPath()
         {
         }
 
-        public void Initialize(EasingFunctions easingX, EasingFunctions easingY, int width, int height, int maximumFrame)
+        public void Initialize(EasingFunctions easingX, EasingFunctions easingY, int width, int height, int directionX, int directionY, int maximumFrame)
         {
             this.EasingX = easingX;
             this.EasingY = easingY;
             this.Width = width;
             this.Height = height;
             this.MaximumFrame = maximumFrame;
+            this.DirectionX = directionX;
+            this.DirectionY = directionY;
         }
 
-        public void GetPosition(int currentFrame, out int offsetX, out int offsetY)
+        public override void GetPosition(int currentFrame, out int offsetX, out int offsetY)
         {
             // position varie de 0 à 1
             double position;
@@ -67,8 +51,8 @@ namespace Sugoi.Core
                 position = (double)currentFrame / (double)MaximumFrame;
             }
 
-            offsetX = (int)(Easings.Interpolate(position, EasingX) * Width);
-            offsetY = (int)(Easings.Interpolate(position, EasingY) * Height);
+            offsetX = (int)(Easings.Interpolate(position, EasingX) * Width) * DirectionX;
+            offsetY = (int)(Easings.Interpolate(position, EasingY) * Height) * DirectionY;
         }
 
         public double GetEasingFromFrame(EasingFunctions easing, int currentFrame)
