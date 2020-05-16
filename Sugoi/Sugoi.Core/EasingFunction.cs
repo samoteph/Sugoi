@@ -15,82 +15,44 @@ namespace Sugoi.Core
 		private const double HALFPI = Math.PI / 2.0f;
 
 		/// <summary>
-		/// Easing Functions enumeration
-		/// </summary>
-		public enum Functions
-		{
-			Linear,
-			QuadraticEaseIn,
-			QuadraticEaseOut,
-			QuadraticEaseInOut,
-			CubicEaseIn,
-			CubicEaseOut,
-			CubicEaseInOut,
-			QuarticEaseIn,
-			QuarticEaseOut,
-			QuarticEaseInOut,
-			QuinticEaseIn,
-			QuinticEaseOut,
-			QuinticEaseInOut,
-			SineEaseIn,
-			SineEaseOut,
-			SineEaseInOut,
-			CircularEaseIn,
-			CircularEaseOut,
-			CircularEaseInOut,
-			ExponentialEaseIn,
-			ExponentialEaseOut,
-			ExponentialEaseInOut,
-			ElasticEaseIn,
-			ElasticEaseOut,
-			ElasticEaseInOut,
-			BackEaseIn,
-			BackEaseOut,
-			BackEaseInOut,
-			BounceEaseIn,
-			BounceEaseOut,
-			BounceEaseInOut
-		}
-
-		/// <summary>
 		/// Interpolate using the specified function.
 		/// </summary>
-		static public double Interpolate(double p, Functions function)
+		static public double Interpolate(double p, EasingFunctions function)
 		{
 			switch (function)
 			{
 				default:
-				case Functions.Linear: return Linear(p);
-				case Functions.QuadraticEaseOut: return QuadraticEaseOut(p);
-				case Functions.QuadraticEaseIn: return QuadraticEaseIn(p);
-				case Functions.QuadraticEaseInOut: return QuadraticEaseInOut(p);
-				case Functions.CubicEaseIn: return CubicEaseIn(p);
-				case Functions.CubicEaseOut: return CubicEaseOut(p);
-				case Functions.CubicEaseInOut: return CubicEaseInOut(p);
-				case Functions.QuarticEaseIn: return QuarticEaseIn(p);
-				case Functions.QuarticEaseOut: return QuarticEaseOut(p);
-				case Functions.QuarticEaseInOut: return QuarticEaseInOut(p);
-				case Functions.QuinticEaseIn: return QuinticEaseIn(p);
-				case Functions.QuinticEaseOut: return QuinticEaseOut(p);
-				case Functions.QuinticEaseInOut: return QuinticEaseInOut(p);
-				case Functions.SineEaseIn: return SineEaseIn(p);
-				case Functions.SineEaseOut: return SineEaseOut(p);
-				case Functions.SineEaseInOut: return SineEaseInOut(p);
-				case Functions.CircularEaseIn: return CircularEaseIn(p);
-				case Functions.CircularEaseOut: return CircularEaseOut(p);
-				case Functions.CircularEaseInOut: return CircularEaseInOut(p);
-				case Functions.ExponentialEaseIn: return ExponentialEaseIn(p);
-				case Functions.ExponentialEaseOut: return ExponentialEaseOut(p);
-				case Functions.ExponentialEaseInOut: return ExponentialEaseInOut(p);
-				case Functions.ElasticEaseIn: return ElasticEaseIn(p);
-				case Functions.ElasticEaseOut: return ElasticEaseOut(p);
-				case Functions.ElasticEaseInOut: return ElasticEaseInOut(p);
-				case Functions.BackEaseIn: return BackEaseIn(p);
-				case Functions.BackEaseOut: return BackEaseOut(p);
-				case Functions.BackEaseInOut: return BackEaseInOut(p);
-				case Functions.BounceEaseIn: return BounceEaseIn(p);
-				case Functions.BounceEaseOut: return BounceEaseOut(p);
-				case Functions.BounceEaseInOut: return BounceEaseInOut(p);
+				case EasingFunctions.Linear: return Linear(p);
+				case EasingFunctions.QuadraticEaseOut: return QuadraticEaseOut(p);
+				case EasingFunctions.QuadraticEaseIn: return QuadraticEaseIn(p);
+				case EasingFunctions.QuadraticEaseInOut: return QuadraticEaseInOut(p);
+				case EasingFunctions.CubicEaseIn: return CubicEaseIn(p);
+				case EasingFunctions.CubicEaseOut: return CubicEaseOut(p);
+				case EasingFunctions.CubicEaseInOut: return CubicEaseInOut(p);
+				case EasingFunctions.QuarticEaseIn: return QuarticEaseIn(p);
+				case EasingFunctions.QuarticEaseOut: return QuarticEaseOut(p);
+				case EasingFunctions.QuarticEaseInOut: return QuarticEaseInOut(p);
+				case EasingFunctions.QuinticEaseIn: return QuinticEaseIn(p);
+				case EasingFunctions.QuinticEaseOut: return QuinticEaseOut(p);
+				case EasingFunctions.QuinticEaseInOut: return QuinticEaseInOut(p);
+				case EasingFunctions.SineEaseIn: return SineEaseIn(p);
+				case EasingFunctions.SineEaseOut: return SineEaseOut(p);
+				case EasingFunctions.SineEaseInOut: return SineEaseInOut(p);
+				case EasingFunctions.CircularEaseIn: return CircularEaseIn(p);
+				case EasingFunctions.CircularEaseOut: return CircularEaseOut(p);
+				case EasingFunctions.CircularEaseInOut: return CircularEaseInOut(p);
+				case EasingFunctions.ExponentialEaseIn: return ExponentialEaseIn(p);
+				case EasingFunctions.ExponentialEaseOut: return ExponentialEaseOut(p);
+				case EasingFunctions.ExponentialEaseInOut: return ExponentialEaseInOut(p);
+				case EasingFunctions.ElasticEaseIn: return ElasticEaseIn(p);
+				case EasingFunctions.ElasticEaseOut: return ElasticEaseOut(p);
+				case EasingFunctions.ElasticEaseInOut: return ElasticEaseInOut(p);
+				case EasingFunctions.BackEaseIn: return BackEaseIn(p);
+				case EasingFunctions.BackEaseOut: return BackEaseOut(p);
+				case EasingFunctions.BackEaseInOut: return BackEaseInOut(p);
+				case EasingFunctions.BounceEaseIn: return BounceEaseIn(p);
+				case EasingFunctions.BounceEaseOut: return BounceEaseOut(p);
+				case EasingFunctions.BounceEaseInOut: return BounceEaseInOut(p);
 			}
 		}
 
@@ -444,5 +406,42 @@ namespace Sugoi.Core
 			}
 		}
 	}
+
+	/// <summary>
+	/// Easing EasingFunctions enumeration
+	/// </summary>
+	public enum EasingFunctions
+	{
+		Linear,
+		QuadraticEaseIn,
+		QuadraticEaseOut,
+		QuadraticEaseInOut,
+		CubicEaseIn,
+		CubicEaseOut,
+		CubicEaseInOut,
+		QuarticEaseIn,
+		QuarticEaseOut,
+		QuarticEaseInOut,
+		QuinticEaseIn,
+		QuinticEaseOut,
+		QuinticEaseInOut,
+		SineEaseIn,
+		SineEaseOut,
+		SineEaseInOut,
+		CircularEaseIn,
+		CircularEaseOut,
+		CircularEaseInOut,
+		ExponentialEaseIn,
+		ExponentialEaseOut,
+		ExponentialEaseInOut,
+		ElasticEaseIn,
+		ElasticEaseOut,
+		ElasticEaseInOut,
+		BackEaseIn,
+		BackEaseOut,
+		BackEaseInOut,
+		BounceEaseIn,
+		BounceEaseOut,
+		BounceEaseInOut
+	}
 }
- 	

@@ -131,7 +131,7 @@ namespace Sugoi.Core
             }
         }
 
-        public bool CheckCollision<TCollider>(SpritePool<TCollider> colliderPool) where TCollider : ISprite
+        public bool CheckCollision<TCollider>(SpritePool<TCollider> colliderPool, CollisionStrategies collisionStrategy) where TCollider : ISprite
         {
             bool haveCollision = false;
             var colliderSprites = colliderPool.sprites;
@@ -140,7 +140,7 @@ namespace Sugoi.Core
             {
                 var colliderSprite = colliderSprites[i];
 
-                if (this.CheckCollision(colliderSprite) == true)
+                if (this.CheckCollision(colliderSprite, collisionStrategy) == true)
                 {
                     haveCollision = true;
                 }
@@ -149,7 +149,7 @@ namespace Sugoi.Core
             return haveCollision;
         }
 
-        public bool CheckCollision<TCollider>(TCollider collider) where TCollider : ISprite
+        public bool CheckCollision<TCollider>(TCollider collider, CollisionStrategies collisionStrategy) where TCollider : ISprite
         {
             if(collider == null || collider.IsAlive == false || collider.CanCollide == false)
             {
@@ -168,18 +168,83 @@ namespace Sugoi.Core
                     continue;
                 }
 
-                var spriteCollisionRect = new Rectangle(sprite.XScrolled + sprite.CollisionBounds.X, sprite.YScrolled + sprite.CollisionBounds.Y, sprite.CollisionBounds.Width, sprite.CollisionBounds.Height);
 
-                if(spriteCollisionRect.IntersectsWith(colliderCollisionRect) == true )
+                if (collisionStrategy == CollisionStrategies.RectIntersect)
                 {
-                    haveCollision = true;
+                    var spriteCollisionRect = new Rectangle(sprite.XScrolled + sprite.CollisionBounds.X, sprite.YScrolled + sprite.CollisionBounds.Y, sprite.CollisionBounds.Width, sprite.CollisionBounds.Height);
 
-                    sprite.Collide(collider);
-                    collider.Collide(sprite);
+                    if (spriteCollisionRect.IntersectsWith(colliderCollisionRect) == true)
+                    {
+                        haveCollision = true;
+
+                        sprite.Collide(collider);
+                        collider.Collide(sprite);
+                    }
+                }
+                else
+                {
+                    // detection rapide entre l'ancienne et la nouvelle position
+
+                    var left1 = sprite.XScrolled + sprite.CollisionBounds.X;
+                    var left2 = sprite.OldXScrolled + sprite.CollisionBounds.X;
+
+                    int left;
+                    int right;
+
+                    if( left1 < left2)
+                    {
+                        left = left1;
+                        right = (left2 + sprite.CollisionBounds.Width) - left1;
+                    }
+                    else
+                    {
+                        left = left2;
+                        right = (left1 + sprite.CollisionBounds.Width) - left2;
+                    }
+
+                    var top1 = sprite.YScrolled + sprite.CollisionBounds.Y;
+                    var top2 = sprite.OldYScrolled + sprite.CollisionBounds.Y;
+
+                    int top;
+                    int bottom;
+
+                    if (top1 < top2)
+                    {
+                        top = top1;
+                        bottom = (top2 + sprite.CollisionBounds.Height) - top1;
+                    }
+                    else
+                    {
+                        top = top2;
+                        bottom = (top1 + sprite.CollisionBounds.Height) - top2;
+                    }
+
+                    var spriteCollisionRect = new Rectangle(left, top, right, bottom);
+
+                    if (spriteCollisionRect.IntersectsWith(colliderCollisionRect) == true)
+                    {
+                        // ici on a peut être une collision on doit faire une collision plus fine 
+                        // bresenhame et la cible ? fonctionne si la cible n'est pas en mouvement également
+                        // il vaudrait mieux faire un polygon avec l'ancienne forme du sprite et la nouvelle (une sorte de rectangle vu de coté) et testé la collision entre les deux polygones
+
+                        throw new NotImplementedException("Collision CCD not implemented yet!");
+
+                        haveCollision = true;
+
+                        sprite.Collide(collider);
+                        collider.Collide(sprite);
+                    }
+
                 }
             }
 
             return haveCollision;
         }
+    }
+
+    public enum CollisionStrategies
+    {
+        RectIntersect,
+        ContinousCollisionDetection,
     }
 }

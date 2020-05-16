@@ -935,19 +935,12 @@ namespace Sugoi.Core
 
         public void SetPixel(int x, int y, Argb32 color)
         {
-            try
-            {
-                var position = this.GetPosition(x, y);
-                var pixels = this.Pixels;
+            var position = this.GetPosition(x, y);
+            var pixels = this.Pixels;
 
-                if (position > -1)
-                {
-                    pixels[this.Address + position] = color;
-                }
-            }
-            catch(Exception ex)
+            if (position > -1)
             {
-
+                pixels[this.Address + position] = color;
             }
         }
 
@@ -995,6 +988,33 @@ namespace Sugoi.Core
 
                     addressStart += stride;
                 }
+            }
+        }
+
+        public void DrawLine(int x1, int y1, int x2, int y2, Argb32 color)
+        {
+            if(y1 == y2)
+            {
+                this.DrawHorizontalLine(x1, y1, x2, color);
+                return;
+            }
+
+            if(x1 == x2)
+            {
+                this.DrawVerticalLine(x1, y1, y2, color);
+                return;
+            }
+
+            int dx = Math.Abs(x2 - x1), sx = x1 < x2 ? 1 : -1;
+            int dy = Math.Abs(y2 - y1), sy = y1 < y2 ? 1 : -1;
+            int err = (dx > dy ? dx : -dy) / 2, e2;
+            while(true)
+            {
+                this.SetPixel(x1, y1, color);
+                if (x1 == x2 && y1 == y2) break;
+                e2 = err;
+                if (e2 > -dx) { err -= dy; x1 += sx; }
+                if (e2 < dy) { err += dx; y1 += sy; }
             }
         }
 
@@ -1157,12 +1177,12 @@ namespace Sugoi.Core
 
         private int GetPosition(int x, int y)
         {
-            if (x < BoundsClipped.X || x > BoundsClipped.Right)
+            if (x < BoundsClipped.X || x >= BoundsClipped.Right)
             {
                 return -1;
             }
 
-            if (y < BoundsClipped.Y || y > BoundsClipped.Bottom)
+            if (y < BoundsClipped.Y || y >= BoundsClipped.Bottom)
             {
                 return -1;
             }

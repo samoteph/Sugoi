@@ -66,7 +66,7 @@ namespace CrazyZone.Sprites
             this.Width = 8;
             this.Height = 8;
 
-            this.CreateCollisionBounds(0);
+            this.InitializeCollision(0);
         }
 
         public override void Updated()
@@ -94,7 +94,6 @@ namespace CrazyZone.Sprites
             }
 
             base.Updated();
-
         }
 
         public override void Draw(int frameExecuted)

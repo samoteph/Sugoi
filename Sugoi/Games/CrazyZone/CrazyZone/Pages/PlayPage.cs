@@ -19,6 +19,7 @@ namespace CrazyZone.Pages
         private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
         private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
         private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(10);
+        private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(10);
 
         Map[] maps;
 
@@ -43,6 +44,14 @@ namespace CrazyZone.Pages
             get
             {
                 return this.kabooms;
+            }
+        }
+
+        public SpritePool<BabySprite> Babies
+        {
+            get
+            {
+                return this.babies;
             }
         }
 
@@ -76,6 +85,7 @@ namespace CrazyZone.Pages
 
             this.opa.Initialize();
 
+            this.babies.Reset();
             this.mothers.Reset();
             this.ammos.Reset();
             this.bombs.Reset();
@@ -110,17 +120,26 @@ namespace CrazyZone.Pages
 
             mothers.SetScroll((int)-scrollX, 0);
             kabooms.SetScroll((int)-scrollX, 0);
-            bombs.SetScroll((int)-scrollX, 0);
 
             opa.Updated();
             ammos.Updated();
+
+            // on place le setscroll ici car c'est Opa qui Fire la bomb et elle a besoin du scroll une fois tirée
+            bombs.SetScroll((int)-scrollX, 0);
             bombs.Updated();
+
             mothers.Updated();
+
+            babies.SetScroll((int)-scrollX, 0);
+            babies.Updated();
+
             kabooms.Updated();
 
-            mothers.CheckCollision(opa);
-            ammos.CheckCollision(mothers);
-            bombs.CheckCollision(mothers);
+            mothers.CheckCollision(opa, CollisionStrategies.RectIntersect);
+            babies.CheckCollision(opa, CollisionStrategies.RectIntersect);
+            ammos.CheckCollision(mothers, CollisionStrategies.RectIntersect);
+            ammos.CheckCollision(babies, CollisionStrategies.RectIntersect);
+            bombs.CheckCollision(mothers, CollisionStrategies.RectIntersect);
         }
 
         public void Draw(int frameExecuted)
@@ -137,12 +156,15 @@ namespace CrazyZone.Pages
             screen.DrawScrollMap(maps[4], true, (int)(-scrollX * 1.50), 0, 0, screen.Height - maps[4].Height, 320, 136);
 
             ammos.Draw(frameExecuted);
-            bombs.Draw(frameExecuted);
+            babies.Draw(frameExecuted);
             mothers.Draw(frameExecuted);
             kabooms.Draw(frameExecuted);
             opa.Draw(frameExecuted);
+            bombs.Draw(frameExecuted);
 
             screen.DrawScrollMap(maps[5], true, (int)(-scrollX * 2.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
+
+            screen.DrawLine(0, 0, screen.BoundsClipped.Right, screen.BoundsClipped.Bottom, Argb32.Red);
 
             screen.DrawText(frameExecuted == 1 ? "1" : "2", 0, 0);
         }

@@ -15,6 +15,7 @@ namespace CrazyZone.Sprites
         private Map[] kaboomMaps;
         private int indexKaboom = 0;
         private int frameKaboom = 0;
+        private int frameMaxKaboom = 15;
 
         private int[] animationKaboomIndex = { 0, 1, 0 };
 
@@ -49,7 +50,7 @@ namespace CrazyZone.Sprites
         /// <param name="xCenter">Center of the explode</param>
         /// <param name="yCenter">Center of the explode</param>
 
-        public void Explode(int xCenter, int yCenter)
+        public void Explode(int xCenter, int yCenter, bool isSlow = false)
         {
             if (this.IsAlive == false)
             {
@@ -59,6 +60,15 @@ namespace CrazyZone.Sprites
             if(this.IsExploding == true)
             {
                 return;
+            }
+
+            if(isSlow == false)
+            {
+                frameMaxKaboom = 8;
+            }
+            else
+            {
+                frameMaxKaboom = 15;
             }
 
             this.IsExploding = true;
@@ -91,7 +101,7 @@ namespace CrazyZone.Sprites
 
             frameKaboom++;
 
-            if (frameKaboom > 15)
+            if (frameKaboom > frameMaxKaboom)
             {
                 frameKaboom = 0;
                 indexKaboom++;

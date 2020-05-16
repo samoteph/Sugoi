@@ -154,6 +154,32 @@ namespace Sugoi.Core
            );
         }
 
+        public Random Random
+        {
+            get;
+            private set;
+        } = new Random();
+
+        public int GetRandomInteger(int max)
+        {
+            return Random.Next(max);
+        }
+
+        public int GetRandomInteger(int min, int max)
+        {
+            return Random.Next(min, max);
+        }
+
+        public double GetRandomDouble(double max)
+        {
+            return Random.NextDouble() * max;
+        }
+
+        public double GetRandomDouble(double min, double max)
+        {
+            return min + (Random.NextDouble() * (max - min)) ;
+        }
+
         public Argb32[] Draw(bool isRunningSlow)
         {
             var updateExecutedCount = isRunningSlow ? 2 : 1;

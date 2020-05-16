@@ -102,7 +102,7 @@ namespace CrazyZone.Sprites
             this.Width = flightMaps[0].Width;
             this.Height = flightMaps[0].Height;
 
-            this.CreateCollisionBounds(3);
+            this.InitializeCollision(3);
         }
 
         public override void Updated()
@@ -153,7 +153,7 @@ namespace CrazyZone.Sprites
             // on attends un peu de pouvoir tire uà nouveau
             if (CanFireBomb == false)
             {
-                if (frameBomb > 5)
+                if (frameBomb > 40)
                 {
                     CanFireBomb = true;
                 }
@@ -182,7 +182,7 @@ namespace CrazyZone.Sprites
 
                 page.Bombs.GetSprite()
                     .Create(machine, page.ScrollWidth)
-                    .Fire(X + (int)page.ScrollX, Y, Direction);
+                    .Fire(X + (Width / 2) +  (int)page.ScrollX, Y + 8, Direction);
             }
 
             /// Bornes

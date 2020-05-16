@@ -21,6 +21,9 @@ namespace CrazyZone.Sprites
         private Map tiredMap;
 
         private int openIndex;
+        private int frameOpen;
+        private int frameBaby;
+
         private int flyIndex;
 
         private int health;
@@ -62,6 +65,12 @@ namespace CrazyZone.Sprites
             private set;
         }
 
+        public bool IsOpening
+        {
+            get;
+            private set;
+        }
+
         public override bool CanCollide
         {
             get
@@ -82,15 +91,15 @@ namespace CrazyZone.Sprites
 
                     this.page.Kabooms.GetSprite()
                         .Create(this.machine, this.page)
-                        .Explode(this.X, this.Y+ 8);
+                        .Explode(this.X, this.Y+ 8, true);
 
                     this.page.Kabooms.GetSprite()
                         .Create(this.machine, this.page)
-                        .Explode(this.X + 24, this.Y + 8);
+                        .Explode(this.X + 24, this.Y + 8, true);
 
                     this.page.Kabooms.GetSprite()
                         .Create(this.machine, this.page)
-                        .Explode(this.X + 16, this.Y + 16);
+                        .Explode(this.X + 16, this.Y + 16, true);
 
                 }
             }
@@ -102,12 +111,15 @@ namespace CrazyZone.Sprites
 
             this.isTired = false;
 
+            frameOpen = 0;
+            frameBaby = 0;
+
             this.Width = openMaps[0].Width + (2 * 8); // on ajoute les ailes qui dépassent
             this.Height = openMaps[0].Height;
 
             this.health = 20;
 
-            this.CreateCollisionBounds(8 + 3, 3, 16 + 3, 3);
+            this.InitializeCollision(8 + 3, 8, 16 + 3, 3);
         }
 
         public override void Updated()
@@ -122,19 +134,44 @@ namespace CrazyZone.Sprites
 
             if (this.isTired == false)
             {
-                var frameOpen = frame % 30;
-
-                if (frameOpen < 15)
+                // avant de faire un bébé on attend des centaines de frames
+                // on passe ensuite en ouverture IsOpening
+                if(frameBaby > 100)
                 {
-                    openIndex = 0;
+                    this.IsOpening = true;
                 }
                 else
                 {
-                    openIndex = 1;
+                    frameBaby++;
+                }
+
+                // l'ouverture est activé on peut lancé le bébé
+
+                if (this.IsOpening)
+                {
+                    frameOpen++;
+
+                    if (frameOpen > 10)
+                    {
+                        // Fermeture 
+                        openIndex = 0;
+                        frameOpen = 0;
+                        frameBaby = 0;
+                        this.IsOpening = false;                    
+                    }
+                    else
+                    {
+                        if(frameOpen == 1)
+                        {
+                            // lancement du bébé
+                            page.Babies.GetSprite().Create(machine, page, X + (this.Width / 2) - 16, Y + (Height / 2) - 8);
+                        }
+
+                        openIndex = 1;
+                    }
                 }
 
                 // Ailes
-
                 var frameFly = frame % 30;
 
                 if (frameFly < 10)

@@ -44,6 +44,17 @@ namespace Sugoi.Core
             get;
         }
 
+        int OldXScrolled
+        {
+            get;
+        }
+
+        int OldYScrolled
+        {
+            get;
+        }
+
+
         int ScrollX
         {
             get;

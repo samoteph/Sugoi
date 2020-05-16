@@ -38,15 +38,69 @@ namespace Sugoi.Core
 
         public int XScrolled
         {
-            get;
-            private set;
+            get
+            {
+                return xScrolled;
+            }
+
+            private set
+            {
+                if (value != xScrolled)
+                {
+                    if (OldXScrolled == int.MinValue)
+                    {
+                        OldXScrolled = value;
+                    }
+                    else
+                    {
+                        OldXScrolled = xScrolled;
+                    }
+
+                    xScrolled = value;
+                }
+            }
         }
 
-        public int YScrolled
+        private int xScrolled;
+
+        public int OldXScrolled
         {
             get;
             private set;
+        } = int.MinValue;
+
+        public int YScrolled
+        {
+            get
+            {
+                return yScrolled;
+            }
+
+            private set
+            {
+                if (value != yScrolled)
+                {
+                    if (OldYScrolled == int.MinValue)
+                    {
+                        OldYScrolled = value;
+                    }
+                    else
+                    {
+                        OldYScrolled = yScrolled;
+                    }
+
+                    yScrolled = value;
+                }
+            }
         }
+
+        private int yScrolled;
+
+        public int OldYScrolled
+        {
+            get;
+            private set;
+        } = int.MinValue;
 
         public int ScrollX
         {
@@ -127,13 +181,19 @@ namespace Sugoi.Core
             private set;
         }
 
-        public void CreateCollisionBounds(int margin)
+        public void InitializeCollision(int margin)
         {
+            this.OldXScrolled = int.MinValue;
+            this.OldYScrolled = int.MinValue;
+
             this.CollisionBounds = new Rectangle(margin, margin, this.Width - margin * 2, this.Height - margin * 2);
         }
 
-        public void CreateCollisionBounds(int marginLeft, int marginTop, int marginRight, int marginBottom)
+        public void InitializeCollision(int marginLeft, int marginTop, int marginRight, int marginBottom)
         {
+            this.OldXScrolled = int.MinValue;
+            this.OldYScrolled = int.MinValue;
+
             this.CollisionBounds = new Rectangle(marginLeft, marginTop, this.Width - (marginLeft + marginRight), this.Height - (marginTop + marginBottom));
         }
 

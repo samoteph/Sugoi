@@ -159,6 +159,28 @@ namespace CrazyZone
             return maps;
         }
 
+        private static Map[] CreateBabyAnimation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[3];
+
+            var map = new Map();
+            map.Create("Baby1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(22, 23, 32, 33);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("Baby2", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(24, 25, 34, 35);
+            maps[1] = map;
+
+            map = new Map();
+            map.Create("Baby3", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(26, 27, 36, 37);
+            maps[2] = map;
+
+            return maps;
+        }
+
         public static void Start(VideoMemory videoMemory)
         {
             Title = videoMemory.CreateSprite("title");
@@ -175,6 +197,8 @@ namespace CrazyZone
             MotherTired = CreateMotherTiredMap(Tiles);
 
             KaboomMaps = CreateKaboomAnimation(Tiles);
+
+            BabyMaps = CreateBabyAnimation(Tiles);
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
@@ -235,6 +259,12 @@ namespace CrazyZone
         }
 
         public static Map[] KaboomMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] BabyMaps
         {
             get;
             private set;
