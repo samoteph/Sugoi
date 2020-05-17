@@ -25,17 +25,7 @@ namespace CrazyZone.Pages
         private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(10);
         private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(100);
 
-        /// <summary>
-        /// Fadeut avant navigation
-        /// </summary>
-
-        public bool IsFadeOut
-        {
-            get;
-            private set;
-        }
-
-        public bool IsGameOver
+        public PlayStates State
         {
             get;
             private set;
@@ -98,14 +88,12 @@ namespace CrazyZone.Pages
 
         public void Initialize()
         {
-            IsGameOver = false;
+            State = PlayStates.Play;
 
             this.machine.Frame = 0;
 
             frameGameOver = 0;
             scrollX = 0;
-
-            this.IsFadeOut = false;
 
             this.maps = AssetStore.ParallaxMaps;
             this.ScrollWidth = this.maps[0].Width;
@@ -140,7 +128,7 @@ namespace CrazyZone.Pages
 
         public void Updated()
         {
-            if (IsFadeOut == false)
+            if (State != PlayStates.Quit)
             {
                 if (opa.IsAlive && opa.IsDying == false)
                 {
@@ -174,19 +162,25 @@ namespace CrazyZone.Pages
                 bombs.CheckCollision(babies, CollisionStrategies.RectIntersect);
             }
 
-            if(IsGameOver == true)
+            switch(State)
             {
-                if(frameGameOver > 60 * 5)
-                {
-                    this.IsFadeOut = true;
+                case PlayStates.GameOver:
+                    if (frameGameOver > 60 * 5)
+                    {
+                        State = PlayStates.Quit;
+                    }
+                    else
+                    {
+                        frameGameOver++;
+                    }
+                    break;
 
-                    if(frameGameOver > (60 * 5) + 30)
+                case PlayStates.Quit:
+                    machine.WaitForFrame(30, () =>
                     {
                         game.Navigate(typeof(HomePage));
-                    }
-                }
-
-                frameGameOver++;
+                    });
+                    break;
             }
         }
 
@@ -194,7 +188,7 @@ namespace CrazyZone.Pages
         {
             var screen = this.machine.Screen;
 
-            if (this.IsFadeOut == false)
+            if (State != PlayStates.Quit)
             {
                 screen.DrawScrollMap(maps[0], true, (int)(-scrollX * 0.25), 0, 0, 0, 320, 136);
                 screen.DrawScrollMap(maps[1], true, (int)(-scrollX * 0.50), 0, 0, screen.Height - maps[1].Height - 16, 320, 136);
@@ -211,7 +205,7 @@ namespace CrazyZone.Pages
 
                 screen.DrawScrollMap(maps[5], true, (int)(-scrollX * 2.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
 
-                if (IsGameOver == true)
+                if (State == PlayStates.GameOver)
                 {
                     screen.DrawText(GAMEOVER_TEXT, (screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2, (screen.BoundsClipped.Height - 8) / 2);
                 }
@@ -227,7 +221,14 @@ namespace CrazyZone.Pages
 
         public void GameOver()
         {
-            this.IsGameOver = true;
+            this.State = PlayStates.GameOver;
         }
+    }
+
+    public enum PlayStates
+    {
+        Play,
+        GameOver,
+        Quit
     }
 }

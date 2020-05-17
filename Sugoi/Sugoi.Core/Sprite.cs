@@ -120,10 +120,21 @@ namespace Sugoi.Core
             set;
         }
 
+        public int Damage
+        {
+            get;
+            set;
+        }
+
         public int ScrollHeight
         {
             get;
             set;
+        }
+
+        public abstract string TypeName
+        {
+            get;
         }
 
         /// <summary>

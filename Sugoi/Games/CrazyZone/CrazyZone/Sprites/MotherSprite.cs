@@ -24,6 +24,9 @@ namespace CrazyZone.Sprites
         private int frameOpen;
         private int frameBaby;
 
+        private int healthThresold1;
+        private int healthThresold2;
+
         private int flyIndex;
 
         private int health;
@@ -46,6 +49,9 @@ namespace CrazyZone.Sprites
 
             X = x;
             Y = y;
+
+            healthThresold1 = (int)((double)HEALTH * 0.33d);
+            healthThresold2 = (int)((double)HEALTH * 0.66d);
 
             openIndex = 0;
             Initialize();
@@ -79,11 +85,19 @@ namespace CrazyZone.Sprites
             }
         }
 
+        public override string TypeName
+        {
+            get
+            {
+                return nameof(MotherSprite);
+            }
+        }
+
         public override void Collide(ISprite sprite)
         {
             if (this.isTired == false)
             {
-                health--;
+                health -= sprite.Damage;
 
                 if (health <= 0)
                 {
@@ -117,9 +131,9 @@ namespace CrazyZone.Sprites
             this.Width = openMaps[0].Width + (2 * 8); // on ajoute les ailes qui dépassent
             this.Height = openMaps[0].Height;
 
-            this.health = 20;
+            this.health = HEALTH;
 
-            this.InitializeCollision(8 + 3, 8, 16 + 3, 3);
+            this.InitializeCollision(3, 8, 16 + 3, 3);
         }
 
         public override void Updated()
@@ -151,7 +165,7 @@ namespace CrazyZone.Sprites
                 {
                     frameOpen++;
 
-                    if (frameOpen > 10)
+                    if (frameOpen > 100)
                     {
                         // Fermeture 
                         openIndex = 0;
@@ -189,11 +203,11 @@ namespace CrazyZone.Sprites
 
                 // santé
 
-                if (health < (HEALTH * 0.33))
+                if (health < healthThresold1)
                 {
                     tileNose = 151;
                 }
-                else if (health < (HEALTH * 0.66))
+                else if (health < healthThresold2)
                 {
                     tileNose = 176;
                 }

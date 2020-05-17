@@ -31,7 +31,16 @@ namespace CrazyZone.Sprites
             path.AddPath(new EllipticalPath().Initialize(0, 90, 50, 50, -1, 1, 50));
 
             path.AddPath(new HorizontalPath().Initialize(100, 1, 100));
-            path.AddPath(new VerticalPath().Initialize(100, -1, 100));
+            path.AddPath(new EllipticalPath().Initialize(90, -180, 50, 50, 1, 1, 100));
+
+            path.AddPath(new HorizontalPath().Initialize(100, -1, 100));
+            path.AddPath(new EllipticalPath().Initialize(90, 180, 50, 50, 1, 1, 100));
+
+            path.AddPath(new HorizontalPath().Initialize(100, 1, 100));
+            path.AddPath(new EllipticalPath().Initialize(90, -180, 50, 50, 1, 1, 100));
+
+            path.AddPath(new HorizontalPath().Initialize(100, -1, 100));
+            path.AddPath(new EllipticalPath().Initialize(90, 180, 50, 50, 1, 1, 100));
         }
 
         public BabySprite Create(Machine machine, PlayPage page, int x, int y)
@@ -67,6 +76,14 @@ namespace CrazyZone.Sprites
             framePath = 0;
 
             this.InitializeCollision(3);
+        }
+
+        public override string TypeName
+        {
+            get
+            {
+                return nameof(BabySprite);
+            }
         }
 
         public override void Collide(ISprite sprite)
@@ -113,7 +130,7 @@ namespace CrazyZone.Sprites
                 this.IsAlive = false;
             }
 
-            if(Y > screen.BoundsClipped.Bottom + this.Height)
+            if(Y < screen.BoundsClipped.Top - this.Height)
             {
                 this.IsAlive = false;
             }

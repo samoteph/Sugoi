@@ -18,8 +18,13 @@ namespace CrazyZone.Sprites
         private Map[] walkMaps;
         private int opaWalkIndex;
 
-        private Map deathStartMap;
-        private int frameDeathStart;
+        private Map[] deathStarMaps;
+        private int frameDeathStar;
+        private int deathStarIndex;
+
+        private int frameDeathStarThresold0;
+        private int frameDeathStarThresold1;
+
 
         private bool isOpaHorizontalFlipped;
 
@@ -40,14 +45,25 @@ namespace CrazyZone.Sprites
 
             pathDeathStart.Initialize(EasingFunctions.CircularEaseOut, EasingFunctions.Linear, 40, 1, 1, 1, 100);
 
+            frameDeathStarThresold0 = (int)((double)pathDeathStart.MaximumFrame * 0.4d);
+            frameDeathStarThresold1 = (int)((double)pathDeathStart.MaximumFrame * 0.8d);
+
             tiles = AssetStore.Tiles;
             flightMaps = AssetStore.OpaFlightMaps;
             walkMaps = AssetStore.OpaWalkMaps;
-            deathStartMap = AssetStore.DeathStarMap;
+            deathStarMaps = AssetStore.DeathStarMaps;
 
             isOpaHorizontalFlipped = true;
 
             Initialize();
+        }
+
+        public override string TypeName
+        {
+            get
+            {
+                return nameof(OpaSprite);
+            }
         }
 
         public override bool CanCollide
@@ -127,7 +143,7 @@ namespace CrazyZone.Sprites
 
             frameAmmo = 0;
             frameBomb = 0;
-            frameDeathStart = 0;
+            frameDeathStar = 0;
 
             var widthScroll = (screen.BoundsClipped.Width * 1) / 3;
             var xScroll = (screen.BoundsClipped.Width - widthScroll) / 2;
@@ -136,6 +152,8 @@ namespace CrazyZone.Sprites
 
             this.Width = flightMaps[0].Width;
             this.Height = flightMaps[0].Height;
+
+            deathStarIndex = 0;
 
             this.InitializeCollision(3);
         }
@@ -316,10 +334,24 @@ namespace CrazyZone.Sprites
 
             if (this.IsDying == true)
             {
-                if (frameDeathStart <= pathDeathStart.MaximumFrame)
+                if (frameDeathStar <= pathDeathStart.MaximumFrame)
                 {
+                    // seuil de changement d'apparence selon l'avancement dans le temps
+                    if(frameDeathStar < frameDeathStarThresold0)
+                    {
+                        deathStarIndex = 0;
+                    }
+                    else if(frameDeathStar < frameDeathStarThresold1 )
+                    {
+                        deathStarIndex = 1;
+                    }
+                    else
+                    {
+                        deathStarIndex = 2;
+                    }
+
                     // explosion avant la mort
-                    pathDeathStart.GetPosition(frameDeathStart, out var offsetX, out var offsetY);
+                    pathDeathStart.GetPosition(frameDeathStar, out var offsetX, out var offsetY);
 
                     double currentOffsetX;
 
@@ -336,11 +368,18 @@ namespace CrazyZone.Sprites
                             var x = X + (int)(currentOffsetX * Math.Cos(a * step));
                             var y = Y + (int)(currentOffsetX * Math.Sin(a * step));
 
-                            screen.DrawSpriteMap(deathStartMap, x, y, false, false);
+                            if (deathStarIndex == 2)
+                            {
+                                screen.DrawSpriteMap(deathStarMaps[deathStarIndex], x + 4, y + 4, false, false);
+                            }
+                            else
+                            {
+                                screen.DrawSpriteMap(deathStarMaps[deathStarIndex], x, y, false, false);
+                            }
                         }
                     }
                 }
-                else if( frameDeathStart > pathDeathStart.MaximumFrame + 10)
+                else if( frameDeathStar > pathDeathStart.MaximumFrame + 10)
                 {
                     this.IsDying = false;
                     this.IsAlive = false;
@@ -348,7 +387,7 @@ namespace CrazyZone.Sprites
                     page.GameOver();
                 }
 
-                frameDeathStart += frameExecuted;
+                frameDeathStar += frameExecuted;
             }
             else
             {

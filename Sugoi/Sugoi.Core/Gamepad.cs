@@ -120,8 +120,15 @@ namespace Sugoi.Core
             return false;
         }
 
+        public void Release()
+        {
+            for (int i = 0; i < gamePadKeyValues.Length; i++)
+            {
+                gamePadKeyValues[i] = false;
+            }
+        }
 
-        public void Release(GamepadKeys key)
+            public void Release(GamepadKeys key)
         {
             gamePadKeyValues[(int)key] = false;
         }

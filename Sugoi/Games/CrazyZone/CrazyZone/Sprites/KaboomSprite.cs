@@ -28,6 +28,14 @@ namespace CrazyZone.Sprites
             private set;
         }
 
+        public override string TypeName
+        {
+            get
+            {
+                return nameof(KaboomSprite);
+            }
+        }
+
         public KaboomSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;

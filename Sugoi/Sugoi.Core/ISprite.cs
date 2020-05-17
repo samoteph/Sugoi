@@ -6,7 +6,18 @@ namespace Sugoi.Core
 {
     public interface ISprite
     {
+        string TypeName
+        {
+            get;
+        }
+
         bool IsAlive
+        {
+            get;
+            set;
+        }
+
+        int Damage
         {
             get;
             set;

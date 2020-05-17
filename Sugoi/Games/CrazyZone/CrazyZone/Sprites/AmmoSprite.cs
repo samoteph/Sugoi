@@ -37,6 +37,14 @@ namespace CrazyZone.Sprites
             private set;
         }
 
+        public override string TypeName
+        {
+            get
+            {
+                return nameof(AmmoSprite);
+            }
+        }
+
         public override void Collide(ISprite collider)
         {
             this.IsAlive = false;
@@ -61,6 +69,8 @@ namespace CrazyZone.Sprites
         public override void Initialize()
         {
             this.IsAlive = true;
+
+            this.Damage = 1;
 
             this.IsFiring = false;
             this.Width = 8;

@@ -99,6 +99,10 @@ namespace Sugoi.Console.Controls
         {
             haveFocus = true;
             this.Focus(FocusState.Programmatic);
+
+            // nettoyage au cas ou une touche n'aurait pas été relevée après le départ du controle
+            this.gamepad.Release();
+
             System.Diagnostics.Debug.WriteLine("SUGOI GotFocus");
         }
 

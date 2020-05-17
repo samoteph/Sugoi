@@ -36,6 +36,14 @@ namespace CrazyZone.Sprites
             return this;
         }
 
+        public override bool CanCollide
+        {
+            get
+            {
+                return this.IsExploding == false;
+            }
+        }
+
         public int Direction
         {
             get;
@@ -54,9 +62,24 @@ namespace CrazyZone.Sprites
             private set;
         }
 
+        public override string TypeName
+        {
+            get
+            {
+                return nameof(BombSprite);
+            }
+        }
+
         public override void Collide(ISprite collider)
         {
-            this.IsExploding = true;
+            if (collider.TypeName == nameof(MotherSprite))
+            {
+                this.IsExploding = true;
+            }
+            else
+            {
+                this.IsAlive = false;
+            }
         }
 
         public void Fire(int x, int y, int direction)
@@ -87,6 +110,8 @@ namespace CrazyZone.Sprites
             this.IsExploding = false;
             this.frameExploding = 0;
             this.IsFiring = false;
+
+            this.Damage = 10;
 
             this.Width = 8;
             this.Height = 8;

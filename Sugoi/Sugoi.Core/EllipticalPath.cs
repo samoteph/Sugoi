@@ -9,6 +9,9 @@ namespace Sugoi.Core
         private double rayX;
         private double rayY;
 
+        private double startX;
+        private double startY;
+
         private double totalRadian;
         private double startRadian;
 
@@ -26,6 +29,11 @@ namespace Sugoi.Core
             this.rayX = width / 2;
             this.rayY = height / 2;
 
+            var rad = startRadian;
+
+            this.startX = Math.Cos(rad) * rayX;
+            this.startY = Math.Sin(rad) * rayY;
+
             return this;
         }
 
@@ -33,8 +41,8 @@ namespace Sugoi.Core
         {
             var rad = (totalRadian * (double)currentFrame / (double)MaximumFrame) + startRadian;
 
-            offsetX = (int)((Math.Cos(rad) * rayX) - rayX) * DirectionX;
-            offsetY = (int)((Math.Sin(rad) * rayY)) * DirectionY;
+            offsetX = (int)((Math.Cos(rad) * rayX) - startX) * DirectionX;
+            offsetY = (int)((Math.Sin(rad) * rayY) - startY) * DirectionY;
         }
     }
 }
