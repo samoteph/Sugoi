@@ -94,8 +94,13 @@ namespace CrazyZone.Sprites
             originalY = Y;
 
             var width = 65 + machine.GetRandomInteger(-5, 5);
+            // pas d'allocation mémoire ici, juste des affectations de variables
             path.Initialize(EasingFunctions.QuadraticEaseOut, EasingFunctions.CircularEaseIn, width, machine.Screen.BoundsClipped.Height + Height, 1,1, 60);
         }
+
+        /// <summary>
+        /// Initialisation
+        /// </summary>
 
         public override void Initialize()
         {

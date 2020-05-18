@@ -6,7 +6,7 @@ using System.Text;
 
 namespace CrazyZone.Sprites
 {
-    public class BabySprite : Sprite
+    public class DuckSprite : Sprite
     {
         private PlayPage page;
         private Machine machine;
@@ -22,54 +22,40 @@ namespace CrazyZone.Sprites
         private int originalX = 0;
         private int originalY = 0;
 
-        private static int directionThresold1;
-        private static int directionThresold2;
-        private static int directionThresold3;
-        private static int directionThresold4;
-
         static GroupPath path = new GroupPath();
 
-        static BabySprite()
+        static DuckSprite()
         {
-            path.AddPath(new VerticalPath().Initialize(20, 1, 100));
+            path.AddPath(new HorizontalPath().Initialize(100, -1, 100));
 
-            path.AddPath(new EllipticalPath().Initialize(0, 90, 50, 50, -1, 1, 50));
-
-            path.AddPath(new HorizontalPath().Initialize(100, 1, 100));
-
-            path.AddPath(new EllipticalPath().Initialize(90, -180, 50, 50, 1, 1, 100));
-
-            directionThresold1 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath
+            path.AddPath(new EllipticalPath().Initialize(0, 180, 25, 25, 1, 1, 25));
+            path.AddPath(new EllipticalPath().Initialize(0, 180, 25, 25, 1, -1, 25));
 
             path.AddPath(new HorizontalPath().Initialize(100, -1, 100));
-            path.AddPath(new EllipticalPath().Initialize(90, 180, 50, 50, 1, 1, 100));
 
-            directionThresold2 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath
-
-            path.AddPath(new HorizontalPath().Initialize(100, 1, 100));
-            path.AddPath(new EllipticalPath().Initialize(90, -180, 50, 50, 1, 1, 100));
-
-            directionThresold3 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath
+            path.AddPath(new EllipticalPath().Initialize(0, 180, 25, 25, 1, 1, 25));
+            path.AddPath(new EllipticalPath().Initialize(0, 180, 25, 25, 1, -1, 25));
 
             path.AddPath(new HorizontalPath().Initialize(100, -1, 100));
-            path.AddPath(new EllipticalPath().Initialize(90, 180, 50, 50, 1, 1, 100));
-        
-            directionThresold4 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath  
+            path.AddPath(new EllipticalPath().Initialize(0, 180, 25, 25, 1, 1, 25));
+
+            path.AddPath(new VerticalPath().Initialize(300, -1, 300));
+
         }
 
-        public BabySprite Create(Machine machine, PlayPage page)
+        public DuckSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
 
             this.page = page;
             tiles = AssetStore.Tiles;
-            walkMaps = AssetStore.BabyMaps;
+            walkMaps = AssetStore.DuckMaps;
             walkIndex = 0;
 
             this.ScrollWidth = page.ScrollWidth;
 
-            this.Width = 16;
-            this.Height = 16;
+            this.Width = 8;
+            this.Height = 8;
 
             this.InitializeCollision(3);
 
@@ -79,16 +65,13 @@ namespace CrazyZone.Sprites
         public override void Initialize()
         {
             framePath = 0;
-
-            // pas besoin
-            //isHorizontalFlipped = true;
         }
 
         public override string TypeName
         {
             get
             {
-                return nameof(BabySprite);
+                return nameof(DuckSprite);
             }
         }
 
@@ -98,15 +81,15 @@ namespace CrazyZone.Sprites
         /// <param name="x"></param>
         /// <param name="y"></param>
 
-        public void Born(int x, int y)
+        public void Born(int y)
         {
             this.IsAlive = true;
 
-            this.X = x;
+            this.X = (int)page.ScrollX + this.machine.Screen.BoundsClipped.Width + Width;
             this.Y = y;
 
             this.originalY = y;
-            this.originalX = x;
+            this.originalX = X;
         }
 
         public override void Collide(ISprite sprite)
@@ -146,23 +129,6 @@ namespace CrazyZone.Sprites
                 X = originalX + offsetX;
                 Y = originalY + offsetY;
 
-                if(framePath < directionThresold1 )
-                {
-                    isHorizontalFlipped = true;
-                }
-                else if( framePath < directionThresold2)
-                {
-                    isHorizontalFlipped = false;
-                }
-                else if (framePath < directionThresold3)
-                {
-                    isHorizontalFlipped = true;
-                }
-                else
-                {
-                    isHorizontalFlipped = false;
-                }
-
                 framePath++;
             }
             else
@@ -170,7 +136,7 @@ namespace CrazyZone.Sprites
                 this.IsAlive = false;
             }
 
-            if(Y < screen.BoundsClipped.Top - this.Height)
+            if (X < screen.BoundsClipped.Left - this.Width)
             {
                 this.IsAlive = false;
             }

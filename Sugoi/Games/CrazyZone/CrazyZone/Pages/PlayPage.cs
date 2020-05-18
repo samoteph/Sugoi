@@ -16,6 +16,7 @@ namespace CrazyZone.Pages
         private float scrollX;
 
         private int frameGameOver = 0;
+        private int frameDucks = 0;
 
         private OpaSprite opa;
 
@@ -24,6 +25,7 @@ namespace CrazyZone.Pages
         private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
         private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(10);
         private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(100);
+        private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(10);
 
         public PlayStates State
         {
@@ -93,6 +95,8 @@ namespace CrazyZone.Pages
             this.machine.Frame = 0;
 
             frameGameOver = 0;
+            frameDucks = 0;
+
             scrollX = 0;
 
             this.maps = AssetStore.ParallaxMaps;
@@ -105,6 +109,7 @@ namespace CrazyZone.Pages
             this.ammos.Create( ammo => ammo.Create(machine));
             this.bombs.Create(bomb => bomb.Create(machine, this));
             this.kabooms.Create(kaboom => kaboom.Create(machine, this));
+            this.ducks.Create(duck => duck.Create(machine, this));
 
             this.mothers.GetFreeSprite().SetPosition( 0, 0);
             this.mothers.GetFreeSprite().SetPosition( 210, 100);
@@ -133,6 +138,20 @@ namespace CrazyZone.Pages
                     scrollX += opa.Speed;
                 }
 
+                if(frameDucks > (60 * 3) )
+                {
+                    frameDucks = 0;
+
+                    for (int y = 0; y < 3; y++)
+                    {
+                        this.ducks.GetFreeSprite().Born(y * 50);
+                    }
+                }
+                else
+                {
+                    frameDucks++;
+                }
+
                 mothers.SetScroll((int)-scrollX, 0);
 
                 opa.Updated();
@@ -147,6 +166,9 @@ namespace CrazyZone.Pages
                 babies.SetScroll((int)-scrollX, 0);
                 babies.Updated();
 
+                ducks.SetScroll((int)-scrollX, 0);
+                ducks.Updated();
+
                 kabooms.SetScroll((int)-scrollX, 0);
                 kabooms.Updated();
 
@@ -155,12 +177,14 @@ namespace CrazyZone.Pages
 
                 ammos.CheckCollision(mothers, CollisionStrategies.RectIntersect);
                 ammos.CheckCollision(babies, CollisionStrategies.RectIntersect);
+                ammos.CheckCollision(ducks, CollisionStrategies.RectIntersect);
 
                 bombs.CheckCollision(mothers, CollisionStrategies.RectIntersect);
                 bombs.CheckCollision(babies, CollisionStrategies.RectIntersect);
+                bombs.CheckCollision(ducks, CollisionStrategies.RectIntersect);
             }
 
-            switch(State)
+            switch (State)
             {
                 case PlayStates.GameOver:
                     if (frameGameOver > 60 * 5)
@@ -195,6 +219,7 @@ namespace CrazyZone.Pages
                 screen.DrawScrollMap(maps[4], true, (int)(-scrollX * 1.50), 0, 0, screen.Height - maps[4].Height, 320, 136);
 
                 ammos.Draw(frameExecuted);
+                ducks.Draw(frameExecuted);
                 babies.Draw(frameExecuted);
                 mothers.Draw(frameExecuted);
                 kabooms.Draw(frameExecuted);
