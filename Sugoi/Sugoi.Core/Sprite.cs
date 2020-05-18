@@ -137,6 +137,12 @@ namespace Sugoi.Core
             get;
         }
 
+        public void SetPosition(int x, int y)
+        {
+            this.X = x;
+            this.Y = y;
+        }
+
         /// <summary>
         /// A effectué après changement de X,Y,ScrollWidth,ScrollHeight,ScrollX,ScrollY pour recalculer XScrolled et YScrolled
         /// </summary>

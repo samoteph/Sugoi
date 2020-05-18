@@ -27,10 +27,10 @@ namespace Sugoi.Core
         }
 
         /// <summary>
-        /// Obtenir un sprite disponible (mort)
+        /// Obtenir un sprite disponible (mort). Le sprite est initialisé automatiquement
         /// </summary>
 
-        public TSprite GetSprite()
+        public TSprite GetFreeSprite()
         {
             var index = this.SearchDeadSpriteIndex(this.CurrentIndex);
 
@@ -41,7 +41,11 @@ namespace Sugoi.Core
             else
             {
                 this.CurrentIndex = index;
-                return this.sprites[index];
+                var sprite = this.sprites[index];
+
+                sprite.Initialize();
+                
+                return sprite;
             }
         }
 
@@ -119,7 +123,7 @@ namespace Sugoi.Core
             }
         }
 
-        public void Reset()
+        public void Create( Action<TSprite> spriteCreate = null)
         {
             this.CurrentIndex = 0;
 
@@ -128,6 +132,8 @@ namespace Sugoi.Core
                 var sprite = this.sprites[i];
 
                 sprite.IsAlive = false;
+
+                spriteCreate?.Invoke(sprite);
             }
         }
 

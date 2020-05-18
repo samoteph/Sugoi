@@ -22,6 +22,11 @@ namespace CrazyZone.Sprites
         private int originalX = 0;
         private int originalY = 0;
 
+        private static int directionThresold1;
+        private static int directionThresold2;
+        private static int directionThresold3;
+        private static int directionThresold4;
+
         static GroupPath path = new GroupPath();
 
         static BabySprite()
@@ -31,51 +36,54 @@ namespace CrazyZone.Sprites
             path.AddPath(new EllipticalPath().Initialize(0, 90, 50, 50, -1, 1, 50));
 
             path.AddPath(new HorizontalPath().Initialize(100, 1, 100));
+
             path.AddPath(new EllipticalPath().Initialize(90, -180, 50, 50, 1, 1, 100));
+
+            directionThresold1 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath
 
             path.AddPath(new HorizontalPath().Initialize(100, -1, 100));
             path.AddPath(new EllipticalPath().Initialize(90, 180, 50, 50, 1, 1, 100));
+
+            directionThresold2 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath
 
             path.AddPath(new HorizontalPath().Initialize(100, 1, 100));
             path.AddPath(new EllipticalPath().Initialize(90, -180, 50, 50, 1, 1, 100));
 
+            directionThresold3 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath
+
             path.AddPath(new HorizontalPath().Initialize(100, -1, 100));
             path.AddPath(new EllipticalPath().Initialize(90, 180, 50, 50, 1, 1, 100));
+        
+            directionThresold4 = path.MaximumFrame - 50; // correspond à la moitié des frames de l'ellipticalPath  
         }
 
-        public BabySprite Create(Machine machine, PlayPage page, int x, int y)
+        public BabySprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
-
-            this.IsAlive = true;
 
             this.page = page;
             tiles = AssetStore.Tiles;
             walkMaps = AssetStore.BabyMaps;
             walkIndex = 0;
 
-            isHorizontalFlipped = true;
-
             this.ScrollWidth = page.ScrollWidth;
-            this.X = x;
-            this.Y = y;
-
-            this.originalY = y;
-            this.originalX = x;
 
             Initialize();
+
+            this.Width = 16;
+            this.Height = 16;
+
+            this.InitializeCollision(3);
 
             return this;
         }
 
         public override void Initialize()
         {
-            this.Width = 16;
-            this.Height = 16;
-
             framePath = 0;
 
-            this.InitializeCollision(3);
+            // pas besoin
+            //isHorizontalFlipped = true;
         }
 
         public override string TypeName
@@ -86,11 +94,28 @@ namespace CrazyZone.Sprites
             }
         }
 
+        /// <summary>
+        /// Naissance du bébé
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+
+        public void Born(int x, int y)
+        {
+            this.IsAlive = true;
+
+            this.X = x;
+            this.Y = y;
+
+            this.originalY = y;
+            this.originalX = x;
+        }
+
         public override void Collide(ISprite sprite)
         {
             this.IsAlive = false;
 
-            this.page.Kabooms.GetSprite()
+            this.page.Kabooms.GetFreeSprite()
                 .Create(this.machine, this.page)
                 .Explode(this.X + 8, this.Y + 8);
         }
@@ -123,6 +148,23 @@ namespace CrazyZone.Sprites
                 X = originalX + offsetX;
                 Y = originalY + offsetY;
 
+                if(framePath < directionThresold1 )
+                {
+                    isHorizontalFlipped = true;
+                }
+                else if( framePath < directionThresold2)
+                {
+                    isHorizontalFlipped = false;
+                }
+                else if (framePath < directionThresold3)
+                {
+                    isHorizontalFlipped = true;
+                }
+                else
+                {
+                    isHorizontalFlipped = false;
+                }
+
                 framePath++;
             }
             else
@@ -147,7 +189,7 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            screen.DrawSpriteMap(walkMaps[walkIndex], XScrolled, YScrolled);
+            screen.DrawSpriteMap(walkMaps[walkIndex], XScrolled, YScrolled, isHorizontalFlipped, false);
         }
     }
 }

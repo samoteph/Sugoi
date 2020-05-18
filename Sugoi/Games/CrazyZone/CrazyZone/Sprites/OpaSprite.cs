@@ -229,9 +229,7 @@ namespace CrazyZone.Sprites
                     frameAmmo = 0;
                     CanFireAmmo = false;
 
-                    page.Ammos.GetSprite()
-                        .Create(machine)
-                        .Fire(X, Y, Direction);
+                    page.Ammos.GetFreeSprite().Fire(X, Y, Direction);
                 }
 
                 // On largue une bombe !
@@ -240,9 +238,7 @@ namespace CrazyZone.Sprites
                     frameBomb = 0;
                     CanFireBomb = false;
 
-                    page.Bombs.GetSprite()
-                        .Create(machine, page.ScrollWidth)
-                        .Fire(X + (Width / 2) + (int)page.ScrollX, Y + 8, Direction);
+                    page.Bombs.GetFreeSprite().Fire(X + (Width / 2) + (int)page.ScrollX, Y + 8, Direction);
                 }
 
                 /// Bornes

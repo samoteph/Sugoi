@@ -100,17 +100,15 @@ namespace CrazyZone.Pages
 
             this.opa.Initialize();
 
-            this.babies.Reset();
-            this.mothers.Reset();
-            this.ammos.Reset();
-            this.bombs.Reset();
-            this.kabooms.Reset();
+            this.babies.Create(baby => baby.Create(machine, this));
+            this.mothers.Create(mother => mother.Create(machine, this));
+            this.ammos.Create( ammo => ammo.Create(machine));
+            this.bombs.Create(bomb => bomb.Create(machine, this));
+            this.kabooms.Create(kaboom => kaboom.Create(machine, this));
 
-            var scrollWidth = this.maps[0].Width;
-
-            this.mothers.GetSprite().Create(machine, this,  0, 0);
-            this.mothers.GetSprite().Create(machine, this, 210, 100);
-            this.mothers.GetSprite().Create(machine, this, 310, 80);
+            this.mothers.GetFreeSprite().SetPosition( 0, 0);
+            this.mothers.GetFreeSprite().SetPosition( 210, 100);
+            this.mothers.GetFreeSprite().SetPosition( 310, 80);
         }
 
         /// <summary>

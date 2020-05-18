@@ -35,7 +35,7 @@ namespace CrazyZone.Sprites
 
         private bool isTired = false;
 
-        public MotherSprite Create(Machine machine, PlayPage page, int x, int y)
+        public MotherSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
             this.page = page;
@@ -47,15 +47,10 @@ namespace CrazyZone.Sprites
 
             this.ScrollWidth = page.ScrollWidth;
 
-            X = x;
-            Y = y;
-
             healthThresold1 = (int)((double)HEALTH * 0.33d);
             healthThresold2 = (int)((double)HEALTH * 0.66d);
 
-            openIndex = 0;
-            Initialize();
-            
+            openIndex = 0;            
             return this;
         }
 
@@ -103,15 +98,15 @@ namespace CrazyZone.Sprites
                 {
                     this.isTired = true;
 
-                    this.page.Kabooms.GetSprite()
+                    this.page.Kabooms.GetFreeSprite()
                         .Create(this.machine, this.page)
                         .Explode(this.X, this.Y+ 8, true);
 
-                    this.page.Kabooms.GetSprite()
+                    this.page.Kabooms.GetFreeSprite()
                         .Create(this.machine, this.page)
                         .Explode(this.X + 24, this.Y + 8, true);
 
-                    this.page.Kabooms.GetSprite()
+                    this.page.Kabooms.GetFreeSprite()
                         .Create(this.machine, this.page)
                         .Explode(this.X + 16, this.Y + 16, true);
 
@@ -178,7 +173,7 @@ namespace CrazyZone.Sprites
                         if(frameOpen == 1)
                         {
                             // lancement du bébé
-                            page.Babies.GetSprite().Create(machine, page, X + (this.Width / 2) - 16, Y + (Height / 2) - 8);
+                            page.Babies.GetFreeSprite().Born(X + (this.Width / 2) - 16, Y + (Height / 2) - 8);
                         }
 
                         openIndex = 1;

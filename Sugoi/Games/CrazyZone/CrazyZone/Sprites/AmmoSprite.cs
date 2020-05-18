@@ -12,19 +12,6 @@ namespace CrazyZone.Sprites
 
         private bool isHorizontalFlipped;
 
-        public AmmoSprite Create(Machine machine)
-        {
-            this.machine = machine;
-
-            tiles = AssetStore.Tiles;
- 
-            isHorizontalFlipped = true;
-
-            Initialize();
-
-            return this;
-        }
-
         public int Direction
         {
             get;
@@ -45,6 +32,20 @@ namespace CrazyZone.Sprites
             }
         }
 
+        public AmmoSprite Create(Machine machine)
+        {
+            this.machine = machine;
+
+            tiles = AssetStore.Tiles;
+
+            this.Width = 8;
+            this.Height = 8;
+
+            this.InitializeCollision(0);
+
+            return this;
+        }
+
         public override void Collide(ISprite collider)
         {
             this.IsAlive = false;
@@ -52,14 +53,10 @@ namespace CrazyZone.Sprites
 
         public void Fire(int x, int y, int direction)
         {
-            if(this.IsAlive == false)
-            {
-                return;
-            }
-
             if (IsFiring == true) return;
 
             IsFiring = true;
+            this.IsAlive = true;
 
             this.Direction = direction;
             this.X = x;
@@ -68,15 +65,10 @@ namespace CrazyZone.Sprites
 
         public override void Initialize()
         {
-            this.IsAlive = true;
-
+            isHorizontalFlipped = true;
             this.Damage = 1;
 
             this.IsFiring = false;
-            this.Width = 8;
-            this.Height = 8;
-
-            this.InitializeCollision(0);
         }
 
         public override void Updated()

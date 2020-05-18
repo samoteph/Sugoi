@@ -47,8 +47,6 @@ namespace CrazyZone.Sprites
             this.Width = 8;
             this.Height = 8;
 
-            Initialize();
-
             return this;
         }
 
@@ -60,17 +58,15 @@ namespace CrazyZone.Sprites
 
         public void Explode(int xCenter, int yCenter, bool isSlow = false)
         {
-            if (this.IsAlive == false)
-            {
-                return;
-            }
-
             if(this.IsExploding == true)
             {
                 return;
             }
 
-            if(isSlow == false)
+            this.IsExploding = true;
+            this.IsAlive = true;
+
+            if (isSlow == false)
             {
                 frameMaxKaboom = 8;
             }
@@ -79,15 +75,12 @@ namespace CrazyZone.Sprites
                 frameMaxKaboom = 15;
             }
 
-            this.IsExploding = true;
-
             this.xCenter = xCenter;
             this.yCenter = yCenter;
         }
 
         public override void Initialize()
         {
-            this.IsAlive = true;
             this.indexKaboom = 0;
             IsExploding = false;
         }

@@ -1,4 +1,5 @@
-﻿using Sugoi.Core;
+﻿using CrazyZone.Pages;
+using Sugoi.Core;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -21,17 +22,13 @@ namespace CrazyZone.Sprites
         private int easingFrame;
         private EasingPath path = new EasingPath();
 
-        public BombSprite Create(Machine machine, int scrollWidth)
+        public BombSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
 
             tiles = AssetStore.Tiles;
 
-            isHorizontalFlipped = true;
-
-            this.ScrollWidth = scrollWidth;
-
-            Initialize();
+            this.ScrollWidth = page.ScrollWidth;
 
             return this;
         }
@@ -84,13 +81,9 @@ namespace CrazyZone.Sprites
 
         public void Fire(int x, int y, int direction)
         {
-            if (this.IsAlive == false)
-            {
-                return;
-            }
-
             if (IsFiring == true) return;
 
+            this.IsAlive = true;
             IsFiring = true;
 
             this.Direction = direction;
@@ -106,10 +99,10 @@ namespace CrazyZone.Sprites
 
         public override void Initialize()
         {
-            this.IsAlive = true;
             this.IsExploding = false;
             this.frameExploding = 0;
             this.IsFiring = false;
+            isHorizontalFlipped = true;
 
             this.Damage = 10;
 
