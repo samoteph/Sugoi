@@ -224,21 +224,26 @@ namespace CrazyZone.Sprites
                 }
 
                 // On tire !
-                if (CanFireAmmo == true && gamepad.IsPressed(GamepadKeys.ButtonA))
+                if (gamepad.IsPressed(GamepadKeys.ButtonA))
                 {
-                    frameAmmo = 0;
-                    CanFireAmmo = false;
+                    if (CanFireAmmo)
+                    {
+                        frameAmmo = 0;
+                        CanFireAmmo = false;
 
-                    page.Ammos.GetFreeSprite().Fire(X, Y, Direction);
+                        page.Ammos.GetFreeSprite().Fire(X, Y, Direction);
+                    }
                 }
-
-                // On largue une bombe !
-                if (CanFireBomb == true && gamepad.IsPressed(GamepadKeys.ButtonB))
+                else if (gamepad.IsPressed(GamepadKeys.ButtonB))
                 {
-                    frameBomb = 0;
-                    CanFireBomb = false;
+                    if (CanFireBomb)
+                    {
+                        // On largue une bombe !
+                        frameBomb = 0;
+                        CanFireBomb = false;
 
-                    page.Bombs.GetFreeSprite().Fire(X + (Width / 2) + (int)page.ScrollX, Y + 8, Direction);
+                        page.Bombs.GetFreeSprite().Fire(X + (Width / 2) + (int)page.ScrollX, Y + 8, Direction);
+                    }
                 }
 
                 /// Bornes

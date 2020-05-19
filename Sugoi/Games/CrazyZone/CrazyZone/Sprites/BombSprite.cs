@@ -10,6 +10,7 @@ namespace CrazyZone.Sprites
     public class BombSprite : Sprite
     {
         private Machine machine;
+        private PlayPage page;
         private SurfaceTileSheet tiles;
 
         private bool isHorizontalFlipped;
@@ -25,6 +26,7 @@ namespace CrazyZone.Sprites
         public BombSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
+            this.page = page;
 
             tiles = AssetStore.Tiles;
 
@@ -70,6 +72,11 @@ namespace CrazyZone.Sprites
         public override void Collide(ISprite collider)
         {
             this.IsExploding = true;
+
+            if (collider.TypeName != nameof(MotherSprite))
+            {
+                page.AddBonusScore(4);
+            }
         }
 
         public void Fire(int x, int y, int direction)

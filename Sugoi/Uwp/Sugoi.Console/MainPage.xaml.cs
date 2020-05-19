@@ -33,7 +33,13 @@ namespace Sugoi.Console
         {
             this.InitializeComponent();
             this.SugoiControl.Loaded += OnSugoiLoaded;
-                
+
+            Window.Current.CoreWindow.Activated += CoreWindow_Activated;
+        }
+
+        private void CoreWindow_Activated(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.WindowActivatedEventArgs args)
+        {
+            this.SugoiControl.Focus(FocusState.Programmatic);
         }
 
         /// <summary>
@@ -42,9 +48,9 @@ namespace Sugoi.Console
         /// <param name="sender"></param>
         /// <param name="e"></param>
 
-        private void OnSugoiLoaded(object sender, RoutedEventArgs e)
+        private async void OnSugoiLoaded(object sender, RoutedEventArgs e)
         {
-            this.SugoiControl.Start(new CrazyZoneCartridge());
+            await this.SugoiControl.StartAsync(new CrazyZoneCartridge());
         }
     }
 }

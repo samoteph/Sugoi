@@ -104,6 +104,8 @@ namespace CrazyZone.Sprites
                 {
                     this.isTired = true;
 
+                    this.page.AddBonusScore(20);
+
                     this.Kaboom();
 
                 }

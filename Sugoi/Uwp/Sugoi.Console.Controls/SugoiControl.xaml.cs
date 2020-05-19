@@ -5,6 +5,9 @@ using Sugoi.Core.IO;
 using System;
 using System.Collections;
 using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
+using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
@@ -35,13 +38,26 @@ namespace Sugoi.Console.Controls
 
         IEnumerator updateEnumerator = null;
 
-        public void Start(Cartridge cartridge)
+        public async Task StartAsync(Cartridge cartridge)
         {
             if (this.machine.IsStarted == false)
             {
                 cartridge.Load();
 
-                this.machine.Start(cartridge);
+                // callback de Ram avec battery (appelé dans le Start de la machine)
+                this.machine.ReadBatteryRamCallback = () =>
+                {
+                    return this.ReadBatteryRamAsync();
+                };
+
+                this.machine.WriteBatteryRamCallback = (memory) =>
+                {
+                    return this.WriteBatteryRamAsync(memory);
+                };
+
+                // Lancement de la console
+                await this.machine.StartAsync(cartridge);
+
                 this.cartridge = this.machine.Cartridge;
                 this.screen = this.machine.Screen;
                 this.videoMemory = this.machine.VideoMemory;
@@ -87,6 +103,64 @@ namespace Sugoi.Console.Controls
                 this.GotFocus += OnSugoiGotFocus;
                 this.LostFocus += OnSugoiLostFocus;
             }
+        }
+
+        private async Task<bool> WriteBatteryRamAsync(byte[] memory)
+        {
+            try
+            {
+                StorageFolder storageFolder =ApplicationData.Current.LocalFolder;
+
+                var storageFile = await storageFolder.CreateFileAsync("BatteryRam.bin", CreationCollisionOption.OpenIfExists);
+
+                using (var fileStream = await storageFile.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    using (var stream = new BinaryWriter(fileStream.AsStream()))
+                    {
+                        stream.BaseStream.Position = 0;
+
+                        stream.Write(memory);
+
+                        stream.Close();
+
+                        return true;
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+                return false;
+            }
+        }
+
+        private async Task<byte[]> ReadBatteryRamAsync()
+        {
+            try
+            {
+                StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+
+                StorageFile file = (StorageFile) await storageFolder.TryGetItemAsync("BatteryRam.bin");
+
+                if (file != null)
+                {
+                    using (var fileStream = await file.OpenReadAsync())
+                    {
+                        using (var stream = new BinaryReader(fileStream.AsStream()))
+                        {
+                            var memory = stream.ReadBytes(machine.BatteryRamSize);
+
+                            stream.Close();
+
+                            return memory;
+                        }
+                    }
+                }
+            }
+            catch(Exception ex)
+            {
+            }
+
+            return null;
         }
 
         private void OnSugoiLostFocus(object sender, RoutedEventArgs e)

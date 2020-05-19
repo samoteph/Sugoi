@@ -1,4 +1,5 @@
-﻿using Sugoi.Core;
+﻿using CrazyZone.Pages;
+using Sugoi.Core;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -8,6 +9,8 @@ namespace CrazyZone.Sprites
     public class AmmoSprite : Sprite
     {
         private Machine machine;
+        private PlayPage page;
+
         private SurfaceTileSheet tiles;
 
         private bool isHorizontalFlipped;
@@ -32,9 +35,10 @@ namespace CrazyZone.Sprites
             }
         }
 
-        public AmmoSprite Create(Machine machine)
+        public AmmoSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
+            this.page = page;
 
             tiles = AssetStore.Tiles;
 
@@ -49,6 +53,11 @@ namespace CrazyZone.Sprites
         public override void Collide(ISprite collider)
         {
             this.IsAlive = false;
+
+            if (collider.TypeName != nameof(MotherSprite))
+            {
+                page.AddBonusScore(1);
+            }
         }
 
         public void Fire(int x, int y, int direction)

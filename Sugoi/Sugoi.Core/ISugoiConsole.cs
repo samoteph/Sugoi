@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Sugoi.Core
 {
@@ -16,7 +17,7 @@ namespace Sugoi.Core
         /// </summary>
         /// <param name="cartridge"></param>
 
-        void Start(Cartridge cartridge);
+        Task StartAsync(Cartridge cartridge);
         
         /// <summary>
         /// Arret de la console

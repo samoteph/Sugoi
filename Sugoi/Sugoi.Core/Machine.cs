@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Sugoi.Core
 {
@@ -12,6 +13,12 @@ namespace Sugoi.Core
     {
         private VideoMemory videoMemory;
         private Screen screen;
+
+        public BatteryRam BatteryRam
+        {
+            get;
+            private set;
+        }
 
         public VideoMemory VideoMemory
         {
@@ -51,6 +58,7 @@ namespace Sugoi.Core
         {
             this.Gamepad = new Gamepad();
             this.videoMemory = new VideoMemory();
+            this.BatteryRam = new BatteryRam();
         }
 
         public bool IsStarted
@@ -59,7 +67,7 @@ namespace Sugoi.Core
             private set;
         }
 
-        public void Start(Cartridge cartridge)
+        public async Task StartAsync(Cartridge cartridge)
         {
             if (this.IsStarted == true)
             {
@@ -84,6 +92,9 @@ namespace Sugoi.Core
                 this);
 
             this.Gamepad.Start(this);
+
+            // demarrage de la Ram avec battery
+            await this.BatteryRam.StartAsync(this);
 
             // Permmet de démarrer d'autres services si la classe est dérivée
             InternalStart();
@@ -232,6 +243,22 @@ namespace Sugoi.Core
             set;
         }
 
+        public Func<byte[], Task<bool>> WriteBatteryRamCallback
+        {
+            get;
+            set;
+        }
+
+        public Func<Task<byte[]>> ReadBatteryRamCallback
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Callback interne d'attente (de frame, de touche, ...)
+        /// </summary>
+
         private Func<bool> MustWaitCallBack
         {
             get;
@@ -336,6 +363,38 @@ namespace Sugoi.Core
                 screenByte[address + 3] = argb.A;
 
                 address += 4;
+            }
+        }
+
+        /// <summary>
+        /// Lecture de la Ram avec battery
+        /// </summary>
+        /// <returns></returns>
+
+        internal Task<byte[]> ReadBatteryRamAsync()
+        {
+            return this.ReadBatteryRamCallback?.Invoke();
+        }
+
+        /// <summary>
+        /// Ecriture de la Ram avec battery
+        /// </summary>
+        /// <param name="batteryRam"></param>
+
+        internal Task<bool> WriteBatteryRamAsync(byte[] batteryRam)
+        {
+            return this.WriteBatteryRamCallback?.Invoke(batteryRam);
+        }
+
+        /// <summary>
+        /// Taille de la Ram avec Batterie 
+        /// </summary>
+
+        public int BatteryRamSize
+        {
+            get
+            {
+                return BatteryRam.BATTERY_RAM_SIZE;
             }
         }
     }

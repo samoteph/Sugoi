@@ -10,7 +10,8 @@ namespace CrazyZone.Pages
     public class PlayPage : IPage
     {
         const string GAMEOVER_TEXT = "Game Over";
-
+        const string SCORE_TEXT = "Score: ";
+         
         private Game game;
         private Machine machine;
         private float scrollX;
@@ -19,12 +20,20 @@ namespace CrazyZone.Pages
         private int frameDucks = 0;
         private int frameFlies = 0;
 
+        private int score;
+        private int frameScore = 0;
+
+        private int fontWidth;
+
+        private int hiScore;
+        private string hiScoreString;
+
         private OpaSprite opa;
 
         private SpritePool<MotherSprite> mothers = new SpritePool<MotherSprite>(10);
         private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
         private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
-        private SpritePool<BulletSprite> bullets = new SpritePool<BulletSprite>(30);
+        private SpritePool<BulletSprite> bullets = new SpritePool<BulletSprite>(40);
         private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(10);
         private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(60);
         private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(20);
@@ -118,7 +127,15 @@ namespace CrazyZone.Pages
             frameDucks = 0;
             frameFlies = 0;
 
+            frameScore = 0;
+            score = 0;
+
             scrollX = 0;
+
+            fontWidth = machine.Screen.Font.FontSheet.TileWidth;
+
+            hiScore = this.machine.BatteryRam.ReadInt(0x0000);
+            hiScoreString = "hiscore: " + hiScore;
 
             this.maps = AssetStore.ParallaxMaps;
             this.ScrollWidth = this.maps[0].Width;
@@ -127,7 +144,7 @@ namespace CrazyZone.Pages
 
             this.babies.Create(baby => baby.Create(machine, this));
             this.mothers.Create(mother => mother.Create(machine, this));
-            this.ammos.Create( ammo => ammo.Create(machine));
+            this.ammos.Create( ammo => ammo.Create(machine, this));
             this.bombs.Create(bomb => bomb.Create(machine, this));
             this.kabooms.Create(kaboom => kaboom.Create(machine, this));
             this.ducks.Create(duck => duck.Create(machine, this));
@@ -245,6 +262,19 @@ namespace CrazyZone.Pages
                 bombs.CheckCollision(babies, CollisionStrategies.RectIntersect);
                 bombs.CheckCollision(ducks, CollisionStrategies.RectIntersect);
                 bombs.CheckCollision(flies, CollisionStrategies.RectIntersect);
+
+                if (Opa.IsDying == false && Opa.IsAlive == true)
+                {
+                    if (frameScore > 60)
+                    {
+                        frameScore = 0;
+                        score++;
+                    }
+                    else
+                    {
+                        frameScore++;
+                    }
+                }
             }
 
             switch (State)
@@ -298,18 +328,43 @@ namespace CrazyZone.Pages
                     screen.DrawText(GAMEOVER_TEXT, (screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2, (screen.BoundsClipped.Height - 8) / 2);
                 }
 
+                // score
+                screen.DrawText(SCORE_TEXT, screen.BoundsClipped.X + 4, 0);
+                screen.DrawText(score, screen.BoundsClipped.X + SCORE_TEXT.Length * fontWidth, 0);
+                // hi score
+                screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
             }
             else
             {
                 screen.Clear(Argb32.Black);
             }
 
-            screen.DrawText(frameExecuted == 1 ? "1" : "2", 0, 0);
+            //screen.DrawText(frameExecuted == 1 ? "1" : "2", 0, 0);
         }
 
-        public void GameOver()
+        /// <summary>
+        /// GameOver !
+        /// </summary>
+
+        public async void GameOver()
         {
             this.State = PlayStates.GameOver;
+
+            if (this.hiScore < this.score)
+            {
+                this.machine.BatteryRam.WriteInt(0x0000, this.score);
+                await this.machine.BatteryRam.FlashAsync();
+            }
+        }
+
+        /// <summary>
+        /// Ajoute un bnus
+        /// </summary>
+        /// <param name="bonus"></param>
+
+        public void AddBonusScore(int bonus)
+        {
+            this.score += bonus;
         }
     }
 

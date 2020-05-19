@@ -871,20 +871,13 @@ namespace Sugoi.Core
 
         public void DrawText(Font font, string text, int xScreen = 0, int yScreen = 0, int bank = 0)
         {
-            if(text==null || text.Length == 0)
-            {
-                return;
-            }
+            var oldFont = this.Font;
 
-            int tileWidth = font.FontSheet.TileWidth;
+            this.Font = font;
 
-            font.FontSheet.SetBank(bank);
+            DrawText(text, xScreen, yScreen, bank);
 
-            for(int x=0; x<text.Length; x++)
-            {
-                var tileNumber = font.GetTileNumber(text[x]);
-                this.DrawTile(font.FontSheet, tileNumber, xScreen + x * tileWidth, yScreen);
-            }
+            this.Font = oldFont;
         }
 
         public void DrawText(string text, int xScreen = 0, int yScreen = 0, int bank = 0)
@@ -904,6 +897,55 @@ namespace Sugoi.Core
             {
                 var tileNumber = font.GetTileNumber(text[x]);
                 this.DrawTile(font.FontSheet, tileNumber, xScreen + x * tileWidth, yScreen);
+            }
+        }
+
+        private char[] integerString = new char[10];
+
+        /// <summary>
+        /// Affichage d'un integer
+        /// </summary>
+        /// <param name="integer"></param>
+        /// <param name="xScreen"></param>
+        /// <param name="yScreen"></param>
+        /// <param name="bank"></param>
+
+        public void DrawText(int integer, int xScreen = 0, int yScreen = 0, int bank = 0)
+        {
+            int index = 0;
+            var font = this.Font;
+
+            while (true)
+            {
+                var mask = ((integer / 10) * 10);
+
+                int digit = integer - mask;
+
+                integerString[index] = (char)('0' + digit);
+
+                index++;
+
+                integer = integer / 10;
+
+                if (integer == 0)
+                {
+                    break;
+                }
+            }
+
+            if (Math.Sign(integer) == -1)
+            {
+                integerString[index] = '-';
+            }
+
+            int tileWidth = font.FontSheet.TileWidth;
+            int x = 0;
+
+            for(int i=index -1; i >= 0; i--)
+            {
+                var tileNumber = font.GetTileNumber(integerString[i]);
+                this.DrawTile(font.FontSheet, tileNumber, xScreen + x, yScreen);
+                x += tileWidth;
             }
         }
 
