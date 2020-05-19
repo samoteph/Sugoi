@@ -36,7 +36,7 @@ namespace Sugoi.Core
 
             if(index == - 1)
             {
-                throw new Exception("The pool is unable to reserve a new sprite! Please set a bigger size when initializing!");
+                throw new Exception("The pool '"+ typeof(TSprite).Name + "' is unable to reserve a new sprite! Please set a bigger size when initializing (>" + this.sprites.Length  + ") !");
             }
             else
             {

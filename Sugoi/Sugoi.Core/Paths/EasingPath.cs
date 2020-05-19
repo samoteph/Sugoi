@@ -29,8 +29,8 @@ namespace Sugoi.Core
             this.Width = width;
             this.Height = height;
             this.MaximumFrame = maximumFrame;
-            this.DirectionX = directionX;
-            this.DirectionY = directionY;
+            this.DirectionX = Math.Sign(directionX);
+            this.DirectionY = Math.Sign(directionY);
         }
 
         public override void GetPosition(int currentFrame, out int offsetX, out int offsetY)

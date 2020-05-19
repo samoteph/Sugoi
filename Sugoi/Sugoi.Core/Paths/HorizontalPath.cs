@@ -4,21 +4,22 @@ using System.Text;
 
 namespace Sugoi.Core
 {
-    public class VerticalPath : ItemPath
+    public class HorizontalPath : ItemPath
     {
-        public VerticalPath Initialize(int height, int directionY, int maximumFrame)
+        public HorizontalPath Initialize(int width, int directionX, int maximumFrame)
         {
-            this.Width = 1;
-            this.Height = height;
+            this.Height = 1;
+            this.Width = width;
             this.MaximumFrame = maximumFrame;
-            this.DirectionY = directionY;
+
+            this.DirectionX = Math.Sign(directionX);
 
             return this;
         }
 
         public override void GetPosition(int currentFrame, out int offsetX, out int offsetY)
         {
-            offsetX = 0;
+            offsetY = 0;
             double position;
 
             if (currentFrame > MaximumFrame)
@@ -34,7 +35,7 @@ namespace Sugoi.Core
                 position = (double)currentFrame / (double)MaximumFrame;
             }
 
-            offsetY = (int)(position * (double)Height) * DirectionY;
+            offsetX= (int)(position * (double)Width) * DirectionX;
         }
     }
 }

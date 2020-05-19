@@ -109,6 +109,8 @@ namespace CrazyZone.Sprites
             {
                 var screen = this.machine.Screen;
                 screen.DrawTile(tiles, 188,  X, Y, isHorizontalFlipped, false);
+
+                this.DrawCollisionBox(screen);
             }
         }
     }

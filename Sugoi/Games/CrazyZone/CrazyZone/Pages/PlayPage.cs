@@ -17,15 +17,18 @@ namespace CrazyZone.Pages
 
         private int frameGameOver = 0;
         private int frameDucks = 0;
+        private int frameFlies = 0;
 
         private OpaSprite opa;
 
         private SpritePool<MotherSprite> mothers = new SpritePool<MotherSprite>(10);
         private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
         private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
+        private SpritePool<BulletSprite> bullets = new SpritePool<BulletSprite>(30);
         private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(10);
-        private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(100);
-        private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(10);
+        private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(60);
+        private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(20);
+        private SpritePool<FlySprite> flies = new SpritePool<FlySprite>(20);
 
         public PlayStates State
         {
@@ -34,6 +37,14 @@ namespace CrazyZone.Pages
         }
 
         Map[] maps;
+
+        public OpaSprite Opa
+        {
+            get
+            {
+                return this.opa;
+            }
+        }
 
         public SpritePool<AmmoSprite> Ammos
         {
@@ -58,6 +69,15 @@ namespace CrazyZone.Pages
                 return this.kabooms;
             }
         }
+
+        public SpritePool<BulletSprite> Bullets
+        {
+            get
+            {
+                return this.bullets;
+            }
+        }
+
 
         public SpritePool<BabySprite> Babies
         {
@@ -96,6 +116,7 @@ namespace CrazyZone.Pages
 
             frameGameOver = 0;
             frameDucks = 0;
+            frameFlies = 0;
 
             scrollX = 0;
 
@@ -110,10 +131,12 @@ namespace CrazyZone.Pages
             this.bombs.Create(bomb => bomb.Create(machine, this));
             this.kabooms.Create(kaboom => kaboom.Create(machine, this));
             this.ducks.Create(duck => duck.Create(machine, this));
+            this.bullets.Create(bullet => bullet.Create(machine, this));
+            this.flies.Create(fly => fly.Create(machine, this));
 
-            this.mothers.GetFreeSprite().SetPosition( 0, 0);
-            this.mothers.GetFreeSprite().SetPosition( 210, 100);
-            this.mothers.GetFreeSprite().SetPosition( 310, 80);
+            this.mothers.GetFreeSprite().SetPosition(0, 0);
+            this.mothers.GetFreeSprite().SetPosition(210, 100);
+            this.mothers.GetFreeSprite().SetPosition(310, 80);
         }
 
         /// <summary>
@@ -138,18 +161,47 @@ namespace CrazyZone.Pages
                     scrollX += opa.Speed;
                 }
 
-                if(frameDucks > (60 * 3) )
+                if(frameDucks > (60 * 8) )
                 {
                     frameDucks = 0;
 
-                    for (int y = 0; y < 3; y++)
+                    const int  duckCount = 4;
+                    var step = machine.Screen.BoundsClipped.Height / (duckCount + 1);
+
+                    for (int y = 0; y < duckCount; y++)
                     {
-                        this.ducks.GetFreeSprite().Born(y * 50);
+                        this.ducks.GetFreeSprite().Born(step + y * step);
                     }
                 }
                 else
                 {
                     frameDucks++;
+                }
+
+                if (frameFlies > (60 * 12))
+                {
+                    frameFlies = 0;
+
+                    var centerY = (machine.Screen.BoundsClipped.Height - 16) / 2;
+
+                    this.flies.GetFreeSprite().Born(0, centerY);
+                    
+                    this.flies.GetFreeSprite().Born(20, centerY - 8);
+                    this.flies.GetFreeSprite().Born(20, centerY + 8);
+                    
+                    this.flies.GetFreeSprite().Born(40, centerY - 16);
+                    this.flies.GetFreeSprite().Born(40, centerY );
+                    this.flies.GetFreeSprite().Born(40, centerY + 16);
+
+                    this.flies.GetFreeSprite().Born(60, centerY - 24);
+                    this.flies.GetFreeSprite().Born(60, centerY - 8);
+                    this.flies.GetFreeSprite().Born(60, centerY + 8);
+                    this.flies.GetFreeSprite().Born(60, centerY + 24);
+
+                }
+                else
+                {
+                    frameFlies++;
                 }
 
                 mothers.SetScroll((int)-scrollX, 0);
@@ -169,19 +221,30 @@ namespace CrazyZone.Pages
                 ducks.SetScroll((int)-scrollX, 0);
                 ducks.Updated();
 
+                flies.SetScroll((int)-scrollX, 0);
+                flies.Updated();
+
+                bullets.SetScroll((int) -scrollX, 0);
+                bullets.Updated();
+
                 kabooms.SetScroll((int)-scrollX, 0);
                 kabooms.Updated();
 
                 mothers.CheckCollision(opa, CollisionStrategies.RectIntersect);
                 babies.CheckCollision(opa, CollisionStrategies.RectIntersect);
+                ducks.CheckCollision(opa, CollisionStrategies.RectIntersect);
+                flies.CheckCollision(opa, CollisionStrategies.RectIntersect);
+                bullets.CheckCollision(opa, CollisionStrategies.RectIntersect);
 
                 ammos.CheckCollision(mothers, CollisionStrategies.RectIntersect);
                 ammos.CheckCollision(babies, CollisionStrategies.RectIntersect);
                 ammos.CheckCollision(ducks, CollisionStrategies.RectIntersect);
+                ammos.CheckCollision(flies, CollisionStrategies.RectIntersect);
 
                 bombs.CheckCollision(mothers, CollisionStrategies.RectIntersect);
                 bombs.CheckCollision(babies, CollisionStrategies.RectIntersect);
                 bombs.CheckCollision(ducks, CollisionStrategies.RectIntersect);
+                bombs.CheckCollision(flies, CollisionStrategies.RectIntersect);
             }
 
             switch (State)
@@ -220,11 +283,13 @@ namespace CrazyZone.Pages
 
                 ammos.Draw(frameExecuted);
                 ducks.Draw(frameExecuted);
+                flies.Draw(frameExecuted);
                 babies.Draw(frameExecuted);
                 mothers.Draw(frameExecuted);
                 kabooms.Draw(frameExecuted);
                 opa.Draw(frameExecuted);
                 bombs.Draw(frameExecuted);
+                bullets.Draw(frameExecuted);
 
                 screen.DrawScrollMap(maps[5], true, (int)(-scrollX * 2.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
 

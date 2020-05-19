@@ -114,7 +114,6 @@ namespace CrazyZone.Sprites
             this.IsAlive = false;
 
             this.page.Kabooms.GetFreeSprite()
-                .Create(this.machine, this.page)
                 .Explode(this.X + 8, this.Y + 8);
         }
 

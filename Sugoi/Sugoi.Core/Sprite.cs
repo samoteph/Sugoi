@@ -155,12 +155,12 @@ namespace Sugoi.Core
 
         public void UpdateXScrolled()
         {
-            this.XScrolled = this.UpdatePositionScrolled(this.X, this.Width, this.ScrollX, this.ScrollWidth);
+            this.XScrolled = this.GetPositionScrolled(this.X, this.Width, this.ScrollX, this.ScrollWidth);
         }
 
         public void UpdateYScrolled()
         {
-            this.YScrolled = this.UpdatePositionScrolled(this.Y, this.Height, this.ScrollY, this.ScrollHeight);
+            this.YScrolled = this.GetPositionScrolled(this.Y, this.Height, this.ScrollY, this.ScrollHeight);
         }
 
         /// <summary>
@@ -171,7 +171,7 @@ namespace Sugoi.Core
         /// <param name="scrollPosition"></param>
         /// <param name="scrollSize"></param>
 
-        private int UpdatePositionScrolled(int position, int size, int scrollPosition, int scrollSize)
+        public int GetPositionScrolled(int position, int size, int scrollPosition, int scrollSize)
         {
             if(scrollSize <= 0)
             {
@@ -212,6 +212,22 @@ namespace Sugoi.Core
             this.OldYScrolled = int.MinValue;
 
             this.CollisionBounds = new Rectangle(marginLeft, marginTop, this.Width - (marginLeft + marginRight), this.Height - (marginTop + marginBottom));
+        }
+
+        [Conditional("DEBUG")]
+        public void DrawCollisionBox(SurfaceSprite screen, bool checkCanCollide = true)
+        {
+            if (checkCanCollide)
+            {
+                if (CanCollide)
+                {
+                    screen.DrawRectangle(XScrolled + this.CollisionBounds.X, YScrolled + this.CollisionBounds.Y, this.CollisionBounds.Width, this.CollisionBounds.Height, Argb32.Magenta, false);
+                }
+            }
+            else
+            {
+                screen.DrawRectangle(XScrolled + this.CollisionBounds.X, YScrolled + this.CollisionBounds.Y, this.CollisionBounds.Width, this.CollisionBounds.Height, Argb32.Magenta, false);
+            }
         }
 
         /// <summary>

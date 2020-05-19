@@ -23,6 +23,7 @@ namespace CrazyZone.Sprites
         private int openIndex;
         private int frameOpen;
         private int frameBaby;
+        private int frameTired;
 
         private int healthThresold1;
         private int healthThresold2;
@@ -49,6 +50,11 @@ namespace CrazyZone.Sprites
 
             healthThresold1 = (int)((double)HEALTH * 0.33d);
             healthThresold2 = (int)((double)HEALTH * 0.66d);
+
+            this.Width = openMaps[0].Width + (2 * 8); // on ajoute les ailes qui dépassent
+            this.Height = openMaps[0].Height;
+
+            this.InitializeCollision(3, 8, 16 + 3, 3);
 
             openIndex = 0;            
             return this;
@@ -98,20 +104,22 @@ namespace CrazyZone.Sprites
                 {
                     this.isTired = true;
 
-                    this.page.Kabooms.GetFreeSprite()
-                        .Create(this.machine, this.page)
-                        .Explode(this.X, this.Y+ 8, true);
-
-                    this.page.Kabooms.GetFreeSprite()
-                        .Create(this.machine, this.page)
-                        .Explode(this.X + 24, this.Y + 8, true);
-
-                    this.page.Kabooms.GetFreeSprite()
-                        .Create(this.machine, this.page)
-                        .Explode(this.X + 16, this.Y + 16, true);
+                    this.Kaboom();
 
                 }
             }
+        }
+
+        private void Kaboom()
+        {
+            this.page.Kabooms.GetFreeSprite()
+                .Explode(this.X, this.Y + 8, true);
+
+            this.page.Kabooms.GetFreeSprite()
+                .Explode(this.X + 24, this.Y + 8, true);
+
+            this.page.Kabooms.GetFreeSprite()
+                .Explode(this.X + 16, this.Y + 16, true);
         }
 
         public override void Initialize()
@@ -119,16 +127,13 @@ namespace CrazyZone.Sprites
             this.IsAlive = true;
 
             this.isTired = false;
+            this.IsOpening = false;
 
             frameOpen = 0;
             frameBaby = 0;
-
-            this.Width = openMaps[0].Width + (2 * 8); // on ajoute les ailes qui dépassent
-            this.Height = openMaps[0].Height;
+            frameTired = 0;
 
             this.health = HEALTH;
-
-            this.InitializeCollision(3, 8, 16 + 3, 3);
         }
 
         public override void Updated()
@@ -211,6 +216,18 @@ namespace CrazyZone.Sprites
                     tileNose = -1;
                 }
             }
+            else
+            {
+                if(frameTired > 60 * 30 )
+                {
+                    this.Kaboom();
+                    this.Initialize();
+                }
+                else
+                {
+                    frameTired++;
+                }
+            }
 
             base.Updated();
         }
@@ -248,6 +265,8 @@ namespace CrazyZone.Sprites
             {
                 screen.DrawSpriteMap(tiredMap, XScrolled - 8, YScrolled, false, false);
             }
+
+            this.DrawCollisionBox(screen);
         }
     }
 }

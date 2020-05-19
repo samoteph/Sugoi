@@ -203,6 +203,23 @@ namespace CrazyZone
             return maps;
         }
 
+        private static Map[] CreateFlyAnimation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[2];
+
+            var map = new Map();
+            map.Create("Fly1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(28, 29, 38, 39);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("Fly2", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(40, 41, 50, 51);
+            maps[1] = map;
+
+            return maps;
+        }
+
         private static Map[] CreateDeathStartAnimation(SurfaceTileSheet tileSheet)
         {
             Map[] maps = new Map[3];
@@ -247,6 +264,8 @@ namespace CrazyZone
             DeathStarMaps = CreateDeathStartAnimation(Tiles);
 
             DuckMaps = CreateDuckAnimation(Tiles);
+
+            FlyMaps = CreateFlyAnimation(Tiles);
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
@@ -325,6 +344,12 @@ namespace CrazyZone
         }
 
         public static Map[] DuckMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] FlyMaps
         {
             get;
             private set;

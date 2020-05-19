@@ -4,15 +4,16 @@ using System.Text;
 
 namespace Sugoi.Core
 {
-    public class HorizontalPath : ItemPath
+    public class DiagonalPath : ItemPath
     {
-        public HorizontalPath Initialize(int width, int directionX, int maximumFrame)
+        public DiagonalPath Initialize(int size, int directionX, int directionY, int maximumFrame)
         {
-            this.Height = 1;
-            this.Width = width;
+            this.Height = size;
+            this.Width = size;
             this.MaximumFrame = maximumFrame;
 
-            this.DirectionX = directionX;
+            this.DirectionX = Math.Sign(directionX);
+            this.DirectionY = Math.Sign(directionY);
 
             return this;
         }
@@ -35,7 +36,8 @@ namespace Sugoi.Core
                 position = (double)currentFrame / (double)MaximumFrame;
             }
 
-            offsetX= (int)(position * (double)Width) * DirectionX;
+            offsetX = (int)(position * (double)Width) * DirectionX;
+            offsetY = (int)(position * (double)Height) * DirectionY;
         }
     }
 }

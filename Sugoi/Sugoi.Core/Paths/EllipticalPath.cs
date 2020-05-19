@@ -22,8 +22,9 @@ namespace Sugoi.Core
 
             this.Width = width;
             this.Height = height;
-            this.DirectionX = directionX;
-            this.DirectionY = directionY;
+
+            this.DirectionX = Math.Sign(directionX);
+            this.DirectionY = Math.Sign(directionY);
             this.MaximumFrame = maximumFrame;
 
             this.rayX = width / 2;

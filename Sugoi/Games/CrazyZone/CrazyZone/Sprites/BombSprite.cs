@@ -69,14 +69,7 @@ namespace CrazyZone.Sprites
 
         public override void Collide(ISprite collider)
         {
-            if (collider.TypeName == nameof(MotherSprite))
-            {
-                this.IsExploding = true;
-            }
-            else
-            {
-                this.IsAlive = false;
-            }
+            this.IsExploding = true;
         }
 
         public void Fire(int x, int y, int direction)
@@ -143,10 +136,9 @@ namespace CrazyZone.Sprites
                         Y = originalY + easingY;
                     }
 
-                    if (Y > machine.Screen.BoundsClipped.Bottom + Height)
+                    if (Y > machine.Screen.BoundsClipped.Bottom - Height - 5 )
                     {
-                        IsAlive = false;
-                        this.IsFiring = false;
+                        this.IsExploding = true;
                     }
                 }
                 else
@@ -171,21 +163,23 @@ namespace CrazyZone.Sprites
                 return;
             }
 
+            var screen = this.machine.Screen;
+
             if (this.IsFiring)
             {
-                var screen = this.machine.Screen;
-
                 if (this.IsExploding == false)
                 {
                     // - 4 c'est pour centrer la bombe
-                    screen.DrawTile(tiles, 96, XScrolled - 4, YScrolled - 4, isHorizontalFlipped, false);
+                    screen.DrawTile(tiles, 96, XScrolled, YScrolled, isHorizontalFlipped, false);
                 }
                 else
                 {
                     // explosion
-                    screen.DrawTile(tiles, 204, XScrolled - 4, YScrolled - 4, isHorizontalFlipped, false);
+                    screen.DrawTile(tiles, 204, XScrolled, YScrolled, isHorizontalFlipped, false);
                 }
             }
+
+            this.DrawCollisionBox(screen);
         }
     }
 }

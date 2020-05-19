@@ -12,12 +12,12 @@ namespace CrazyZone.Sprites
         private Machine machine;
         private SurfaceTileSheet tiles;
 
-        private bool isHorizontalFlipped;
-
         private Map[] walkMaps;
         private int walkIndex = 0;
         private int frameWalkAnimation = 0;
-        private int framePath = 0;
+        private double framePath = 0;
+
+        private int frameBullet;
 
         private int originalX = 0;
         private int originalY = 0;
@@ -40,7 +40,6 @@ namespace CrazyZone.Sprites
             path.AddPath(new EllipticalPath().Initialize(0, 180, 25, 25, 1, 1, 25));
 
             path.AddPath(new VerticalPath().Initialize(300, -1, 300));
-
         }
 
         public DuckSprite Create(Machine machine, PlayPage page)
@@ -54,8 +53,8 @@ namespace CrazyZone.Sprites
 
             this.ScrollWidth = page.ScrollWidth;
 
-            this.Width = 8;
-            this.Height = 8;
+            this.Width = 16;
+            this.Height = 16;
 
             this.InitializeCollision(3);
 
@@ -65,6 +64,7 @@ namespace CrazyZone.Sprites
         public override void Initialize()
         {
             framePath = 0;
+            frameBullet = 0;
         }
 
         public override string TypeName
@@ -85,7 +85,7 @@ namespace CrazyZone.Sprites
         {
             this.IsAlive = true;
 
-            this.X = (int)page.ScrollX + this.machine.Screen.BoundsClipped.Width + Width;
+            this.X = (int)page.ScrollX + this.machine.Screen.BoundsClipped.Width;
             this.Y = y;
 
             this.originalY = y;
@@ -97,7 +97,6 @@ namespace CrazyZone.Sprites
             this.IsAlive = false;
 
             this.page.Kabooms.GetFreeSprite()
-                .Create(this.machine, this.page)
                 .Explode(this.X + 8, this.Y + 8);
         }
 
@@ -124,21 +123,31 @@ namespace CrazyZone.Sprites
 
             if (framePath <= path.MaximumFrame)
             {
-                path.GetPosition(framePath, out var offsetX, out var offsetY);
+                path.GetPosition((int)framePath, out var offsetX, out var offsetY);
 
                 X = originalX + offsetX;
                 Y = originalY + offsetY;
 
-                framePath++;
+                framePath+=0.5;
             }
             else
             {
                 this.IsAlive = false;
             }
 
-            if (X < screen.BoundsClipped.Left - this.Width)
+            if (Y < screen.BoundsClipped.Top - this.Height)
             {
                 this.IsAlive = false;
+            }
+
+            if (frameBullet > 60 * 3)
+            {
+                frameBullet = 0;
+                page.Bullets.GetFreeSprite().Fire(X, Y);
+            }
+            else
+            {
+                frameBullet++;
             }
 
             base.Updated();
@@ -153,7 +162,7 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            screen.DrawSpriteMap(walkMaps[walkIndex], XScrolled, YScrolled, isHorizontalFlipped, false);
+            screen.DrawSpriteMap(walkMaps[walkIndex], XScrolled, YScrolled);
         }
     }
 }
