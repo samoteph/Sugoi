@@ -28,6 +28,12 @@ namespace CrazyZone.Pages
         private int hiScore;
         private string hiScoreString;
 
+        // hit de petit monstre
+        private int hitSmallMonsterCount = 0;
+
+        // hit de gros monstre
+        private int hitBigMonsterCount = 0;
+
         private OpaSprite opa;
 
         private SpritePool<MotherSprite> mothers = new SpritePool<MotherSprite>(10);
@@ -38,6 +44,7 @@ namespace CrazyZone.Pages
         private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(60);
         private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(20);
         private SpritePool<FlySprite> flies = new SpritePool<FlySprite>(20);
+        private SpritePool<CoinSprite> coins = new SpritePool<CoinSprite>(10);
 
         public PlayStates State
         {
@@ -96,6 +103,14 @@ namespace CrazyZone.Pages
             }
         }
 
+        public SpritePool<CoinSprite> Coins
+        {
+            get
+            {
+                return this.coins;
+            }
+        }
+
         public int ScrollWidth
         {
             get;
@@ -137,6 +152,9 @@ namespace CrazyZone.Pages
             hiScore = this.machine.BatteryRam.ReadInt(0x0000);
             hiScoreString = "hiscore: " + hiScore;
 
+            hitSmallMonsterCount = 0;
+            hitBigMonsterCount = 0;
+
             this.maps = AssetStore.ParallaxMaps;
             this.ScrollWidth = this.maps[0].Width;
 
@@ -150,9 +168,11 @@ namespace CrazyZone.Pages
             this.ducks.Create(duck => duck.Create(machine, this));
             this.bullets.Create(bullet => bullet.Create(machine, this));
             this.flies.Create(fly => fly.Create(machine, this));
+            this.coins.Create(coin => coin.Create(machine, this));
 
-            this.mothers.GetFreeSprite().SetPosition(0, 0);
-            this.mothers.GetFreeSprite().SetPosition(210, 100);
+            this.mothers.GetFreeSprite().SetPosition(0, 8);
+            this.mothers.GetFreeSprite().SetPosition(100, 110);
+            this.mothers.GetFreeSprite().SetPosition(210, 60);
             this.mothers.GetFreeSprite().SetPosition(310, 80);
         }
 
@@ -178,11 +198,11 @@ namespace CrazyZone.Pages
                     scrollX += opa.Speed;
                 }
 
-                if(frameDucks > (60 * 8) )
+                if (frameDucks > (60 * 8))
                 {
                     frameDucks = 0;
 
-                    const int  duckCount = 4;
+                    const int duckCount = 4;
                     var step = machine.Screen.BoundsClipped.Height / (duckCount + 1);
 
                     for (int y = 0; y < duckCount; y++)
@@ -202,12 +222,12 @@ namespace CrazyZone.Pages
                     var centerY = (machine.Screen.BoundsClipped.Height - 16) / 2;
 
                     this.flies.GetFreeSprite().Born(0, centerY);
-                    
+
                     this.flies.GetFreeSprite().Born(20, centerY - 8);
                     this.flies.GetFreeSprite().Born(20, centerY + 8);
-                    
+
                     this.flies.GetFreeSprite().Born(40, centerY - 16);
-                    this.flies.GetFreeSprite().Born(40, centerY );
+                    this.flies.GetFreeSprite().Born(40, centerY);
                     this.flies.GetFreeSprite().Born(40, centerY + 16);
 
                     this.flies.GetFreeSprite().Born(60, centerY - 24);
@@ -244,6 +264,9 @@ namespace CrazyZone.Pages
                 bullets.SetScroll((int) -scrollX, 0);
                 bullets.Updated();
 
+                coins.SetScroll((int)-scrollX, 0);
+                coins.Updated();
+
                 kabooms.SetScroll((int)-scrollX, 0);
                 kabooms.Updated();
 
@@ -252,6 +275,7 @@ namespace CrazyZone.Pages
                 ducks.CheckCollision(opa, CollisionStrategies.RectIntersect);
                 flies.CheckCollision(opa, CollisionStrategies.RectIntersect);
                 bullets.CheckCollision(opa, CollisionStrategies.RectIntersect);
+                coins.CheckCollision(opa, CollisionStrategies.RectIntersect);
 
                 ammos.CheckCollision(mothers, CollisionStrategies.RectIntersect);
                 ammos.CheckCollision(babies, CollisionStrategies.RectIntersect);
@@ -305,23 +329,25 @@ namespace CrazyZone.Pages
 
             if (State != PlayStates.Quit)
             {
-                screen.DrawScrollMap(maps[0], true, (int)(-scrollX * 0.25), 0, 0, 0, 320, 136);
-                screen.DrawScrollMap(maps[1], true, (int)(-scrollX * 0.50), 0, 0, screen.Height - maps[1].Height - 16, 320, 136);
-                screen.DrawScrollMap(maps[3], true, (int)(-scrollX * 1.00), 0, 0, screen.Height - maps[3].Height - 16, 320, 136);
-                screen.DrawScrollMap(maps[2], true, (int)(-scrollX * 1.25), 0, 0, screen.Height - maps[2].Height, 320, 136);
-                screen.DrawScrollMap(maps[4], true, (int)(-scrollX * 1.50), 0, 0, screen.Height - maps[4].Height, 320, 136);
+                screen.DrawScrollMap(maps[0], true, (int)(-scrollX * 0.50), 0, 0, 0, 320, 136);
+                screen.DrawScrollMap(maps[1], true, (int)(-scrollX * 0.60), 0, 0, screen.Height - maps[1].Height - 16, 320, 136);
+                screen.DrawScrollMap(maps[3], true, (int)(-scrollX * 0.70), 0, 0, screen.Height - maps[3].Height - 16, 320, 136);
+                screen.DrawScrollMap(maps[2], true, (int)(-scrollX * 0.80), 0, 0, screen.Height - maps[2].Height, 320, 136);
+                screen.DrawScrollMap(maps[4], true, (int)(-scrollX * 0.90), 0, 0, screen.Height - maps[4].Height, 320, 136);
+                screen.DrawScrollMap(maps[5], true, (int)(-scrollX * 1.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
 
                 ammos.Draw(frameExecuted);
-                ducks.Draw(frameExecuted);
-                flies.Draw(frameExecuted);
                 babies.Draw(frameExecuted);
                 mothers.Draw(frameExecuted);
+
+                ducks.Draw(frameExecuted);
+                flies.Draw(frameExecuted);
+
                 kabooms.Draw(frameExecuted);
                 opa.Draw(frameExecuted);
                 bombs.Draw(frameExecuted);
                 bullets.Draw(frameExecuted);
-
-                screen.DrawScrollMap(maps[5], true, (int)(-scrollX * 2.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
+                coins.Draw(frameExecuted);
 
                 if (State == PlayStates.GameOver)
                 {
@@ -365,6 +391,59 @@ namespace CrazyZone.Pages
         public void AddBonusScore(int bonus)
         {
             this.score += bonus;
+        }
+
+        /// <summary>
+        /// Ajouter un hit de monstre (or mother) et donne une récompense eventuellement
+        /// </summary>
+
+        public void AddHitSmallMonster(int x, int y)
+        {
+            this.hitSmallMonsterCount++;
+
+            bool hasReward = false;
+
+            CoinTypes coinType = CoinTypes.Coin1;
+
+            if (hitSmallMonsterCount != 0)
+            {
+                hasReward = this.hitSmallMonsterCount % 10 == 0;
+            
+                if(this.hitSmallMonsterCount % 100 == 0)
+                {
+                    hasReward = true;
+                    coinType = CoinTypes.Coin5;
+                }
+            }
+
+            if(hasReward)
+            {
+                this.coins.GetFreeSprite().Born(x, y, coinType);
+            }
+        }
+
+        public void AddHitBigMonster(int x, int y)
+        {
+            this.hitBigMonsterCount++;
+
+            var hasBigReward = (this.hitBigMonsterCount % 4) == 0;
+
+            if (hasBigReward)
+            {
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin5);
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin5);
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin5);
+
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin1);
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin1);
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin1);
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin1);
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin1);
+            }
+            else
+            {
+                this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin5);
+            }
         }
     }
 

@@ -10,7 +10,7 @@ namespace CrazyZone.Sprites
 {
     public class MotherSprite : Sprite
     {
-        public const int HEALTH = 100;
+        public const int HEALTH = 70;
 
         private Machine machine;
         private PlayPage page;
@@ -105,6 +105,8 @@ namespace CrazyZone.Sprites
                     this.isTired = true;
 
                     this.page.AddBonusScore(20);
+
+                    this.page.AddHitBigMonster(X, Y);
 
                     this.Kaboom();
 

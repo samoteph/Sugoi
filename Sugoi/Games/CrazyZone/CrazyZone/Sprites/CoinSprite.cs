@@ -6,46 +6,33 @@ using System.Text;
 
 namespace CrazyZone.Sprites
 {
-    public class FlySprite : Sprite
+    public class CoinSprite : Sprite
     {
         private PlayPage page;
         private Machine machine;
         private SurfaceTileSheet tiles;
 
-        private bool isHorizontalFlipped;
-
-        private Map[] flyMaps;
-        private int flyIndex = 0;
-        private int frameFlyAnimation = 0;
+        private Map[] coinMaps;
+        private int coinIndex = 0;
+        private int frameCoinAnimation = 0;
         private double framePath = 0;
-
-        private int frameBullet;
 
         private int originalX = 0;
         private int originalY = 0;
 
-        static GroupPath path = new GroupPath();
-        static int frameThresold1;
+        private CoinTypes coinType;
 
-        static FlySprite()
-        {
-            path.AddPath(new HorizontalPath().Initialize(150, 1, 75));
+        EasingPath pathMove = new EasingPath();
+        EasingPath pathAnimation = new EasingPath();
 
-            frameThresold1 = path.MaximumFrame + (75 / 2);
-
-            path.AddPath(new EllipticalPath().Initialize(180, 180, 100, 100, 1, 1, 75));
-
-            path.AddPath(new VerticalPath().Initialize(200, 1, 100));
-        }
-
-        public FlySprite Create(Machine machine, PlayPage page)
+        public CoinSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
 
             this.page = page;
             tiles = AssetStore.Tiles;
-            flyMaps = AssetStore.FlyMaps;
-            flyIndex = 0;
+            
+            coinIndex = 0;
 
             this.ScrollWidth = page.ScrollWidth;
 
@@ -60,15 +47,13 @@ namespace CrazyZone.Sprites
         public override void Initialize()
         {
             framePath = 0;
-            frameBullet = 0;
-            isHorizontalFlipped = true;
         }
 
         public override string TypeName
         {
             get
             {
-                return nameof(FlySprite);
+                return nameof(CoinSprite);
             }
         }
 
@@ -78,11 +63,32 @@ namespace CrazyZone.Sprites
         /// <param name="x"></param>
         /// <param name="y"></param>
 
-        public void Born(int offsetX, int y)
+        public void Born(int x, int y, CoinTypes coinType)
         {
             this.IsAlive = true;
 
-            this.X = (int)page.ScrollX + this.machine.Screen.BoundsClipped.X - Width - offsetX;
+            this.coinType = coinType;
+
+            if(coinType == CoinTypes.Coin1)
+            {
+                coinMaps = AssetStore.Coin1Maps;
+            }
+            else
+            {
+                coinMaps = AssetStore.Coin5Maps;
+            }
+
+            int yPath = machine.Screen.BoundsClipped.Bottom - y - this.Height - 4;
+
+            var width = this.machine.GetRandomInteger(10, 70);
+            var direction = this.machine.GetRandomInteger(2) == 0 ? -1 : 1;
+
+            // deplacement
+            this.pathMove.Initialize(EasingFunctions.QuinticEaseOut, EasingFunctions.BounceEaseOut, width, yPath, direction, 1, 100);
+            // temps d'animation : plus c'est le debut plus c'est rapide
+            this.pathAnimation.Initialize(EasingFunctions.QuinticEaseOut, EasingFunctions.Linear, 5, 0, 1, 1, 100);
+
+            this.X = x;
             this.Y = y;
 
             this.originalY = y;
@@ -91,12 +97,9 @@ namespace CrazyZone.Sprites
 
         public override void Collide(ISprite sprite)
         {
+            // ajoute un score
+            this.page.AddBonusScore((int)coinType * 10);
             this.IsAlive = false;
-
-            this.page.Kabooms.GetFreeSprite()
-                .Explode(this.X + 8, this.Y + 8);
-
-            this.page.AddHitSmallMonster(this.X, this.Y);
         }
 
         public override void Updated()
@@ -108,34 +111,29 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            if (frameFlyAnimation > 3)
+            if (framePath <= pathMove.MaximumFrame + (60 * 2)) // attente supplementaire
             {
-                frameFlyAnimation = 0;
+                int f = (int)framePath;
 
-                flyIndex++;
-                flyIndex = flyIndex % flyMaps.Length;
-            }
-            else
-            {
-                frameFlyAnimation++;
-            }
-
-            if (framePath <= path.MaximumFrame)
-            {
-                path.GetPosition((int)framePath, out var offsetX, out var offsetY);
+                pathMove.GetPosition(f, out var offsetX, out var offsetY);
 
                 X = originalX + offsetX;
                 Y = originalY + offsetY;
 
-                framePath+=0.5;
+                framePath += 0.5;
 
-                if(framePath < frameThresold1 )
+                pathAnimation.GetPosition(f, out var animationX, out var animationY);
+
+                if (frameCoinAnimation > animationX)
                 {
-                    isHorizontalFlipped = true;
+                    frameCoinAnimation = 0;
+
+                    coinIndex++;
+                    coinIndex = coinIndex % coinMaps.Length;
                 }
                 else
                 {
-                    isHorizontalFlipped = false;
+                    frameCoinAnimation++;
                 }
             }
             else
@@ -148,18 +146,7 @@ namespace CrazyZone.Sprites
                 this.IsAlive = false;
             }
 
-            // XScrolled est calculé ici
             base.Updated();
-
-            if (frameBullet > 60 * 2)
-            {
-                frameBullet = 0;
-                page.Bullets.GetFreeSprite().Fire(X, Y);
-            }
-            else
-            {
-                frameBullet++;
-            }
         }
 
         public override void Draw(int frameExecuted)
@@ -171,7 +158,13 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            screen.DrawSpriteMap(flyMaps[flyIndex], XScrolled, YScrolled, isHorizontalFlipped, false) ;
+            screen.DrawSpriteMap(coinMaps[coinIndex], XScrolled, YScrolled);
         }
+    }
+
+    public enum CoinTypes
+    {
+        Coin1 = 1,
+        Coin5 = 5
     }
 }

@@ -404,7 +404,10 @@ namespace CrazyZone.Sprites
         public override void Collide(ISprite collider)
         {
             // Explosion de fin avant le game over
-            this.IsDying = true;
+            if (collider.TypeName != nameof(CoinSprite))
+            {
+                this.IsDying = true;
+            }
         }
     }
 }

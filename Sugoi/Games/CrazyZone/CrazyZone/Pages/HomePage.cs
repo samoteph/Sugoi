@@ -17,10 +17,13 @@ namespace CrazyZone.Pages
         private const string MENU_LINE1 = "game start";
         private const string MENU_LINE2 = "credits";
 
-
+        private int hiScore;
+        private string hiScoreString;
 
         private Game game;
         private Machine machine;
+
+        private int fontWidth;
 
         private int frameCursor;
         private int frameScroll;
@@ -82,6 +85,11 @@ namespace CrazyZone.Pages
 
             frameScroll = 0;
             frameCursor = 0;
+
+            hiScore = this.machine.BatteryRam.ReadInt(0x0000);
+            hiScoreString = "hiscore: " + hiScore;
+
+            this.fontWidth = this.machine.Screen.Font.FontSheet.TileWidth;
         }
 
         public void Updating()
@@ -205,18 +213,18 @@ namespace CrazyZone.Pages
             if (homeState != HomeStates.Credits)
             {
                 // Titre FantazyZone
-                screen.DrawSprite(title, (screen.Width - title.Width) / 2, 16);
+                screen.DrawSprite(title, (screen.Width - title.Width) / 2, 24);
             }
 
             switch (homeState)
             {
                 case HomeStates.Home:
-                    screen.DrawText(TITLE_LINE1, (screen.Width - TITLE_LINE1.Length * font.FontSheet.TileWidth) / 2, 120);
-                    screen.DrawText(TITLE_LINE2, (screen.Width - TITLE_LINE2.Length * font.FontSheet.TileWidth) / 2, 132);
+                    screen.DrawText(TITLE_LINE1, (screen.Width - TITLE_LINE1.Length * font.FontSheet.TileWidth) / 2, 128);
+                    screen.DrawText(TITLE_LINE2, (screen.Width - TITLE_LINE2.Length * font.FontSheet.TileWidth) / 2, 140);
 
                     if (frame % 100 < 50)
                     {
-                        screen.DrawText(PRESS_START, (screen.Width - PRESS_START.Length * font.FontSheet.TileWidth) / 2, 150);
+                        screen.DrawText(PRESS_START, (screen.Width - PRESS_START.Length * font.FontSheet.TileWidth) / 2, 158);
                     }
 
                     break;
@@ -225,10 +233,10 @@ namespace CrazyZone.Pages
 
                     var centerX = (screen.Width - MENU_LINE1.Length * font.FontSheet.TileWidth) / 2;
 
-                    screen.DrawText(MENU_LINE1, centerX, 120);
-                    screen.DrawText(MENU_LINE2, centerX, 132);
+                    screen.DrawText(MENU_LINE1, centerX, 128);
+                    screen.DrawText(MENU_LINE2, centerX, 140);
 
-                    screen.DrawSpriteMap(cursor[frameCursor], centerX - 24, (120 - 4) + menuPosition * 12, true, false);
+                    screen.DrawSpriteMap(cursor[frameCursor], centerX - 24, (128 - 4) + menuPosition * 12, true, false);
 
                     break;
 
@@ -250,6 +258,12 @@ namespace CrazyZone.Pages
                     screen.Clear(Argb32.Black);
                     
                     break;
+            }
+
+            if(homeState != HomeStates.Quit)
+            {
+                // hi score
+                screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
             }
 
             screen.DrawText(frameExecuted == 1 ? "1" : "2", 0, 0);

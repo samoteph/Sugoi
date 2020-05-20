@@ -242,6 +242,40 @@ namespace CrazyZone
             return maps;
         }
 
+        private static Map[] CreateCoin1Animation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[2];
+
+            var map = new Map();
+            map.Create("Coin1-1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(110, 111, 120, 121);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("Coin1-2", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(112, 113, 122, 123);
+            maps[1] = map;
+
+            return maps;
+        }
+
+        private static Map[] CreateCoin5Animation(SurfaceTileSheet tileSheet)
+        {
+            Map[] maps = new Map[2];
+
+            var map = new Map();
+            map.Create("Coin5-1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(114, 115, 124, 125);
+            maps[0] = map;
+
+            map = new Map();
+            map.Create("Coin5-2", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
+            map.SetTiles(130, 131, 140, 141);
+            maps[1] = map;
+
+            return maps;
+        }
+
         public static void Start(VideoMemory videoMemory)
         {
             Title = videoMemory.CreateSprite("title");
@@ -266,6 +300,9 @@ namespace CrazyZone
             DuckMaps = CreateDuckAnimation(Tiles);
 
             FlyMaps = CreateFlyAnimation(Tiles);
+
+            Coin1Maps = CreateCoin1Animation(Tiles);
+            Coin5Maps = CreateCoin5Animation(Tiles);
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
@@ -350,6 +387,18 @@ namespace CrazyZone
         }
 
         public static Map[] FlyMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] Coin1Maps
+        {
+            get;
+            private set;
+        }
+
+        public static Map[] Coin5Maps
         {
             get;
             private set;

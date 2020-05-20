@@ -115,6 +115,8 @@ namespace CrazyZone.Sprites
 
             this.page.Kabooms.GetFreeSprite()
                 .Explode(this.X + 8, this.Y + 8);
+
+            this.page.AddHitSmallMonster(this.X, this.Y);
         }
 
         public override void Updated()
