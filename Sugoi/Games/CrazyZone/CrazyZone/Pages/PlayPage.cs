@@ -40,7 +40,7 @@ namespace CrazyZone.Pages
         private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
         private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
         private SpritePool<BulletSprite> bullets = new SpritePool<BulletSprite>(40);
-        private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(10);
+        private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(100); // Kaboom 10
         private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(60);
         private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(20);
         private SpritePool<FlySprite> flies = new SpritePool<FlySprite>(20);
@@ -198,48 +198,48 @@ namespace CrazyZone.Pages
                     scrollX += opa.Speed;
                 }
 
-                if (frameDucks > (60 * 8))
-                {
-                    frameDucks = 0;
+                //if (frameDucks > (60 * 8))
+                //{
+                //    frameDucks = 0;
 
-                    const int duckCount = 4;
-                    var step = machine.Screen.BoundsClipped.Height / (duckCount + 1);
+                //    const int duckCount = 4;
+                //    var step = machine.Screen.BoundsClipped.Height / (duckCount + 1);
 
-                    for (int y = 0; y < duckCount; y++)
-                    {
-                        this.ducks.GetFreeSprite().Born(step + y * step);
-                    }
-                }
-                else
-                {
-                    frameDucks++;
-                }
+                //    for (int y = 0; y < duckCount; y++)
+                //    {
+                //        this.ducks.GetFreeSprite().Born(step + y * step);
+                //    }
+                //}
+                //else
+                //{
+                //    frameDucks++;
+                //}
 
-                if (frameFlies > (60 * 12))
-                {
-                    frameFlies = 0;
+                //if (frameFlies > (60 * 12))
+                //{
+                //    frameFlies = 0;
 
-                    var centerY = (machine.Screen.BoundsClipped.Height - 16) / 2;
+                //    var centerY = (machine.Screen.BoundsClipped.Height - 16) / 2;
 
-                    this.flies.GetFreeSprite().Born(0, centerY);
+                //    this.flies.GetFreeSprite().Born(0, centerY);
 
-                    this.flies.GetFreeSprite().Born(20, centerY - 8);
-                    this.flies.GetFreeSprite().Born(20, centerY + 8);
+                //    this.flies.GetFreeSprite().Born(20, centerY - 8);
+                //    this.flies.GetFreeSprite().Born(20, centerY + 8);
 
-                    this.flies.GetFreeSprite().Born(40, centerY - 16);
-                    this.flies.GetFreeSprite().Born(40, centerY);
-                    this.flies.GetFreeSprite().Born(40, centerY + 16);
+                //    this.flies.GetFreeSprite().Born(40, centerY - 16);
+                //    this.flies.GetFreeSprite().Born(40, centerY);
+                //    this.flies.GetFreeSprite().Born(40, centerY + 16);
 
-                    this.flies.GetFreeSprite().Born(60, centerY - 24);
-                    this.flies.GetFreeSprite().Born(60, centerY - 8);
-                    this.flies.GetFreeSprite().Born(60, centerY + 8);
-                    this.flies.GetFreeSprite().Born(60, centerY + 24);
+                //    this.flies.GetFreeSprite().Born(60, centerY - 24);
+                //    this.flies.GetFreeSprite().Born(60, centerY - 8);
+                //    this.flies.GetFreeSprite().Born(60, centerY + 8);
+                //    this.flies.GetFreeSprite().Born(60, centerY + 24);
 
-                }
-                else
-                {
-                    frameFlies++;
-                }
+                //}
+                //else
+                //{
+                //    frameFlies++;
+                //}
 
                 mothers.SetScroll((int)-scrollX, 0);
 

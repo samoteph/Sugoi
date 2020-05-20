@@ -8,6 +8,10 @@ namespace Sugoi.Core.IO
 {
     public class AssetTileSheet : AssetImage
     {
+        public AssetTileSheet(Cartridge cartridge) : base(cartridge)
+        {
+        }
+
         public override AssetTypes Type
         {
             get
@@ -37,9 +41,9 @@ namespace Sugoi.Core.IO
             this.TileHeight = reader.ReadInt32();
         }
 
-        public static AssetTileSheet Import(string assetName, Stream stream, int tileWidth, int tileHeight)
+        public static AssetTileSheet Import(Cartridge cartridge, string assetName, Stream stream, int tileWidth, int tileHeight)
         {
-            AssetTileSheet tileSheet = new AssetTileSheet();
+            AssetTileSheet tileSheet = new AssetTileSheet(cartridge);
             tileSheet.Name = assetName;
             tileSheet.ImportImage(stream);
 

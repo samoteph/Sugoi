@@ -6,11 +6,16 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Sugoi.Core.IO
 {
     public abstract class AssetImage : Asset
     {
+        public AssetImage(Cartridge cartridge) : base(cartridge)
+        {
+        }
+
         public Core.Argb32[] Pixels
         {
             get;
@@ -34,10 +39,12 @@ namespace Sugoi.Core.IO
         /// </summary>
         /// <param name="stream"></param>
 
-        public override void Read(BinaryReader reader)
+        public override Task<bool> ReadAsync(BinaryReader reader)
         {
             this.ReadHeader(reader);
             this.ImportImage(reader.BaseStream);
+
+            return Task.FromResult(true);
         }
 
         /// <summary>

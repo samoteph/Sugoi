@@ -4,6 +4,7 @@ using Sugoi.Core.IO;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace CrazyZone
 {
@@ -20,15 +21,16 @@ namespace CrazyZone
         {
         }
 
-        public override void Start(Machine machine)
+        public override async Task StartAsync(Machine machine)
         {
             // Démarrage du jeu
             this.machine = machine;
 
             var videoMemory = this.machine.VideoMemory;
             var screen = this.machine.Screen;
+            var audio = this.machine.Audio;
 
-            AssetStore.Start(videoMemory);
+            await AssetStore.StartAsync(videoMemory, audio);
 
             screen.Font = AssetStore.Font;
 
@@ -37,9 +39,9 @@ namespace CrazyZone
             game.Start(this.machine);
         }
 
-        public override void Load()
+        public override Task LoadAsync()
         {
-            this.LoadFromResource("CrazyZone.Cartridge.Cartridge.sugoi");
+            return this.LoadFromResourceAsync("CrazyZone.Cartridge.Cartridge.sugoi");
         }
     }
 }

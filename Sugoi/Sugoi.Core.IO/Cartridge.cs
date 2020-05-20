@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace Sugoi.Core.IO
 {
@@ -15,6 +16,16 @@ namespace Sugoi.Core.IO
             get;
             private set;
         } = false;
+
+        /// <summary>
+        /// Ecriture de fichier externe
+        /// </summary>
+
+        public ExportFileAsyncHandler ExportFileAsyncCallback
+        {
+            get;
+            set;
+        }
 
         public Cartridge()
         {
@@ -34,24 +45,29 @@ namespace Sugoi.Core.IO
             this.Header.Read(reader);
         }
 
-        public abstract void Load();
+        public abstract Task LoadAsync();
 
         /// <summary>
         /// Chargement de la cartridge qui doit se trouver en ressource embedded
         /// "CrazyZone.Cartridge.Cartridge.sugoi" -> Projet.Repertoire.Nom de fichier
         /// </summary>
 
-        protected void LoadFromResource(string resourceName)
+        protected async Task LoadFromResourceAsync(string resourceName)
         {
             var assembly = this.GetType().Assembly;
 
             using (var stream = assembly.GetManifestResourceStream(resourceName))
             {
-                this.Load(stream);
+                await this.LoadAsync(stream);
             }
         }
 
-        protected virtual void Load(Stream stream)
+        /// <summary>
+        /// Chargement à partir d'un flux
+        /// </summary>
+        /// <param name="stream"></param>
+
+        protected virtual async Task LoadAsync(Stream stream)
         {
             using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
             {
@@ -70,24 +86,30 @@ namespace Sugoi.Core.IO
                             throw new Exception("Unknow assetType '" + assetType + "' !");
 
                         case AssetTypes.Sprite:
-                            asset = new AssetSprite();
+                            asset = new AssetSprite(this);
                             break;
 
                         case AssetTypes.TileSheet:
-                            asset = new AssetTileSheet();
+                            asset = new AssetTileSheet(this);
                             break;
 
                         case AssetTypes.FontSheet:
-                            asset = new AssetFontSheet();
+                            asset = new AssetFontSheet(this);
                             break;
 
                         case AssetTypes.MapTmx:
                             // MapTmx contient une liste d'AssetMap
-                            asset = new AssetMapTmx();
+                            asset = new AssetMapTmx(this);
+                            break;
+
+                        case AssetTypes.Sound:
+                            asset = new AssetFile(this);
                             break;
                     }
 
-                    asset.Read(reader);
+                    asset.Size = assetSize;
+
+                    await asset.ReadAsync(reader);
                     this.assets.Add(asset.Name, asset);
                 }
             }
@@ -129,4 +151,6 @@ namespace Sugoi.Core.IO
 
         }
     }
+
+    public delegate Task<bool> ExportFileAsyncHandler(string name, BinaryReader stream, int count);
 }

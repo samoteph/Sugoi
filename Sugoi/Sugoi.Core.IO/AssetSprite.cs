@@ -15,6 +15,10 @@ namespace Sugoi.Core.IO
 
     public class AssetSprite : AssetImage
     {
+        public AssetSprite(Cartridge cartridge) : base(cartridge)
+        {
+        }
+
         public override AssetTypes Type
         {
             get
@@ -23,9 +27,9 @@ namespace Sugoi.Core.IO
             }
         }
 
-        public static AssetSprite Import(string assetName, Stream stream)
+        public static AssetSprite Import(Cartridge cartridge, string assetName, Stream stream)
         {
-            AssetSprite sprite = new AssetSprite();
+            AssetSprite sprite = new AssetSprite(cartridge);
             sprite.Name = assetName;
             sprite.ImportImage(stream);
             return sprite;

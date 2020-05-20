@@ -12,7 +12,9 @@ namespace Sugoi.Core.Shared
         public const int    DESCRIPTION_LENGTH = 200;
 
         public const int    ASSET_NAME_LENGTH = 30;
- 
+        public const int    MINIMAL_ASSET_HEADER_SIZE = ASSET_NAME_LENGTH + 4; // + 4 c'est la taille du type de l'asset
+
+
         public const int BANK_COLORS_COUNT = 10;
         public const int BANK_COLORS_LENGTH = BANK_COLORS_COUNT * 4;
     }

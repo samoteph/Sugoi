@@ -6,6 +6,7 @@
     <Asset Name="title" Type="Sprite" Filename="title.png"/>
     <Asset Name="tiles" Type="TileSheet" Filename="TileSheet.png" TileWidth="8" TileHeight="8"/>
     <Asset Name="font" Type="FontSheet" Filename="FontCrazyZone.png" TileWidth="8" TileHeight="8" FontType="PolychromeStatic" MapHeightBank="4" BankColors="#FF0000,#FFFFFFFF,#FF00FF00"/>
-    <Asset Name="map " Type="MapTmx" Filename="Map.tmx" TileSheet="tiles"/>
+    <Asset Name="map" Type="MapTmx" Filename="Map.tmx" TileSheet="tiles"/>
+    <Asset Name="musicHome" Type="Sound" Filename="Carnival-Games.mp3"/>
   </Assets>
 </Cartridge>

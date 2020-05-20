@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CrazyZone
 {
@@ -276,7 +277,14 @@ namespace CrazyZone
             return maps;
         }
 
-        public static void Start(VideoMemory videoMemory)
+        /// <summary>
+        /// Lancement de l'AssetStore 
+        /// </summary>
+        /// <param name="videoMemory"></param>
+        /// <param name="audio"></param>
+        /// <returns></returns>
+
+        public static async Task StartAsync(VideoMemory videoMemory, Audio audio)
         {
             Title = videoMemory.CreateSprite("title");
             Tiles = videoMemory.CreateTileSheet("tiles");
@@ -306,6 +314,9 @@ namespace CrazyZone
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
+
+            // Son
+            await audio.PreloadAsync("homeSound", 1);
         }
 
         public static SurfaceSprite Title

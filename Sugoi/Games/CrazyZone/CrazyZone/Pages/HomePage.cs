@@ -67,7 +67,7 @@ namespace CrazyZone.Pages
         public HomePage(Game game)
         {
             this.game = game;
-            this.machine = game.Machine;
+            this.machine = game.Machine;       
         }
 
         public void Initialize()
@@ -90,6 +90,8 @@ namespace CrazyZone.Pages
             hiScoreString = "hiscore: " + hiScore;
 
             this.fontWidth = this.machine.Screen.Font.FontSheet.TileWidth;
+
+            this.machine.Audio.Play("homeSound", 1, true);
         }
 
         public void Updating()
@@ -184,6 +186,8 @@ namespace CrazyZone.Pages
                     break;
 
                 case HomeStates.Quit:
+
+                    this.machine.Audio.Stop("homeSound");
 
                     machine.WaitForFrame(30, () =>
                     {

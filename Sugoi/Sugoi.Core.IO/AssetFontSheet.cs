@@ -14,6 +14,10 @@ namespace Sugoi.Core.IO
 
     public class AssetFontSheet : AssetTileSheet
     {
+        public AssetFontSheet(Cartridge cartridge) : base(cartridge)
+        {
+        }
+
         public override AssetTypes Type
         {
             get
@@ -141,9 +145,9 @@ namespace Sugoi.Core.IO
     /// <param name="mapHeightBank"></param>
     /// <returns></returns>
 
-    public static AssetFontSheet Import(string assetName, Stream stream, int tileWidth, int tileHeight, FontTypes fontType, int mapHeightBank)
+    public static AssetFontSheet Import(Cartridge cartridge, string assetName, Stream stream, int tileWidth, int tileHeight, FontTypes fontType, int mapHeightBank)
         {
-            AssetFontSheet font = new AssetFontSheet();
+            AssetFontSheet font = new AssetFontSheet(cartridge);
             font.Name = assetName;
             font.ImportImage(stream);
 

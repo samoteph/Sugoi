@@ -11,15 +11,44 @@ using System.Text;
 using Sugoi.Core;
 using Rgba32 = SixLabors.ImageSharp.PixelFormats.Rgba32;
 using Sugoi.Core.Shared;
+using System.Threading.Tasks;
 
 namespace Sugoi.Core.IO
 {
     public abstract class Asset
     {
+        protected Cartridge cartridge;
+
+        /// <summary>
+        /// Constructeur
+        /// </summary>
+        /// <param name="cartridge"></param>
+
+        public Asset(Cartridge cartridge)
+        {
+            this.cartridge = cartridge;
+        }
+
+        public Cartridge Cartridge
+        {
+            get;
+            private set;
+        }
+
         public string Name
         {
             get;
             protected set;
+        }
+
+        /// <summary>
+        /// Taille complet de l'asset en comptant le header (injecté par Cartridge)
+        /// </summary>
+
+        public int Size
+        {
+            get;
+            internal set;
         }
 
         public abstract AssetTypes Type
@@ -27,7 +56,7 @@ namespace Sugoi.Core.IO
             get;
         }
 
-        public abstract void Read(BinaryReader reader);
+        public abstract Task<bool> ReadAsync(BinaryReader reader);
 
         protected virtual void ReadHeader(BinaryReader reader)
         {

@@ -3,12 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using TiledSharp;
 
 namespace Sugoi.Core.IO
 {
     public class AssetMap : Asset
     {
+        public AssetMap(Cartridge cartridge) : base(cartridge)
+        {
+        }
+
         public override AssetTypes Type
         {
             get
@@ -41,8 +46,9 @@ namespace Sugoi.Core.IO
             protected set;
         }
 
-        public override void Read(BinaryReader reader)
+        public override Task<bool> ReadAsync(BinaryReader reader)
         {
+            return Task.FromResult(true);
         }
 
         /// <summary>
@@ -96,9 +102,9 @@ namespace Sugoi.Core.IO
         //    return maps;
         //}
 
-        public static AssetMap Import(string assetName, string assetTileSheetName, int mapWidth, int mapHeight, MapTileDescriptor[] tiles)
+        public static AssetMap Import(Cartridge cartridge, string assetName, string assetTileSheetName, int mapWidth, int mapHeight, MapTileDescriptor[] tiles)
         {
-            AssetMap map = new AssetMap();
+            AssetMap map = new AssetMap(cartridge);
             map.Name = assetName;
 
             map.Tiles = tiles;
@@ -120,9 +126,9 @@ namespace Sugoi.Core.IO
         /// <param name="encodedTilesNumber"></param>
         /// <returns></returns>
 
-        public static AssetMap Import(string assetName, string assetTileSheetName, int mapWidth, int mapHeight, uint[] encodedTilesNumber)
+        public static AssetMap Import(Cartridge cartridge, string assetName, string assetTileSheetName, int mapWidth, int mapHeight, uint[] encodedTilesNumber)
         {
-            AssetMap map = new AssetMap();
+            AssetMap map = new AssetMap(cartridge);
             map.Name = assetName;
 
             map.Tiles = new MapTileDescriptor[encodedTilesNumber.Length];

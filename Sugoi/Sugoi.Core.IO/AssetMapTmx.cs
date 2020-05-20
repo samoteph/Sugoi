@@ -3,12 +3,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 using TiledSharp;
 
 namespace Sugoi.Core.IO
 {
     public class AssetMapTmx : Asset
     {
+        public AssetMapTmx(Cartridge cartridge) : base(cartridge)
+        {
+        }
+
         public override AssetTypes Type
         {
             get
@@ -29,11 +34,13 @@ namespace Sugoi.Core.IO
             private set;
         }
 
-        public override void Read(BinaryReader reader)
+        public override Task<bool> ReadAsync(BinaryReader reader)
         {
             this.ReadHeader(reader);
 
-            this.Maps = Import(this.AssetTileSheetName, reader.BaseStream);
+            this.Maps = Import(this.cartridge, this.AssetTileSheetName, reader.BaseStream);
+
+            return Task.FromResult(true);
         }
 
         protected override void ReadHeader(BinaryReader reader)
@@ -42,7 +49,7 @@ namespace Sugoi.Core.IO
             this.AssetTileSheetName = this.ReadString(reader, CartridgeFileFormat.ASSET_NAME_LENGTH);
         }
 
-        public static List<AssetMap> Import(string assetTileSheetName, Stream stream)
+        public static List<AssetMap> Import(Cartridge cartridge, string assetTileSheetName, Stream stream)
         {
             List<AssetMap> maps = new List<AssetMap>();
             TmxMap tmxMap = new TmxMap(stream);
@@ -73,6 +80,7 @@ namespace Sugoi.Core.IO
                 }
 
                 AssetMap map = AssetMap.Import(
+                    cartridge,
                     layer.Name,
                     assetTileSheetName,
                     tmxMap.Width,

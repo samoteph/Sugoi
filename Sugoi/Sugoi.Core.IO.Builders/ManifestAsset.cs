@@ -87,7 +87,7 @@ namespace Sugoi.Core.IO.Builders
 
 
             // ecriture de la taille de l'asset (nom + fichier)
-            int size = externalSize + CartridgeFileFormat.ASSET_NAME_LENGTH + 4;
+            int size = externalSize + CartridgeFileFormat.MINIMAL_ASSET_HEADER_SIZE;
             writer.Write(size); // 4 c'est la taille du type de l'asset
 
             // Type de l'asset

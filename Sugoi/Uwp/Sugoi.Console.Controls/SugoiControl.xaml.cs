@@ -1,5 +1,6 @@
 ﻿using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
+using SamuelBlanchard.Audio;
 using Sugoi.Core;
 using Sugoi.Core.IO;
 using System;
@@ -23,6 +24,7 @@ namespace Sugoi.Console.Controls
     {
         Machine machine = new Machine();
         private byte[] screenArray;
+        private AudioPlayer<string> audioPlayer = new AudioPlayer<string>();
 
         public SugoiControl()
         {
@@ -36,23 +38,53 @@ namespace Sugoi.Console.Controls
             this.Focus(FocusState.Programmatic);
         }
 
-        IEnumerator updateEnumerator = null;
-
         public async Task StartAsync(Cartridge cartridge)
         {
             if (this.machine.IsStarted == false)
             {
-                cartridge.Load();
+                cartridge.ExportFileAsyncCallback = (name, stream, count) =>
+                {
+                    return this.WriteCartridgeFileAsync(name, stream, count);
+                };
+
+                // Chargement de la cartouche
+                await cartridge.LoadAsync();
 
                 // callback de Ram avec battery (appelé dans le Start de la machine)
-                this.machine.ReadBatteryRamCallback = () =>
+                this.machine.ReadBatteryRamAsyncCallback = () =>
                 {
                     return this.ReadBatteryRamAsync();
                 };
 
-                this.machine.WriteBatteryRamCallback = (memory) =>
+                this.machine.WriteBatteryRamAsyncCallback = (memory) =>
                 {
                     return this.WriteBatteryRamAsync(memory);
+                };
+
+                // Gestion du son
+
+                await audioPlayer.InitializeAsync();
+
+                this.machine.PreloadSoundAsyncCallBack = (name, channelCount) =>
+                {
+                    return this.PreloadSoundAsync(name, channelCount);
+                };
+
+                this.machine.PlaySoundCallBack = (name, volume, isLoop) =>
+                {
+                    if (isLoop == true)
+                    {
+                        audioPlayer.PlayLoop(name, volume);
+                    }
+                    else
+                    {
+                        audioPlayer.PlaySound(name, volume);
+                    }
+                };
+
+                this.machine.StopSoundCallBack = (name) =>
+                {
+                    audioPlayer.Stop(name);
                 };
 
                 // Lancement de la console
@@ -89,7 +121,7 @@ namespace Sugoi.Console.Controls
                     this.FrameUpdated?.Invoke();
                 };
 
-                // la machine appelera le FrameDrawn à chaque Render
+                // la machine appelera le DrawCallback à chaque Render
                 var cartridgeDrawCallback = this.machine.DrawCallback;
                 this.machine.DrawCallback = (frameExecuted) =>
                 {
@@ -104,6 +136,72 @@ namespace Sugoi.Console.Controls
                 this.LostFocus += OnSugoiLostFocus;
             }
         }
+
+        /// <summary>
+        /// Prechargement des fichiers son
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="channelCount"></param>
+        /// <returns></returns>
+
+        private async Task PreloadSoundAsync(string name, int channelCount)
+        {
+            StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+
+            var folder = (StorageFolder)await storageFolder.TryGetItemAsync("Cartridge");
+            var file = await folder.GetFileAsync(name);
+
+            await audioPlayer.AddSoundAsync(name, file, channelCount);
+        }
+
+        /// <summary>
+        /// Ecriture d'un fichier en provenance de la cartouche (son par exemple)
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="streamReader"></param>
+        /// <param name="count"></param>
+        /// <returns></returns>
+
+        private async Task<bool> WriteCartridgeFileAsync(string name, BinaryReader streamReader, int count)
+        {
+            try
+            {
+                StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
+
+                StorageFolder folder = (StorageFolder)await storageFolder.TryGetItemAsync("Cartridge");
+                
+                if (folder == null)
+                {
+                    folder = await storageFolder.CreateFolderAsync("Cartridge");
+                }
+
+                var storageFile = await folder.CreateFileAsync(name, CreationCollisionOption.OpenIfExists);
+
+                byte[] data = streamReader.ReadBytes(count);
+
+                using (var fileStream = await storageFile.OpenAsync(FileAccessMode.ReadWrite))
+                {
+                    using (var streamWriter = new BinaryWriter(fileStream.AsStream()))
+                    {
+                        streamWriter.BaseStream.Position = 0;
+
+                        streamWriter.Write(data);
+                        streamWriter.Close();
+                        return true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Sauvegarde de la batterie
+        /// </summary>
+        /// <param name="memory"></param>
+        /// <returns></returns>
 
         private async Task<bool> WriteBatteryRamAsync(byte[] memory)
         {

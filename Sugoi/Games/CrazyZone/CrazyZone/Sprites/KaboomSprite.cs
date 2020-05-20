@@ -68,11 +68,11 @@ namespace CrazyZone.Sprites
 
             if (isSlow == false)
             {
-                frameMaxKaboom = 8;
+                frameMaxKaboom = 80;
             }
             else
             {
-                frameMaxKaboom = 15;
+                frameMaxKaboom = 150;
             }
 
             this.xCenter = xCenter;
@@ -83,6 +83,9 @@ namespace CrazyZone.Sprites
         {
             this.indexKaboom = 0;
             IsExploding = false;
+
+            this.frameKaboom = 0;
+            this.frameMaxKaboom = 0;
         }
 
         public override void Updated()

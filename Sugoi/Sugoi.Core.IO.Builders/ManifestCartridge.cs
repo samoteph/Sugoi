@@ -118,6 +118,9 @@ namespace Sugoi.Core.IO.Builders
                             case "maptmx":
                                 asset = new ManifestAssetMapTmx(this);
                                 break;
+                            case "sound":
+                                asset = new ManifestAssetSound(this);
+                                break;
                         }
 
                         if(asset == null)

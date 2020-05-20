@@ -76,11 +76,11 @@ namespace Sugoi.Core
             {
                 var sprite = this.sprites[i];
 
-                if (sprite.IsAlive)
-                {
+                //if (sprite.IsAlive)
+                //{
                     sprite.ScrollX = scrollX;
                     sprite.ScrollY = scrollY;
-                }
+                //}
             }
         }
 

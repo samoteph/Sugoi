@@ -54,11 +54,18 @@ namespace Sugoi.Core
             set;
         }
 
+        public Audio Audio
+        {
+            get;
+            private set;
+        }
+
         public Machine()
         {
             this.Gamepad = new Gamepad();
             this.videoMemory = new VideoMemory();
             this.BatteryRam = new BatteryRam();
+            this.Audio = new Audio();
         }
 
         public bool IsStarted
@@ -83,6 +90,8 @@ namespace Sugoi.Core
                 throw new Exception("The cartridge is not loaded! Please load the cartridge before launching the machine!");
             }
 
+            this.Audio.Start(this);
+
             this.screen = new Screen();
 
             this.screen.Start(320, 180);
@@ -105,7 +114,7 @@ namespace Sugoi.Core
 
             if (executableCartridge != null)
             {
-                executableCartridge.Start(this);
+                await executableCartridge.StartAsync(this);
             }
         }
 
@@ -243,13 +252,51 @@ namespace Sugoi.Core
             set;
         }
 
-        public Func<byte[], Task<bool>> WriteBatteryRamCallback
+        /// <summary>
+        /// Ecriture de la RAM sur batterie
+        /// </summary>
+
+        public Func<byte[], Task<bool>> WriteBatteryRamAsyncCallback
         {
             get;
             set;
         }
 
-        public Func<Task<byte[]>> ReadBatteryRamCallback
+        /// <summary>
+        /// Lecture de la RAM sur batterie
+        /// </summary>
+
+        public Func<Task<byte[]>> ReadBatteryRamAsyncCallback
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Prechargement des sons (chargement des sons dans le moteur audio coté client)
+        /// </summary>
+
+        public Func<string, int, Task> PreloadSoundAsyncCallBack
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Jouer un son preloadé
+        /// </summary>
+
+        public Action<string, double, bool> PlaySoundCallBack
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Arreter un son
+        /// </summary>
+
+        public Action<string> StopSoundCallBack
         {
             get;
             set;
@@ -373,7 +420,7 @@ namespace Sugoi.Core
 
         internal Task<byte[]> ReadBatteryRamAsync()
         {
-            return this.ReadBatteryRamCallback?.Invoke();
+            return this.ReadBatteryRamAsyncCallback?.Invoke();
         }
 
         /// <summary>
@@ -383,7 +430,7 @@ namespace Sugoi.Core
 
         internal Task<bool> WriteBatteryRamAsync(byte[] batteryRam)
         {
-            return this.WriteBatteryRamCallback?.Invoke(batteryRam);
+            return this.WriteBatteryRamAsyncCallback?.Invoke(batteryRam);
         }
 
         /// <summary>
