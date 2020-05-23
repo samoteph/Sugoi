@@ -12,9 +12,7 @@ namespace CrazyZone.Sprites
         private Machine machine;
         private SurfaceTileSheet tiles;
 
-        private Map[] walkMaps;
-        private int walkIndex = 0;
-        private int frameWalkAnimation = 0;
+        private Animator walkAnimator;
         private double framePath = 0;
 
         private int frameBullet;
@@ -48,8 +46,8 @@ namespace CrazyZone.Sprites
 
             this.page = page;
             tiles = AssetStore.Tiles;
-            walkMaps = AssetStore.DuckMaps;
-            walkIndex = 0;
+
+            walkAnimator = AssetStore.CreateDuckAnimation();
 
             this.ScrollWidth = page.ScrollWidth;
 
@@ -90,6 +88,8 @@ namespace CrazyZone.Sprites
 
             this.originalY = y;
             this.originalX = X;
+
+            walkAnimator.Start();
         }
 
         public override void Collide(ISprite sprite)
@@ -111,17 +111,7 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            if (frameWalkAnimation > 10)
-            {
-                frameWalkAnimation = 0;
-
-                walkIndex++;
-                walkIndex = walkIndex % walkMaps.Length;
-            }
-            else
-            {
-                frameWalkAnimation++;
-            }
+            walkAnimator.Update();
 
             if (framePath <= path.MaximumFrame)
             {
@@ -164,7 +154,8 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            screen.DrawSpriteMap(walkMaps[walkIndex], XScrolled, YScrolled);
+            walkAnimator.Draw(screen, XScrolled, YScrolled);
+            this.DrawCollisionBox(screen);
         }
     }
 }

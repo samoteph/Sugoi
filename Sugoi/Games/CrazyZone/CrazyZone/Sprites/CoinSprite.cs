@@ -12,8 +12,11 @@ namespace CrazyZone.Sprites
         private Machine machine;
         private SurfaceTileSheet tiles;
 
-        private Map[] coinMaps;
-        private int coinIndex = 0;
+        private Animator coin1Animator;
+        private Animator coin5Animator;
+
+        private Animator coinAnimator;
+
         private int frameCoinAnimation = 0;
         private double framePath = 0;
 
@@ -32,9 +35,10 @@ namespace CrazyZone.Sprites
             this.page = page;
             tiles = AssetStore.Tiles;
             
-            coinIndex = 0;
-
             this.ScrollWidth = page.ScrollWidth;
+
+            coin1Animator = AssetStore.CreateCoin1Animation();
+            coin5Animator = AssetStore.CreateCoin5Animation();
 
             this.Width = 16;
             this.Height = 16;
@@ -71,12 +75,15 @@ namespace CrazyZone.Sprites
 
             if(coinType == CoinTypes.Coin1)
             {
-                coinMaps = AssetStore.Coin1Maps;
+                coinAnimator = coin1Animator;
             }
             else
             {
-                coinMaps = AssetStore.Coin5Maps;
+                coinAnimator = coin5Animator;
             }
+
+            coinAnimator.AnimationType = AnimationTypes.Manual;
+            coinAnimator.Start();
 
             int yPath = machine.Screen.BoundsClipped.Bottom - y - this.Height - 4;
 
@@ -128,8 +135,7 @@ namespace CrazyZone.Sprites
                 {
                     frameCoinAnimation = 0;
 
-                    coinIndex++;
-                    coinIndex = coinIndex % coinMaps.Length;
+                    coinAnimator.NextFrame();
                 }
                 else
                 {
@@ -158,7 +164,9 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            screen.DrawSpriteMap(coinMaps[coinIndex], XScrolled, YScrolled);
+            coinAnimator.Draw(screen, XScrolled, YScrolled);
+
+            this.DrawCollisionBox(screen);
         }
     }
 

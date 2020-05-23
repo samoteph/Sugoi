@@ -76,11 +76,11 @@ namespace Sugoi.Core
             {
                 var sprite = this.sprites[i];
 
-                //if (sprite.IsAlive)
-                //{
+                if (sprite.IsAlive)
+                {
                     sprite.ScrollX = scrollX;
                     sprite.ScrollY = scrollY;
-                //}
+                }
             }
         }
 
@@ -108,6 +108,28 @@ namespace Sugoi.Core
                     sprite.Updating();
                 }
             }
+        }
+
+        /// <summary>
+        /// compte le nombre de sprite Alive
+        /// </summary>
+        /// <returns></returns>
+
+        public int GetAliveCount()
+        {
+            int count = 0;
+
+            for (int i = 0; i < this.sprites.Length; i++)
+            {
+                var sprite = this.sprites[i];
+
+                if (sprite.IsAlive)
+                {
+                    count++;
+                }
+            }
+
+            return count;
         }
 
         public void Draw(int frameExecuted)

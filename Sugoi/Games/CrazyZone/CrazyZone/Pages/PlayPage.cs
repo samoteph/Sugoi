@@ -3,6 +3,7 @@ using Sugoi.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CrazyZone.Pages
@@ -136,6 +137,8 @@ namespace CrazyZone.Pages
         {
             State = PlayStates.Play;
 
+            this.machine.Audio.PlayLoop("playSound");
+
             this.machine.Frame = 0;
 
             frameGameOver = 0;
@@ -146,6 +149,7 @@ namespace CrazyZone.Pages
             score = 0;
 
             scrollX = 0;
+            //scrollX = -930;
 
             fontWidth = machine.Screen.Font.FontSheet.TileWidth;
 
@@ -182,15 +186,6 @@ namespace CrazyZone.Pages
 
         public void Updating()
         {
-
-        }
-
-        /// <summary>
-        /// Mise à jour après les waits
-        /// </summary>
-
-        public void Updated()
-        {
             if (State != PlayStates.Quit)
             {
                 if (opa.IsAlive && opa.IsDying == false)
@@ -198,50 +193,48 @@ namespace CrazyZone.Pages
                     scrollX += opa.Speed;
                 }
 
-                //if (frameDucks > (60 * 8))
-                //{
-                //    frameDucks = 0;
+                if (frameDucks > (60 * 8))
+                {
+                    frameDucks = 0;
 
-                //    const int duckCount = 4;
-                //    var step = machine.Screen.BoundsClipped.Height / (duckCount + 1);
+                    const int duckCount = 4;
+                    var step = machine.Screen.BoundsClipped.Height / (duckCount + 1);
 
-                //    for (int y = 0; y < duckCount; y++)
-                //    {
-                //        this.ducks.GetFreeSprite().Born(step + y * step);
-                //    }
-                //}
-                //else
-                //{
-                //    frameDucks++;
-                //}
+                    for (int y = 0; y < duckCount; y++)
+                    {
+                        this.ducks.GetFreeSprite().Born(step + y * step);
+                    }
+                }
+                else
+                {
+                    frameDucks++;
+                }
 
-                //if (frameFlies > (60 * 12))
-                //{
-                //    frameFlies = 0;
+                if (frameFlies > (60 * 12))
+                {
+                    frameFlies = 0;
 
-                //    var centerY = (machine.Screen.BoundsClipped.Height - 16) / 2;
+                    var centerY = (machine.Screen.BoundsClipped.Height - 16) / 2;
 
-                //    this.flies.GetFreeSprite().Born(0, centerY);
+                    this.flies.GetFreeSprite().Born(0, centerY);
 
-                //    this.flies.GetFreeSprite().Born(20, centerY - 8);
-                //    this.flies.GetFreeSprite().Born(20, centerY + 8);
+                    this.flies.GetFreeSprite().Born(20, centerY - 8);
+                    this.flies.GetFreeSprite().Born(20, centerY + 8);
 
-                //    this.flies.GetFreeSprite().Born(40, centerY - 16);
-                //    this.flies.GetFreeSprite().Born(40, centerY);
-                //    this.flies.GetFreeSprite().Born(40, centerY + 16);
+                    this.flies.GetFreeSprite().Born(40, centerY - 16);
+                    this.flies.GetFreeSprite().Born(40, centerY);
+                    this.flies.GetFreeSprite().Born(40, centerY + 16);
 
-                //    this.flies.GetFreeSprite().Born(60, centerY - 24);
-                //    this.flies.GetFreeSprite().Born(60, centerY - 8);
-                //    this.flies.GetFreeSprite().Born(60, centerY + 8);
-                //    this.flies.GetFreeSprite().Born(60, centerY + 24);
+                    this.flies.GetFreeSprite().Born(60, centerY - 24);
+                    this.flies.GetFreeSprite().Born(60, centerY - 8);
+                    this.flies.GetFreeSprite().Born(60, centerY + 8);
+                    this.flies.GetFreeSprite().Born(60, centerY + 24);
 
-                //}
-                //else
-                //{
-                //    frameFlies++;
-                //}
-
-                mothers.SetScroll((int)-scrollX, 0);
+                }
+                else
+                {
+                    frameFlies++;
+                }
 
                 opa.Updated();
                 ammos.Updated();
@@ -250,6 +243,7 @@ namespace CrazyZone.Pages
                 bombs.SetScroll((int)-scrollX, 0);
                 bombs.Updated();
 
+                mothers.SetScroll((int)-scrollX, 0);
                 mothers.Updated();
 
                 babies.SetScroll((int)-scrollX, 0);
@@ -261,14 +255,8 @@ namespace CrazyZone.Pages
                 flies.SetScroll((int)-scrollX, 0);
                 flies.Updated();
 
-                bullets.SetScroll((int) -scrollX, 0);
+                bullets.SetScroll((int)-scrollX, 0);
                 bullets.Updated();
-
-                coins.SetScroll((int)-scrollX, 0);
-                coins.Updated();
-
-                kabooms.SetScroll((int)-scrollX, 0);
-                kabooms.Updated();
 
                 mothers.CheckCollision(opa, CollisionStrategies.RectIntersect);
                 babies.CheckCollision(opa, CollisionStrategies.RectIntersect);
@@ -287,6 +275,43 @@ namespace CrazyZone.Pages
                 bombs.CheckCollision(ducks, CollisionStrategies.RectIntersect);
                 bombs.CheckCollision(flies, CollisionStrategies.RectIntersect);
 
+
+                // Mise à jour des coins car appeler par les collisions
+                coins.SetScroll((int)-scrollX, 0);
+                coins.Updated();
+
+                // Mise à jour de Kaboom à la fin car les collisions peuvent l'appeler
+                kabooms.SetScroll((int)-scrollX, 0);
+                kabooms.Updated();
+
+                // Quit le GameOver au bout d'un certain temps si le player n'a pas appuyé sur son choix (retry, exit)
+                if (State == PlayStates.GameOver)
+                {
+                    if (frameGameOver == 60 * 5)
+                    {
+                        // il ne passera qu'une seule fois
+                        frameGameOver++;
+                        this.machine.StopWait(false);
+
+                        State = PlayStates.Quit;
+                    }
+                    else
+                    {
+                        frameGameOver++;
+                    }
+                }
+            }
+        }
+
+            /// <summary>
+            /// Mise à jour après les waits
+            /// </summary>
+
+        public void Updated()
+        {
+            if (State != PlayStates.Quit)
+            {
+                // Augmente le score toutes les secondes environs
                 if (Opa.IsDying == false && Opa.IsAlive == true)
                 {
                     if (frameScore > 60)
@@ -304,17 +329,18 @@ namespace CrazyZone.Pages
             switch (State)
             {
                 case PlayStates.GameOver:
-                    if (frameGameOver > 60 * 5)
+
+                    if (this.machine.Gamepad.IsButtonsPressed())
                     {
-                        State = PlayStates.Quit;
+                        this.machine.Gamepad.WaitForRelease(() => State = PlayStates.Quit);
                     }
-                    else
-                    {
-                        frameGameOver++;
-                    }
+
                     break;
 
                 case PlayStates.Quit:
+
+                    this.machine.Audio.Stop("playSound");
+
                     machine.WaitForFrame(30, () =>
                     {
                         game.Navigate(typeof(HomePage));
@@ -344,6 +370,7 @@ namespace CrazyZone.Pages
                 flies.Draw(frameExecuted);
 
                 kabooms.Draw(frameExecuted);
+
                 opa.Draw(frameExecuted);
                 bombs.Draw(frameExecuted);
                 bullets.Draw(frameExecuted);
@@ -359,6 +386,9 @@ namespace CrazyZone.Pages
                 screen.DrawText(score, screen.BoundsClipped.X + SCORE_TEXT.Length * fontWidth, 0);
                 // hi score
                 screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
+                // scroll
+                screen.DrawText((int)-scrollX, 160, 0);
+
             }
             else
             {
@@ -449,6 +479,7 @@ namespace CrazyZone.Pages
 
     public enum PlayStates
     {
+        Pause,
         Play,
         GameOver,
         Quit

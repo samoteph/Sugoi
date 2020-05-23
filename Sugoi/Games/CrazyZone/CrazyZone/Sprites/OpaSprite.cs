@@ -12,13 +12,10 @@ namespace CrazyZone.Sprites
         private Machine machine;
         private SurfaceTileSheet tiles;
 
-        private Map[] flightMaps;
-        private int opaFlightIndex;
+        private Animator flightAnimator;
+        private Animator walkAnimator;
 
-        private Map[] walkMaps;
-        private int opaWalkIndex;
-
-        private Map[] deathStarMaps;
+        private Animator deathStarAnimator;
         private int frameDeathStar;
         private int deathStarIndex;
 
@@ -49,9 +46,11 @@ namespace CrazyZone.Sprites
             frameDeathStarThresold1 = (int)((double)pathDeathStart.MaximumFrame * 0.8d);
 
             tiles = AssetStore.Tiles;
-            flightMaps = AssetStore.OpaFlightMaps;
-            walkMaps = AssetStore.OpaWalkMaps;
-            deathStarMaps = AssetStore.DeathStarMaps;
+            flightAnimator = AssetStore.OpaFlightAnimator;
+            walkAnimator = AssetStore.OpaWalkAnimator;
+            
+            deathStarAnimator = AssetStore.CreateDeathStartAnimation();
+            deathStarAnimator.AnimationType = AnimationTypes.Manual;
 
             isOpaHorizontalFlipped = true;
 
@@ -138,9 +137,6 @@ namespace CrazyZone.Sprites
             IsMoving = true;
             IsWalking = false;
 
-            opaFlightIndex = 0;
-            opaWalkIndex = 0;
-
             frameAmmo = 0;
             frameBomb = 0;
             frameDeathStar = 0;
@@ -150,10 +146,14 @@ namespace CrazyZone.Sprites
 
             this.rectScroll = new Rectangle(xScroll, screen.BoundsClipped.Y, widthScroll, screen.BoundsClipped.Height);
 
-            this.Width = flightMaps[0].Width;
-            this.Height = flightMaps[0].Height;
+            this.Width = flightAnimator.Width;
+            this.Height = flightAnimator.Height;
 
             deathStarIndex = 0;
+
+            this.flightAnimator.Start();
+            this.walkAnimator.Start();
+            this.deathStarAnimator.Start();
 
             this.InitializeCollision(3);
         }
@@ -284,15 +284,17 @@ namespace CrazyZone.Sprites
                     IsWalking = false;
                 }
 
+                // on marche
+
                 if (IsWalking)
                 {
                     if (Direction != 0)
                     {
-                        opaWalkIndex = (this.machine.Frame % 20) > 10 ? 0 : 1;
+                        walkAnimator.Speed = 2;
                     }
                     else
                     {
-                        opaWalkIndex = (this.machine.Frame % 10) > 5 ? 0 : 1;
+                        walkAnimator.Speed = 1;
                     }
                 }
 
@@ -305,20 +307,15 @@ namespace CrazyZone.Sprites
                 // battement des ailes : varie selon que l'on bouge ou non
                 if (IsMoving == false)
                 {
-                    var frameIndex = this.machine.Frame % 30;
-
-                    if (frameIndex > 20) opaFlightIndex = 2;
-                    else if (frameIndex > 10) opaFlightIndex = 1;
-                    else opaFlightIndex = 0;
+                    flightAnimator.Speed = 1;
                 }
                 else
                 {
-                    var frameIndex = this.machine.Frame % 15;
-
-                    if (frameIndex > 10) opaFlightIndex = 2;
-                    else if (frameIndex > 5) opaFlightIndex = 1;
-                    else opaFlightIndex = 0;
+                    flightAnimator.Speed = 2;
                 }
+
+                flightAnimator.Update();
+                walkAnimator.Update();
             }
 
             base.Updated();
@@ -340,15 +337,15 @@ namespace CrazyZone.Sprites
                     // seuil de changement d'apparence selon l'avancement dans le temps
                     if(frameDeathStar < frameDeathStarThresold0)
                     {
-                        deathStarIndex = 0;
+                        deathStarAnimator.SetFrame(0);
                     }
                     else if(frameDeathStar < frameDeathStarThresold1 )
                     {
-                        deathStarIndex = 1;
+                        deathStarAnimator.SetFrame(1);
                     }
                     else
                     {
-                        deathStarIndex = 2;
+                        deathStarAnimator.SetFrame(2);
                     }
 
                     // explosion avant la mort
@@ -369,14 +366,7 @@ namespace CrazyZone.Sprites
                             var x = X + (int)(currentOffsetX * Math.Cos(a * step));
                             var y = Y + (int)(currentOffsetX * Math.Sin(a * step));
 
-                            if (deathStarIndex == 2)
-                            {
-                                screen.DrawSpriteMap(deathStarMaps[deathStarIndex], x + 4, y + 4, false, false);
-                            }
-                            else
-                            {
-                                screen.DrawSpriteMap(deathStarMaps[deathStarIndex], x, y, false, false);
-                            }
+                            deathStarAnimator.Draw(screen, x, y);
                         }
                     }
                 }
@@ -392,11 +382,11 @@ namespace CrazyZone.Sprites
             }
             else
             {
-                screen.DrawSpriteMap(flightMaps[opaFlightIndex], X, Y, isOpaHorizontalFlipped, false);
+                flightAnimator.Draw(screen, X, Y, isOpaHorizontalFlipped, false);
 
                 if (IsWalking)
                 {
-                    screen.DrawSpriteMap(walkMaps[opaWalkIndex], X, Y + 8, isOpaHorizontalFlipped, false);
+                    walkAnimator.Draw(screen, X, Y + 8, isOpaHorizontalFlipped, false);
                 }
             }
         }
@@ -406,7 +396,7 @@ namespace CrazyZone.Sprites
             // Explosion de fin avant le game over
             if (collider.TypeName != nameof(CoinSprite))
             {
-                this.IsDying = true;
+                //this.IsDying = true;
             }
         }
     }

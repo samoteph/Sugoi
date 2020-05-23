@@ -3,10 +3,12 @@
 <Cartridge Type="Sugoi" Format="1" Version="1" Title="Mini Crazy Zone" Publisher="SamSoft">
   <Description>Mini Crazy Zone is a fan game based on the famous Fantazy Zone from Sega. It's a one level game wher you should collect the more possible coins to win against the rest of the world!</Description>
   <Assets>
-    <Asset Name="homeSound" Type="Sound" Filename="Carnival-Games.mp3"/>
+    <Asset Name="homeSound" Type="Sound" Filename="HomeSound.mp3"/>
     <Asset Name="title" Type="Sprite" Filename="title.png"/>
     <Asset Name="tiles" Type="TileSheet" Filename="TileSheet.png" TileWidth="8" TileHeight="8"/>
     <Asset Name="font" Type="FontSheet" Filename="FontCrazyZone.png" TileWidth="8" TileHeight="8" FontType="PolychromeStatic" MapHeightBank="4" BankColors="#FF0000,#FFFFFFFF,#FF00FF00"/>
     <Asset Name="map" Type="MapTmx" Filename="Map.tmx" TileSheet="tiles"/>
+    <Asset Name="playSound" Type="Sound" Filename="PlaySound.mp3"/>
+    <Asset Name="bombSound" Type="Sound" Filename="Bomb.wav"/>
   </Assets>
 </Cartridge>

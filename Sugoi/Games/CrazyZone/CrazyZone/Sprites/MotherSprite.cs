@@ -16,19 +16,17 @@ namespace CrazyZone.Sprites
         private PlayPage page;
         private SurfaceTileSheet tiles;
         
-        private Map[] flyMaps;
-        private Map[] openMaps;
+        private Animator flyAnimator;
+        private Animator openAnimator;
+
         private Map tiredMap;
 
-        private int openIndex;
         private int frameOpen;
         private int frameBaby;
         private int frameTired;
 
         private int healthThresold1;
         private int healthThresold2;
-
-        private int flyIndex;
 
         private int health;
 
@@ -42,8 +40,8 @@ namespace CrazyZone.Sprites
             this.page = page;
 
             tiles = AssetStore.Tiles;
-            flyMaps = AssetStore.MotherFlyMaps;
-            openMaps = AssetStore.MotherOpenMaps;
+            flyAnimator = AssetStore.CreateMotherFlyAnimation();
+            openAnimator = AssetStore.CreateMotherOpenAnimation();
             tiredMap = AssetStore.MotherTired;
 
             this.ScrollWidth = page.ScrollWidth;
@@ -51,12 +49,13 @@ namespace CrazyZone.Sprites
             healthThresold1 = (int)((double)HEALTH * 0.33d);
             healthThresold2 = (int)((double)HEALTH * 0.66d);
 
-            this.Width = openMaps[0].Width + (2 * 8); // on ajoute les ailes qui dépassent
-            this.Height = openMaps[0].Height;
+            openAnimator.Stop();
+
+            this.Width = openAnimator.Width + (2 * 8); // on ajoute les ailes qui dépassent
+            this.Height = openAnimator.Height;
 
             this.InitializeCollision(3, 8, 16 + 3, 3);
 
-            openIndex = 0;            
             return this;
         }
 
@@ -137,6 +136,12 @@ namespace CrazyZone.Sprites
             frameBaby = 0;
             frameTired = 0;
 
+            // on avance les frames manuellement
+            openAnimator.AnimationType = AnimationTypes.Manual;
+            openAnimator.Start();
+
+            flyAnimator.Start();
+
             this.health = HEALTH;
         }
 
@@ -172,7 +177,7 @@ namespace CrazyZone.Sprites
                     if (frameOpen > 100)
                     {
                         // Fermeture 
-                        openIndex = 0;
+                        openAnimator.NextFrame(0);
                         frameOpen = 0;
                         frameBaby = 0;
                         this.IsOpening = false;                    
@@ -185,25 +190,11 @@ namespace CrazyZone.Sprites
                             page.Babies.GetFreeSprite().Born(X + (this.Width / 2) - 16, Y + (Height / 2) - 8);
                         }
 
-                        openIndex = 1;
+                        openAnimator.NextFrame(1);
                     }
                 }
 
-                // Ailes
-                var frameFly = frame % 30;
-
-                if (frameFly < 10)
-                {
-                    flyIndex = 0;
-                }
-                else if (frameFly < 20)
-                {
-                    flyIndex = 1;
-                }
-                else
-                {
-                    flyIndex = 2;
-                }
+                flyAnimator.Update();
 
                 // santé
 
@@ -247,18 +238,10 @@ namespace CrazyZone.Sprites
 
             if (this.isTired == false)
             {
-                screen.DrawSpriteMap(openMaps[openIndex], XScrolled, YScrolled, false, false);
+                openAnimator.Draw(screen, XScrolled, YScrolled);
 
-                if (flyIndex != 2)
-                {
-                    screen.DrawSpriteMap(flyMaps[flyIndex], XScrolled - 11, YScrolled - 9);
-                    screen.DrawSpriteMap(flyMaps[flyIndex], XScrolled + 27, YScrolled - 9, true, false);
-                }
-                else
-                {
-                    screen.DrawSpriteMap(flyMaps[2], XScrolled - 11, YScrolled - 1);
-                    screen.DrawSpriteMap(flyMaps[2], XScrolled + 27, YScrolled - 1, true, false);
-                }
+                flyAnimator.Draw(screen, XScrolled - 19, YScrolled);
+                flyAnimator.Draw(screen, XScrolled + 19, YScrolled, true, false);
 
                 if (tileNose > -1)
                 {

@@ -60,6 +60,12 @@ namespace Sugoi.Core
             private set;
         }
 
+        public States State
+        {
+            get;
+            private set;
+        }
+
         public Machine()
         {
             this.Gamepad = new Gamepad();
@@ -70,8 +76,10 @@ namespace Sugoi.Core
 
         public bool IsStarted
         {
-            get;
-            private set;
+            get
+            {
+                return this.State != States.Stop;
+            }
         }
 
         public async Task StartAsync(Cartridge cartridge)
@@ -81,7 +89,7 @@ namespace Sugoi.Core
                 return;
             }
 
-            this.IsStarted = true;
+            this.State = States.Play;
 
             this.Cartridge = cartridge;
 
@@ -164,8 +172,6 @@ namespace Sugoi.Core
         {
             endWaitFrame = this.Frame + frameToWait;
 
-            Debug.WriteLine("Init WaitForFrame " + endWaitFrame);
-
             this.PrepareWaiting(() =>
            {
                return this.Frame < endWaitFrame;
@@ -200,8 +206,19 @@ namespace Sugoi.Core
             return min + (Random.NextDouble() * (max - min)) ;
         }
 
-        public Argb32[] Draw(bool isRunningSlow)
+        /// <summary>
+        /// Update + Draw
+        /// </summary>
+        /// <param name="isRunningSlow"></param>
+        /// <returns></returns>
+
+        public Argb32[] RenderOneFrame(bool isRunningSlow)
         {
+            if(this.State == States.Pause)
+            {
+                return screen.Pixels;
+            }
+
             var updateExecutedCount = isRunningSlow ? 2 : 1;
 
             for (int i = 0; i < updateExecutedCount; i++)
@@ -303,6 +320,16 @@ namespace Sugoi.Core
         }
 
         /// <summary>
+        /// Pause un son
+        /// </summary>
+
+        public Action<string> PauseSoundCallBack
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Callback interne d'attente (de frame, de touche, ...)
         /// </summary>
 
@@ -312,22 +339,42 @@ namespace Sugoi.Core
             set;
         }
 
+        private Action WaitCompletedAction
+        {
+            get;
+            set;
+        }
+
+        public void StopWait(bool executeActionCompleted)
+        {
+            this.MustWaitCallBack = null;
+            
+            if(executeActionCompleted == false)
+            {
+                WaitCompletedAction = null;
+            }
+        }
+
         public void PrepareWaiting(Func<bool> waitConditionFunction, Action completed)
         {
-            this.MustWaitCallBack = () =>
+            if (waitConditionFunction != null)
             {
-                if (waitConditionFunction != null)
+                this.WaitCompletedAction = completed;
+
+                this.MustWaitCallBack = () =>
                 {
                     if (waitConditionFunction() == true)
                     {
                         return true;
                     }
-                }
+ 
+                    completed?.Invoke();
+                    // nettoyage de l'action complété
+                    WaitCompletedAction = null;
 
-                completed?.Invoke();
-
-                return false;
-            };
+                    return false;
+                };
+            }
         }
 
         /// <summary>
@@ -349,16 +396,32 @@ namespace Sugoi.Core
                     {
                         // C'est terminé
                         MustWaitCallBack = null;
+                        WaitCompletedAction = null;
                         return false;
                     }
                 }
 
                 // on continue d'attendre
-                return true;
-                
+                return true;     
+            }
+            else
+            {
+                // ici le callBack n'existe pas ou a été annulé par StopWait
+                // si StopWait a annulé avec demande d'execution de completed le WaitCompletedAction est non null
+                if(WaitCompletedAction != null)
+                {
+                    WaitCompletedAction?.Invoke();
+                    // on la remet a null pour qu'elle ne soit plus executée
+                    WaitCompletedAction = null;
+                }
             }
 
             return false;
+        }
+
+        public void Pause()
+        {
+            this.State = States.Pause;
         }
 
         /// <summary>
@@ -372,11 +435,13 @@ namespace Sugoi.Core
                 return;
             }
 
-            this.IsStarted = false;
+            this.State = States.Stop;
 
             this.Gamepad.Stop();
             this.Screen.Stop();
             this.VideoMemory.Stop();
+
+            this.StopWait(false);
 
             this.InternalStop();
         }
@@ -444,5 +509,12 @@ namespace Sugoi.Core
                 return BatteryRam.BATTERY_RAM_SIZE;
             }
         }
+    }
+
+    public enum States
+    {
+        Stop,
+        Play,
+        Pause,
     }
 }

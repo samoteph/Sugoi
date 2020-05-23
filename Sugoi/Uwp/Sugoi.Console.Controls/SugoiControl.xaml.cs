@@ -25,6 +25,7 @@ namespace Sugoi.Console.Controls
         Machine machine = new Machine();
         private byte[] screenArray;
         private AudioPlayer<string> audioPlayer = new AudioPlayer<string>();
+        private SystemNavigationManager navigationManager;
 
         public SugoiControl()
         {
@@ -42,6 +43,9 @@ namespace Sugoi.Console.Controls
         {
             if (this.machine.IsStarted == false)
             {
+                navigationManager = SystemNavigationManager.GetForCurrentView();
+                navigationManager.BackRequested += BackRequested;
+
                 cartridge.ExportFileAsyncCallback = (name, stream, count) =>
                 {
                     return this.WriteCartridgeFileAsync(name, stream, count);
@@ -85,6 +89,11 @@ namespace Sugoi.Console.Controls
                 this.machine.StopSoundCallBack = (name) =>
                 {
                     audioPlayer.Stop(name);
+                };
+
+                this.machine.PauseSoundCallBack = (name) =>
+                {
+                    // TODO : y a pas de pause pour le moment dans le audioplayer
                 };
 
                 // Lancement de la console
@@ -135,6 +144,18 @@ namespace Sugoi.Console.Controls
                 this.GotFocus += OnSugoiGotFocus;
                 this.LostFocus += OnSugoiLostFocus;
             }
+        }
+
+        /// <summary>
+        /// Touche retour en arrière
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+
+        private void BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            // pas le droit de sortir !
+            e.Handled = true;
         }
 
         /// <summary>
@@ -282,6 +303,12 @@ namespace Sugoi.Console.Controls
         {
             if (IsStarted == true)
             {
+                // Touche en arrière
+                if (navigationManager != null)
+                {
+                    navigationManager.BackRequested -= BackRequested;
+                }
+
                 this.SlateView.DrawStart -= OnSlateViewDraw;
                 //this.SlateView.Update -= OnSlateViewUpdate;
 
@@ -409,6 +436,9 @@ namespace Sugoi.Console.Controls
                 case VirtualKey.X:
                     this.machine.Gamepad.Press(GamepadKeys.ButtonB);
                     break;
+                case VirtualKey.Space:
+                    this.machine.Gamepad.Press(GamepadKeys.ButtonStart);
+                    break;
                 // pleine écran
                 case VirtualKey.Enter:
 
@@ -494,7 +524,7 @@ namespace Sugoi.Console.Controls
         private void OnSlateViewDraw(Microsoft.Graphics.Canvas.UI.Xaml.ICanvasAnimatedControl sender, Microsoft.Graphics.Canvas.UI.Xaml.CanvasAnimatedDrawEventArgs args)
         {
             // appel du UpdateCallback
-            var screenArgb32Array = this.machine.Draw(args.Timing.IsRunningSlowly);
+            var screenArgb32Array = this.machine.RenderOneFrame(args.Timing.IsRunningSlowly);
             this.machine.CopyToBgraByteArray(screenArgb32Array, screenArray);
 
             var screen = this.machine.Screen;

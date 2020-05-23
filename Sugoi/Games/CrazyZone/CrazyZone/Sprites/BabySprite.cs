@@ -14,9 +14,7 @@ namespace CrazyZone.Sprites
 
         private bool isHorizontalFlipped;
 
-        private Map[] walkMaps;
-        private int walkIndex = 0;
-        private int frameWalkAnimation = 0;
+        private Animator walkAnimator;
         private int framePath = 0;
 
         private int originalX = 0;
@@ -63,13 +61,12 @@ namespace CrazyZone.Sprites
 
             this.page = page;
             tiles = AssetStore.Tiles;
-            walkMaps = AssetStore.BabyMaps;
-            walkIndex = 0;
+            walkAnimator = AssetStore.CreateBabyAnimation();
 
             this.ScrollWidth = page.ScrollWidth;
 
-            this.Width = 16;
-            this.Height = 16;
+            this.Width = walkAnimator.Width;
+            this.Height = walkAnimator.Height;
 
             this.InitializeCollision(3);
 
@@ -107,6 +104,8 @@ namespace CrazyZone.Sprites
 
             this.originalY = y;
             this.originalX = x;
+
+            this.walkAnimator.Start();
         }
 
         public override void Collide(ISprite sprite)
@@ -128,17 +127,7 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            if (frameWalkAnimation > 10)
-            {
-                frameWalkAnimation = 0;
-
-                walkIndex++;
-                walkIndex = walkIndex % walkMaps.Length;
-            }
-            else
-            {
-                frameWalkAnimation++;
-            }
+            walkAnimator.Update();
 
             if (framePath <= path.MaximumFrame)
             {
@@ -188,7 +177,9 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            screen.DrawSpriteMap(walkMaps[walkIndex], XScrolled, YScrolled, isHorizontalFlipped, false);
+            walkAnimator.Draw(screen, XScrolled, YScrolled, isHorizontalFlipped, false);
+
+            this.DrawCollisionBox(screen);
         }
     }
 }

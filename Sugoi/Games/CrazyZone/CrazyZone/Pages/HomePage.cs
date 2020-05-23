@@ -1,4 +1,5 @@
-﻿using Sugoi.Core;
+﻿using CrazyZone.Controls;
+using Sugoi.Core;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -17,6 +18,14 @@ namespace CrazyZone.Pages
         private const string MENU_LINE1 = "game start";
         private const string MENU_LINE2 = "credits";
 
+        private Menu menu;
+
+        private string[] menuEntries = new string[]
+        {
+            MENU_LINE1,
+            MENU_LINE2
+        };
+
         private int hiScore;
         private string hiScoreString;
 
@@ -25,7 +34,6 @@ namespace CrazyZone.Pages
 
         private int fontWidth;
 
-        private int frameCursor;
         private int frameScroll;
 
         private int menuPosition;
@@ -43,11 +51,11 @@ namespace CrazyZone.Pages
             "alessandra sada"
         };
 
-    SurfaceSprite title;
+        SurfaceSprite title;
         SurfaceTileSheet tiles;
 
         Map[] maps;
-        Map[] cursor;
+        Animator cursor;
  
         enum HomeStates
         {
@@ -67,7 +75,26 @@ namespace CrazyZone.Pages
         public HomePage(Game game)
         {
             this.game = game;
-            this.machine = game.Machine;       
+            this.machine = game.Machine;
+            this.menu = new Menu();
+            
+            this.menu.MenuSelectedCallback = (menuPosition) =>
+            {
+                if (menuPosition == 0)
+                {
+                    this.homeState = HomeStates.Quit;
+                }
+                else
+                {
+                    // clique sur Credits
+                    this.homeState = HomeStates.Credits;
+                }
+            };
+
+            this.menu.BackCallback = () =>
+            {
+                homeState = HomeStates.Home;
+            };
         }
 
         public void Initialize()
@@ -80,25 +107,33 @@ namespace CrazyZone.Pages
             this.maps = AssetStore.ParallaxMaps;
             this.tiles = AssetStore.Tiles;
 
-            cursor = AssetStore.OpaCursorMaps;
+            cursor = AssetStore.OpaCursorAnimator;
+
+            this.menu.Initialize(machine, cursor, menuEntries);
+
             menuPosition = 0;
 
             frameScroll = 0;
-            frameCursor = 0;
 
             hiScore = this.machine.BatteryRam.ReadInt(0x0000);
             hiScoreString = "hiscore: " + hiScore;
 
             this.fontWidth = this.machine.Screen.Font.FontSheet.TileWidth;
 
-            this.machine.Audio.Play("homeSound", 1, true);
+            this.machine.Audio.PlayLoop("homeSound");
+
+            cursor.Start();
         }
 
         public void Updating()
         {
             var frame = this.machine.Frame;
 
-            frameCursor = (frame % 30) < 15 ? 0 : 1;
+            if (homeState == HomeStates.Menu)
+            {
+                cursor.Update();
+            }
+
             frameScroll = (int)(frame * 0.5);
         }
 
@@ -124,52 +159,7 @@ namespace CrazyZone.Pages
 
                 case HomeStates.Menu:
 
-                    // retour en arrière        
-                    if (gamepad.IsPressed(GamepadKeys.ButtonB))
-                    {
-                        gamepad.WaitForRelease(() =>
-                       {
-                           homeState = HomeStates.Home;
-                       });
-                    }
-
-                    if (gamepad.VerticalController == GamepadKeys.Down)
-                    {
-                        menuPosition = (menuPosition + 1) % 2;
-                        gamepad.WaitForRelease();
-                    }
-                    else if(gamepad.VerticalController == GamepadKeys.Up)
-                    {
-                        var value = menuPosition - 1;
-
-                        if (value < 0)
-                        {
-                            menuPosition = -(value % 2);
-                        }
-                        else
-                        {
-                            menuPosition = (menuPosition + 1) % 2;
-                        }
-
-                        gamepad.WaitForRelease();
-                    }
-
-                    if (gamepad.IsPressed(GamepadKeys.ButtonA))
-                    {
-                        gamepad.WaitForRelease(() =>
-                        {
-                            if(menuPosition == 0)
-                            {
-                                this.homeState = HomeStates.Quit;
-                            }
-                            else
-                            {
-                                // clique sur Credits
-                                this.homeState = HomeStates.Credits;
-                            } 
-                        });
-                    }
-
+                    menu.Update();
                     break;
 
                 case HomeStates.Credits:
@@ -235,12 +225,14 @@ namespace CrazyZone.Pages
 
                 case HomeStates.Menu:
 
-                    var centerX = (screen.Width - MENU_LINE1.Length * font.FontSheet.TileWidth) / 2;
+                    //var centerX = (screen.Width - MENU_LINE1.Length * font.FontSheet.TileWidth) / 2;
 
-                    screen.DrawText(MENU_LINE1, centerX, 128);
-                    screen.DrawText(MENU_LINE2, centerX, 140);
+                    //screen.DrawText(MENU_LINE1, centerX, 128);
+                    //screen.DrawText(MENU_LINE2, centerX, 140);
 
-                    screen.DrawSpriteMap(cursor[frameCursor], centerX - 24, (128 - 4) + menuPosition * 12, true, false);
+                    //cursor.Draw(screen, centerX - 24, (128 - 4) + menuPosition * 12, true, false);
+
+                    menu.Draw(frameExecuted, 128);
 
                     break;
 

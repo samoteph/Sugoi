@@ -2,6 +2,7 @@
 using Sugoi.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace CrazyZone.Sprites
@@ -12,12 +13,7 @@ namespace CrazyZone.Sprites
         private Machine machine;
         private SurfaceTileSheet tiles;
 
-        private Map[] kaboomMaps;
-        private int indexKaboom = 0;
-        private int frameKaboom = 0;
-        private int frameMaxKaboom = 15;
-
-        private int[] animationKaboomIndex = { 0, 1, 0 };
+        private Animator kaboomAnimator;
 
         private int xCenter = 0;
         private int yCenter = 0;
@@ -39,13 +35,20 @@ namespace CrazyZone.Sprites
         public KaboomSprite Create(Machine machine, PlayPage page)
         {
             this.machine = machine;
+            this.page = page;
 
             tiles = AssetStore.Tiles;
-            kaboomMaps = AssetStore.KaboomMaps;
+
+            kaboomAnimator = AssetStore.CreateKaboomAnimation();
 
             this.ScrollWidth = page.ScrollWidth;
             this.Width = 8;
             this.Height = 8;
+
+            kaboomAnimator.Stop();
+
+            Width = kaboomAnimator.Width;
+            Height = kaboomAnimator.Height;
 
             return this;
         }
@@ -64,73 +67,62 @@ namespace CrazyZone.Sprites
             }
 
             this.IsExploding = true;
-            this.IsAlive = true;
 
             if (isSlow == false)
             {
-                frameMaxKaboom = 80;
+                kaboomAnimator.Speed = 2;
             }
             else
             {
-                frameMaxKaboom = 150;
+                kaboomAnimator.Speed = 1;
             }
 
             this.xCenter = xCenter;
             this.yCenter = yCenter;
+
+            // jouer trois frames avant la fin
+            this.kaboomAnimator.Start(3, (parameter) =>
+            {
+                KaboomSprite sprite = (KaboomSprite)parameter;
+
+                sprite.IsExploding = false;
+                sprite.IsAlive = false;
+            },
+            this
+            );
         }
 
         public override void Initialize()
         {
-            this.indexKaboom = 0;
             IsExploding = false;
-
-            this.frameKaboom = 0;
-            this.frameMaxKaboom = 0;
+            this.IsAlive = true;
         }
 
         public override void Updated()
         {
-            if (this.IsAlive == false)
+            if (this.IsExploding == false)
             {
                 return;
             }
 
-            var index = animationKaboomIndex[indexKaboom];
-            
-            Width = kaboomMaps[index].Width;
-            Height = kaboomMaps[index].Height;
-
             X = xCenter - (Width / 2);
-            Y = yCenter - (Height / 2); 
+            Y = yCenter - (Height / 2);
 
-            frameKaboom++;
-
-            if (frameKaboom > frameMaxKaboom)
-            {
-                frameKaboom = 0;
-                indexKaboom++;
-
-                if (indexKaboom == 3)
-                {
-                    this.IsAlive = false;
-                    return;
-                }
-            }
+            kaboomAnimator.Update();
 
             base.Updated();
         }
 
         public override void Draw(int frameExecuted)
         {
-            if (this.IsAlive == false)
+            if (this.IsExploding == false)
             {
                 return;
             }
 
             var screen = this.machine.Screen;
 
-            var index = animationKaboomIndex[indexKaboom];
-            screen.DrawSpriteMap(kaboomMaps[index], XScrolled, YScrolled);
+            kaboomAnimator.Draw(screen, XScrolled, YScrolled);
         }
 
         public override bool CanCollide

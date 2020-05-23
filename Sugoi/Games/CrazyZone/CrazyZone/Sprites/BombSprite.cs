@@ -75,7 +75,7 @@ namespace CrazyZone.Sprites
 
             if (collider.TypeName != nameof(MotherSprite))
             {
-                page.AddBonusScore(4);
+                page.AddBonusScore(5);
             }
         }
 
@@ -96,6 +96,8 @@ namespace CrazyZone.Sprites
             var width = 65 + machine.GetRandomInteger(-5, 5);
             // pas d'allocation mémoire ici, juste des affectations de variables
             path.Initialize(EasingFunctions.QuadraticEaseOut, EasingFunctions.CircularEaseIn, width, machine.Screen.BoundsClipped.Height + Height, 1,1, 60);
+
+            machine.Audio.Play("bombSound");
         }
 
         /// <summary>

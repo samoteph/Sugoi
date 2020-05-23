@@ -38,7 +38,17 @@ namespace Sugoi.Core.IO
         {
             this.ReadHeader(reader);
 
-            this.Maps = Import(this.cartridge, this.AssetTileSheetName, reader.BaseStream);
+            int count = this.Size - CartridgeFileFormat.MINIMAL_ASSET_HEADER_SIZE - CartridgeFileFormat.ASSET_NAME_LENGTH;
+
+            // Le Import de TMX Map charge le stream jusqu'à la fin
+            // on va donc lui proposer un Stream qui ne contient que le fichier TMX
+
+            byte[] data = reader.ReadBytes(count);
+
+            using (MemoryStream memory = new MemoryStream(data))
+            {
+                this.Maps = Import(this.cartridge, this.AssetTileSheetName, memory);
+            }
 
             return Task.FromResult(true);
         }
@@ -52,6 +62,7 @@ namespace Sugoi.Core.IO
         public static List<AssetMap> Import(Cartridge cartridge, string assetTileSheetName, Stream stream)
         {
             List<AssetMap> maps = new List<AssetMap>();
+            
             TmxMap tmxMap = new TmxMap(stream);
 
             foreach (var layer in tmxMap.Layers)

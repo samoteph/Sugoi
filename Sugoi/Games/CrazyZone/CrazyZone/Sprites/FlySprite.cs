@@ -14,7 +14,7 @@ namespace CrazyZone.Sprites
 
         private bool isHorizontalFlipped;
 
-        private Map[] flyMaps;
+        private Animator flyAnimator;
         private int flyIndex = 0;
         private int frameFlyAnimation = 0;
         private double framePath = 0;
@@ -44,7 +44,7 @@ namespace CrazyZone.Sprites
 
             this.page = page;
             tiles = AssetStore.Tiles;
-            flyMaps = AssetStore.FlyMaps;
+            flyAnimator = AssetStore.CreateFlyAnimation();
             flyIndex = 0;
 
             this.ScrollWidth = page.ScrollWidth;
@@ -87,6 +87,8 @@ namespace CrazyZone.Sprites
 
             this.originalY = y;
             this.originalX = X;
+
+            this.flyAnimator.Start();
         }
 
         public override void Collide(ISprite sprite)
@@ -108,17 +110,7 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            if (frameFlyAnimation > 3)
-            {
-                frameFlyAnimation = 0;
-
-                flyIndex++;
-                flyIndex = flyIndex % flyMaps.Length;
-            }
-            else
-            {
-                frameFlyAnimation++;
-            }
+            flyAnimator.Update();
 
             if (framePath <= path.MaximumFrame)
             {
@@ -171,7 +163,9 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            screen.DrawSpriteMap(flyMaps[flyIndex], XScrolled, YScrolled, isHorizontalFlipped, false) ;
+            flyAnimator.Draw(screen, XScrolled, YScrolled, isHorizontalFlipped, false) ;
+
+            this.DrawCollisionBox(screen);
         }
     }
 }
