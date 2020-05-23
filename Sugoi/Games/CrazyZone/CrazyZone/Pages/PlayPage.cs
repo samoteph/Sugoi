@@ -149,7 +149,6 @@ namespace CrazyZone.Pages
             score = 0;
 
             scrollX = 0;
-            //scrollX = -930;
 
             fontWidth = machine.Screen.Font.FontSheet.TileWidth;
 
@@ -387,7 +386,7 @@ namespace CrazyZone.Pages
                 // hi score
                 screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
                 // scroll
-                screen.DrawText((int)-scrollX, 160, 0);
+                screen.DrawText((int)scrollX, 160, 0);
 
             }
             else

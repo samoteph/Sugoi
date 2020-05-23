@@ -70,6 +70,8 @@ namespace CrazyZone.Sprites
             this.Direction = direction;
             this.X = x;
             this.Y = y + 4;
+
+            this.machine.Audio.Play("ammoSound");
         }
 
         public override void Initialize()

@@ -36,11 +36,18 @@ namespace Sugoi.Core.IO.Builders
 
         protected byte GetByteAttribute(XmlElement element, string attributeName, bool isManadatory, byte defaultValue)
         {
-            string value = GetAttribute(element, attributeName, isManadatory);
-        
-            if(value != null)
+            try
             {
-                return byte.Parse(value);
+                string value = GetAttribute(element, attributeName, isManadatory);
+
+                if (value != null)
+                {
+                    return byte.Parse(value);
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error has occured during the reading of the integer attribute '" + attributeName + "' of the element '" + element.Name + "'. Exception message=" + ex.Message);
             }
 
             return defaultValue;
@@ -48,11 +55,18 @@ namespace Sugoi.Core.IO.Builders
 
         protected int GetIntAttribute(XmlElement element, string attributeName, bool isManadatory, int defaultValue = -1)
         {
-            string value = GetAttribute(element, attributeName, isManadatory);
-
-            if (value != null)
+            try
             {
-                return int.Parse(value);
+                string value = GetAttribute(element, attributeName, isManadatory);
+
+                if (value != null)
+                {
+                    return int.Parse(value);
+                }
+            }
+            catch(Exception ex)
+            {
+                throw new Exception("An error has occured during the reading of the integer attribute '" + attributeName + "' of the element '" + element.Name + "'. Exception message=" + ex.Message);
             }
 
             return defaultValue;
@@ -75,14 +89,21 @@ namespace Sugoi.Core.IO.Builders
 
         protected TEnum GetEnumAttribute<TEnum>(XmlElement element, string attributeName, bool isMandatory, TEnum defaultValue) where TEnum : struct
         {
-            string value = GetAttribute(element, attributeName, isMandatory);
-
-            if (value != null)
+            try
             {
-                if( Enum.TryParse<TEnum>(value, true, out var result))
+                string value = GetAttribute(element, attributeName, isMandatory);
+
+                if (value != null)
                 {
-                    return result;
+                    if (Enum.TryParse<TEnum>(value, true, out var result))
+                    {
+                        return result;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("An error has occured during the reading of the enum attribute '" + attributeName + "' of the element '" + element.Name + "'. Exception message=" + ex.Message);
             }
 
             return defaultValue;

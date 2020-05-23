@@ -197,7 +197,7 @@ namespace CrazyZone.Sprites
                         break;
                 }
 
-                // on attends un peu de pouvoir tire uà nouveau
+                // on attends un peu de pouvoir tirer à nouveau
                 if (CanFireAmmo == false)
                 {
                     if (frameAmmo > 5)
@@ -210,7 +210,7 @@ namespace CrazyZone.Sprites
                     }
                 }
 
-                // on attends un peu de pouvoir tire uà nouveau
+                // on attends un peu de pouvoir tirer à nouveau
                 if (CanFireBomb == false)
                 {
                     if (frameBomb > 40)
@@ -396,7 +396,8 @@ namespace CrazyZone.Sprites
             // Explosion de fin avant le game over
             if (collider.TypeName != nameof(CoinSprite))
             {
-                //this.IsDying = true;
+                this.IsDying = true;
+                this.machine.Audio.Play("opaExplosionSound");
             }
         }
     }

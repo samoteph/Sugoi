@@ -178,7 +178,8 @@ namespace Sugoi.Core
                 return position;
             }
 
-            var xScrolled = scrollPosition % scrollSize + position;
+            //var xScrolled = (scrollPosition % scrollSize + position);
+            var xScrolled = (scrollPosition % scrollSize) + (position % scrollSize);
 
             if (xScrolled < -size)
             {

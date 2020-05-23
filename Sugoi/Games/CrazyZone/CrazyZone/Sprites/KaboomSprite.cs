@@ -71,10 +71,12 @@ namespace CrazyZone.Sprites
             if (isSlow == false)
             {
                 kaboomAnimator.Speed = 2;
+                this.machine.Audio.Play("monsterExplosionSound");
             }
             else
             {
                 kaboomAnimator.Speed = 1;
+                this.machine.Audio.Play("motherExplosionSound");
             }
 
             this.xCenter = xCenter;

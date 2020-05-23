@@ -18,14 +18,21 @@ namespace Sugoi.Core
 
         public Task PreloadAsync(string name, int channelCount)
         {
-            if (this.soundNames.Contains(name) == false)
+            try
             {
-                soundNames.Add(name);
-                return this.machine.PreloadSoundAsyncCallBack(name, channelCount);
+                if (this.soundNames.Contains(name) == false)
+                {
+                    soundNames.Add(name);
+                    return this.machine.PreloadSoundAsyncCallBack(name, channelCount);
+                }
+                else
+                {
+                    return Task.CompletedTask;
+                }
             }
-            else
+            catch(Exception ex)
             {
-                return Task.CompletedTask;
+                throw new Exception("Error during the preloading of sound '" + name + "'. Exception message=" + ex.Message);
             }
         }
 
@@ -39,7 +46,7 @@ namespace Sugoi.Core
             this.Play(name, 1, false);
         }
 
-        public void Play(string name, float volume, bool isLoop)
+        public void Play(string name, double volume, bool isLoop)
         {
             if (this.soundNames.Contains(name) == true)
             {

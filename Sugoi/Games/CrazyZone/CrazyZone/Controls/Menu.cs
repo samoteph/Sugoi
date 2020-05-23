@@ -98,6 +98,16 @@ namespace CrazyZone.Controls
         }
 
         /// <summary>
+        /// Le cursor est bougé
+        /// </summary>
+
+        public Action<int> CursorMoveCallback
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Mise à jour
         /// </summary>
 
@@ -115,11 +125,17 @@ namespace CrazyZone.Controls
             if (gamepad.VerticalController == GamepadKeys.Down)
             {
                 MenuPosition++;
+
+                this.CursorMoveCallback?.Invoke(MenuPosition);
+
                 gamepad.WaitForRelease();
             }
             else if (gamepad.VerticalController == GamepadKeys.Up)
             {
                 MenuPosition--;
+
+                this.CursorMoveCallback?.Invoke(MenuPosition);
+
                 gamepad.WaitForRelease();
             }
 

@@ -82,17 +82,26 @@ namespace CrazyZone.Pages
             {
                 if (menuPosition == 0)
                 {
+                    this.machine.Audio.Play("startSound");
                     this.homeState = HomeStates.Quit;
                 }
                 else
                 {
+                    this.machine.Audio.Play("selectSound");
+
                     // clique sur Credits
                     this.homeState = HomeStates.Credits;
                 }
             };
 
+            this.menu.CursorMoveCallback = (menuPosition) =>
+            {
+                this.machine.Audio.Play("menuSound", 0.5, false);
+            };
+
             this.menu.BackCallback = () =>
             {
+                this.machine.Audio.Play("selectSound");
                 homeState = HomeStates.Home;
             };
         }
@@ -148,7 +157,7 @@ namespace CrazyZone.Pages
                     // detection du bouton Start        
                     if (gamepad.IsPressed(GamepadKeys.ButtonA))
                     {
-                        Debug.WriteLine("Wait for release ButtonA Start");
+                        this.machine.Audio.Play("selectSound");
 
                         gamepad.WaitForRelease(() =>
                         {
@@ -166,6 +175,8 @@ namespace CrazyZone.Pages
 
                     if (gamepad.IsButtonsPressed())
                     {
+                        this.machine.Audio.Play("selectSound");
+
                         gamepad.WaitForRelease(() =>
                         {
                             this.menuPosition = 0;

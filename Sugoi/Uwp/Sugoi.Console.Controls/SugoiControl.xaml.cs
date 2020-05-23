@@ -196,7 +196,7 @@ namespace Sugoi.Console.Controls
                     folder = await storageFolder.CreateFolderAsync("Cartridge");
                 }
 
-                var storageFile = await folder.CreateFileAsync(name, CreationCollisionOption.OpenIfExists);
+                var storageFile = await folder.CreateFileAsync(name, CreationCollisionOption.ReplaceExisting);
 
                 byte[] data = streamReader.ReadBytes(count);
 

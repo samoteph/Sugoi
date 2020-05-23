@@ -915,6 +915,9 @@ namespace Sugoi.Core
             int index = 0;
             var font = this.Font;
 
+            int sign = Math.Sign(integer);
+            integer = Math.Abs(integer);
+
             while (true)
             {
                 var mask = ((integer / 10) * 10);
@@ -933,9 +936,10 @@ namespace Sugoi.Core
                 }
             }
 
-            if (Math.Sign(integer) == -1)
+            if (sign == -1)
             {
                 integerString[index] = '-';
+                index++;
             }
 
             int tileWidth = font.FontSheet.TileWidth;
