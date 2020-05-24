@@ -35,8 +35,6 @@ namespace CrazyZone.Sprites
             this.page = page;
             tiles = AssetStore.Tiles;
             
-            this.ScrollWidth = page.ScrollWidth;
-
             coin1Animator = AssetStore.CreateCoin1Animation();
             coin5Animator = AssetStore.CreateCoin5Animation();
 
@@ -152,7 +150,7 @@ namespace CrazyZone.Sprites
                 this.IsAlive = false;
             }
 
-            base.Updated();
+            this.SetScroll(page);
         }
 
         public override void Draw(int frameExecuted)

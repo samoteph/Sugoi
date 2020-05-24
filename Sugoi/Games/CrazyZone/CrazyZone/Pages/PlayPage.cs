@@ -8,11 +8,13 @@ using System.Text;
 
 namespace CrazyZone.Pages
 {
-    public class PlayPage : IPage
+    public class PlayPage : IPage, IScrollView
     {
+        const string RETRY_TEXT = "Retry";
         const string GAMEOVER_TEXT = "Game Over";
         const string SCORE_TEXT = "Score: ";
-         
+        const string HISCORE_TEXT = "HiScore: ";
+
         private Game game;
         private Machine machine;
         private float scrollX;
@@ -112,6 +114,14 @@ namespace CrazyZone.Pages
             }
         }
 
+        public int ScrollHeight
+        {
+            get
+            {
+                return 0;
+            }
+        }
+
         public int ScrollWidth
         {
             get;
@@ -123,6 +133,19 @@ namespace CrazyZone.Pages
             get
             {
                 return this.scrollX;
+            }
+
+            private set
+            {
+                this.scrollX = value;
+            }
+        }
+
+        public float ScrollY
+        {
+            get
+            {
+                return 0;
             }
         }
 
@@ -148,18 +171,18 @@ namespace CrazyZone.Pages
             frameScore = 0;
             score = 0;
 
-            scrollX = 0;
-
             fontWidth = machine.Screen.Font.FontSheet.TileWidth;
 
             hiScore = this.machine.BatteryRam.ReadInt(0x0000);
-            hiScoreString = "hiscore: " + hiScore;
+            hiScoreString = HISCORE_TEXT + hiScore;
 
             hitSmallMonsterCount = 0;
             hitBigMonsterCount = 0;
 
             this.maps = AssetStore.ParallaxMaps;
+            
             this.ScrollWidth = this.maps[0].Width;
+            this.ScrollX = 0;
 
             this.opa.Initialize();
 
@@ -242,19 +265,10 @@ namespace CrazyZone.Pages
                 bombs.SetScroll((int)-scrollX, 0);
                 bombs.Updated();
 
-                mothers.SetScroll((int)-scrollX, 0);
                 mothers.Updated();
-
-                babies.SetScroll((int)-scrollX, 0);
                 babies.Updated();
-
-                ducks.SetScroll((int)-scrollX, 0);
                 ducks.Updated();
-
-                flies.SetScroll((int)-scrollX, 0);
                 flies.Updated();
-
-                bullets.SetScroll((int)-scrollX, 0);
                 bullets.Updated();
 
                 mothers.CheckCollision(opa, CollisionStrategies.RectIntersect);
@@ -276,11 +290,8 @@ namespace CrazyZone.Pages
 
 
                 // Mise à jour des coins car appeler par les collisions
-                coins.SetScroll((int)-scrollX, 0);
                 coins.Updated();
-
                 // Mise à jour de Kaboom à la fin car les collisions peuvent l'appeler
-                kabooms.SetScroll((int)-scrollX, 0);
                 kabooms.Updated();
 
                 // Quit le GameOver au bout d'un certain temps si le player n'a pas appuyé sur son choix (retry, exit)
@@ -385,9 +396,11 @@ namespace CrazyZone.Pages
                 screen.DrawText(score, screen.BoundsClipped.X + SCORE_TEXT.Length * fontWidth, 0);
                 // hi score
                 screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
+
+#if DEBUG
                 // scroll
                 screen.DrawText((int)scrollX, 160, 0);
-
+#endif
             }
             else
             {

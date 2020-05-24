@@ -43,7 +43,7 @@ namespace Sugoi.Core
                 return xScrolled;
             }
 
-            private set
+            protected set
             {
                 if (value != xScrolled)
                 {
@@ -76,7 +76,7 @@ namespace Sugoi.Core
                 return yScrolled;
             }
 
-            private set
+            protected set
             {
                 if (value != yScrolled)
                 {
@@ -253,8 +253,21 @@ namespace Sugoi.Core
         {
         }
 
-        public virtual void Updated()
+        public abstract void Updated();
+
+        /// <summary>
+        /// Fixe le scroll selon la vue scrollé (une page la plupart du temps)
+        /// </summary>
+        /// <param name="scrollView"></param>
+
+        public void SetScroll(IScrollView scrollView)
         {
+            this.ScrollWidth = scrollView.ScrollWidth;
+            this.ScrollX = (int)-scrollView.ScrollX;
+
+            this.ScrollHeight = scrollView.ScrollHeight;
+            this.ScrollY = (int)-scrollView.ScrollY;
+
             this.UpdatePositionScrolled();
         }
     }

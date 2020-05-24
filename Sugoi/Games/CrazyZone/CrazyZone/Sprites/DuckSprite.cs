@@ -49,8 +49,6 @@ namespace CrazyZone.Sprites
 
             walkAnimator = AssetStore.CreateDuckAnimation();
 
-            this.ScrollWidth = page.ScrollWidth;
-
             this.Width = 16;
             this.Height = 16;
 
@@ -142,7 +140,7 @@ namespace CrazyZone.Sprites
                 frameBullet++;
             }
 
-            base.Updated();
+            this.SetScroll(page);
         }
 
         public override void Draw(int frameExecuted)

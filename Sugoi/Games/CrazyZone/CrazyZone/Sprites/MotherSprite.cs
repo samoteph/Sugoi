@@ -44,8 +44,6 @@ namespace CrazyZone.Sprites
             openAnimator = AssetStore.CreateMotherOpenAnimation();
             tiredMap = AssetStore.MotherTired;
 
-            this.ScrollWidth = page.ScrollWidth;
-
             healthThresold1 = (int)((double)HEALTH * 0.33d);
             healthThresold2 = (int)((double)HEALTH * 0.66d);
 
@@ -224,7 +222,7 @@ namespace CrazyZone.Sprites
                 }
             }
 
-            base.Updated();
+            this.SetScroll(page);
         }
 
         public override void Draw(int frameExecuted)

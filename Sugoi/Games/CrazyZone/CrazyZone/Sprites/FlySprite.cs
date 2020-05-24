@@ -47,8 +47,6 @@ namespace CrazyZone.Sprites
             flyAnimator = AssetStore.CreateFlyAnimation();
             flyIndex = 0;
 
-            this.ScrollWidth = page.ScrollWidth;
-
             this.Width = 16;
             this.Height = 16;
 
@@ -140,8 +138,8 @@ namespace CrazyZone.Sprites
                 this.IsAlive = false;
             }
 
-            // XScrolled est calculé ici
-            base.Updated();
+            // XScrolled est calculé ici            
+            this.SetScroll(page);
 
             if (frameBullet > 60 * 2)
             {

@@ -107,5 +107,7 @@ namespace Sugoi.Core
 
         void Draw(int frameExecuted);
         void Collide(ISprite sprite);
+
+        void SetScroll(IScrollView scrollView);
     }
 }

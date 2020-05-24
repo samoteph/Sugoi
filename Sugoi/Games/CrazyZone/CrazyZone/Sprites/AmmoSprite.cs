@@ -106,7 +106,9 @@ namespace CrazyZone.Sprites
                 }
             }
 
-            base.Updated();
+            // on est pas attaché au scroll donc pas besoin de SetScroll mais les collisions se base sur XScrolled et YScrolled;
+            XScrolled = X;
+            YScrolled = Y;
         }
 
         public override void Draw(int frameExecuted)

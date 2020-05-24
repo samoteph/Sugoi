@@ -273,7 +273,9 @@ namespace CrazyZone.Pages
                 screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
             }
 
+#if DEBUG
             screen.DrawText(frameExecuted == 1 ? "1" : "2", 0, 0);
+#endif
         }
     }
 }

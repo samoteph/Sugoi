@@ -30,8 +30,6 @@ namespace CrazyZone.Sprites
 
             tiles = AssetStore.Tiles;
 
-            this.ScrollWidth = page.ScrollWidth;
-
             return this;
         }
 
@@ -162,7 +160,7 @@ namespace CrazyZone.Sprites
                 }
             }
 
-            base.Updated();
+            this.SetScroll(page);
         }
 
         public override void Draw(int frameExecuted)

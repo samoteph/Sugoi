@@ -41,7 +41,6 @@ namespace CrazyZone.Sprites
 
             kaboomAnimator = AssetStore.CreateKaboomAnimation();
 
-            this.ScrollWidth = page.ScrollWidth;
             this.Width = 8;
             this.Height = 8;
 
@@ -112,7 +111,7 @@ namespace CrazyZone.Sprites
 
             kaboomAnimator.Update();
 
-            base.Updated();
+            this.SetScroll(page);
         }
 
         public override void Draw(int frameExecuted)

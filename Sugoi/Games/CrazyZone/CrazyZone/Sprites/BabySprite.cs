@@ -63,8 +63,6 @@ namespace CrazyZone.Sprites
             tiles = AssetStore.Tiles;
             walkAnimator = AssetStore.CreateBabyAnimation();
 
-            this.ScrollWidth = page.ScrollWidth;
-
             this.Width = walkAnimator.Width;
             this.Height = walkAnimator.Height;
 
@@ -165,7 +163,7 @@ namespace CrazyZone.Sprites
                 this.IsAlive = false;
             }
 
-            base.Updated();
+            this.SetScroll(this.page);
         }
 
         public override void Draw(int frameExecuted)
