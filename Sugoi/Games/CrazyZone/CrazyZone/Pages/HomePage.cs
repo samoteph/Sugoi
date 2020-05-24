@@ -18,12 +18,22 @@ namespace CrazyZone.Pages
         private const string MENU_LINE1 = "game start";
         private const string MENU_LINE2 = "credits";
 
-        private Menu menu;
+        private const string MENU1POR2P_LINE1 = "1 player";
+        private const string MENU1POR2P_LINE2 = "2 players";
+
+        private Menu menuStart;
+        private Menu menu1Por2P;
 
         private string[] menuEntries = new string[]
         {
             MENU_LINE1,
             MENU_LINE2
+        };
+
+        private string[] menu1Por2Pentries = new string[]
+        {
+            MENU1POR2P_LINE1,
+            MENU1POR2P_LINE2
         };
 
         private int hiScore;
@@ -35,8 +45,6 @@ namespace CrazyZone.Pages
         private int fontWidth;
 
         private int frameScroll;
-
-        private int menuPosition;
 
         private string[] credits_lines = new string[]
         {
@@ -72,18 +80,25 @@ namespace CrazyZone.Pages
 
         HomeStates homeState;
 
+        public Players Player
+        {
+            get;
+            private set;
+        }
+
         public HomePage(Game game)
         {
             this.game = game;
             this.machine = game.Machine;
-            this.menu = new Menu();
+            this.menuStart = new Menu();
+            this.menu1Por2P = new Menu();
             
-            this.menu.MenuSelectedCallback = (menuPosition) =>
+            this.menuStart.MenuSelectedCallback = (menuPosition) =>
             {
                 if (menuPosition == 0)
                 {
-                    this.machine.Audio.Play("startSound");
-                    this.homeState = HomeStates.Quit;
+                    this.machine.Audio.Play("selectSound");
+                    this.homeState = HomeStates.P1OrP2;
                 }
                 else
                 {
@@ -94,16 +109,42 @@ namespace CrazyZone.Pages
                 }
             };
 
-            this.menu.CursorMoveCallback = (menuPosition) =>
-            {
-                this.machine.Audio.Play("menuSound", 0.5, false);
-            };
-
-            this.menu.BackCallback = () =>
+            this.menuStart.BackCallback = () =>
             {
                 this.machine.Audio.Play("selectSound");
                 homeState = HomeStates.Home;
             };
+
+            this.menu1Por2P.MenuSelectedCallback = (menuPosition) =>
+            {
+                if (menuPosition == 0)
+                {
+                    this.machine.Audio.Play("startSound");
+                    this.homeState = HomeStates.Quit;
+                    this.Player = Players.Solo;
+                }
+                else
+                {
+                    this.machine.Audio.Play("startSound");
+                    // != de Solo == 2 players
+                    this.Player = Players.Player2;
+                    this.homeState = HomeStates.Quit;
+                }
+            };
+
+            this.menu1Por2P.BackCallback = () =>
+            {
+                this.machine.Audio.Play("selectSound");
+                homeState = HomeStates.Menu;
+            };
+
+            Action<int> handlerMove = (menuPosition) =>
+            {
+                this.machine.Audio.Play("menuSound", 0.5, false);
+            };
+
+            this.menuStart.CursorMoveCallback = handlerMove;
+            this.menu1Por2P.CursorMoveCallback = handlerMove;
         }
 
         public void Initialize()
@@ -118,9 +159,8 @@ namespace CrazyZone.Pages
 
             cursor = AssetStore.OpaCursorAnimator;
 
-            this.menu.Initialize(machine, cursor, menuEntries);
-
-            menuPosition = 0;
+            this.menuStart.Initialize(machine, cursor, menuEntries);
+            this.menu1Por2P.Initialize(machine, cursor, menu1Por2Pentries);
 
             frameScroll = 0;
 
@@ -148,7 +188,7 @@ namespace CrazyZone.Pages
 
         public void Updated()
         {
-            var gamepad = this.machine.Gamepad;
+            var gamepad = this.machine.Gamepad1;
 
             switch (homeState)
             {
@@ -168,7 +208,12 @@ namespace CrazyZone.Pages
 
                 case HomeStates.Menu:
 
-                    menu.Update();
+                    menuStart.Update();
+                    break;
+
+                case HomeStates.P1OrP2:
+
+                    menu1Por2P.Update();
                     break;
 
                 case HomeStates.Credits:
@@ -179,7 +224,7 @@ namespace CrazyZone.Pages
 
                         gamepad.WaitForRelease(() =>
                         {
-                            this.menuPosition = 0;
+                            this.menuStart.MenuPosition = 0;
                             this.homeState = HomeStates.Home;
                         });
                     }
@@ -192,7 +237,14 @@ namespace CrazyZone.Pages
 
                     machine.WaitForFrame(30, () =>
                     {
-                        game.Navigate(typeof(PlayPage));
+                        if (Player == Players.Solo)
+                        {
+                            game.Navigate(typeof(PlayPage));
+                        }
+                        else
+                        {
+                            game.Navigate(typeof(MultiPlayPage));
+                        }
                     });
 
                     break;
@@ -235,16 +287,11 @@ namespace CrazyZone.Pages
                     break;
 
                 case HomeStates.Menu:
+                    menuStart.Draw(frameExecuted, 128);
+                    break;
 
-                    //var centerX = (screen.Width - MENU_LINE1.Length * font.FontSheet.TileWidth) / 2;
-
-                    //screen.DrawText(MENU_LINE1, centerX, 128);
-                    //screen.DrawText(MENU_LINE2, centerX, 140);
-
-                    //cursor.Draw(screen, centerX - 24, (128 - 4) + menuPosition * 12, true, false);
-
-                    menu.Draw(frameExecuted, 128);
-
+                case HomeStates.P1OrP2:
+                    menu1Por2P.Draw(frameExecuted, 128);
                     break;
 
                 case HomeStates.Credits:

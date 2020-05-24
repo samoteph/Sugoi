@@ -29,9 +29,11 @@ namespace CrazyZone
             // ajout des pages
             Pages.Add(typeof(HomePage), new HomePage(this));
             Pages.Add(typeof(PlayPage), new PlayPage(this));
+            Pages.Add(typeof(MultiPlayPage), new MultiPlayPage(this));
 
             // Lancement du jeu
             this.Navigate(typeof(HomePage));
+            //this.Navigate(typeof(MultiPlayPage));
         }
 
         public void Navigate(Type typePage)

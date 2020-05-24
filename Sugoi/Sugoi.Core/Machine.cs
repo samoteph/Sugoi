@@ -42,7 +42,13 @@ namespace Sugoi.Core
             private set;
         }
 
-        public Gamepad Gamepad
+        public Gamepad Gamepad1
+        {
+            get;
+            private set;
+        }
+
+        public Gamepad Gamepad2
         {
             get;
             private set;
@@ -68,7 +74,9 @@ namespace Sugoi.Core
 
         public Machine()
         {
-            this.Gamepad = new Gamepad();
+            this.Gamepad1 = new Gamepad();
+            this.Gamepad2 = new Gamepad();
+
             this.videoMemory = new VideoMemory();
             this.BatteryRam = new BatteryRam();
             this.Audio = new Audio();
@@ -108,7 +116,8 @@ namespace Sugoi.Core
                 cartridge.Header.VideoMemorySize,
                 this);
 
-            this.Gamepad.Start(this);
+            this.Gamepad1.Start(this);
+            this.Gamepad2.Start(this);
 
             // demarrage de la Ram avec battery
             await this.BatteryRam.StartAsync(this);
@@ -437,7 +446,9 @@ namespace Sugoi.Core
 
             this.State = States.Stop;
 
-            this.Gamepad.Stop();
+            this.Gamepad1.Stop();
+            this.Gamepad2.Stop();
+
             this.Screen.Stop();
             this.VideoMemory.Stop();
 

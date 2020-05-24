@@ -81,7 +81,7 @@ namespace CrazyZone.Sprites
         {
             this.IsAlive = true;
 
-            this.X = (int)page.ScrollX + this.machine.Screen.BoundsClipped.Width;
+            this.X = (int)page.ScrollX + this.machine.Screen.BoundsClipped.Right;
             this.Y = y;
 
             this.originalY = y;

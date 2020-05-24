@@ -102,7 +102,9 @@ namespace Sugoi.Console.Controls
                 this.cartridge = this.machine.Cartridge;
                 this.screen = this.machine.Screen;
                 this.videoMemory = this.machine.VideoMemory;
-                this.gamepad = this.machine.Gamepad;
+
+                this.gamepad1 = this.machine.Gamepad1;
+                this.gamepad2 = this.machine.Gamepad2;
 
                 this.screenArray = new byte[4 * screen.Size];
 
@@ -294,7 +296,8 @@ namespace Sugoi.Console.Controls
             this.Focus(FocusState.Programmatic);
 
             // nettoyage au cas ou une touche n'aurait pas été relevée après le départ du controle
-            this.gamepad.Release();
+            this.gamepad1.Release();
+            this.gamepad2.Release();
 
             System.Diagnostics.Debug.WriteLine("SUGOI GotFocus");
         }
@@ -347,15 +350,25 @@ namespace Sugoi.Console.Controls
 
         private SurfaceSprite screen;
 
-        public Gamepad Gamepad
+        public Gamepad Gamepad1
         {
             get
             {
-                return gamepad;
+                return gamepad1;
             }
         }
 
-        private Gamepad gamepad;
+        private Gamepad gamepad1;
+
+        public Gamepad Gamepad2
+        {
+            get
+            {
+                return gamepad2;
+            }
+        }
+
+        private Gamepad gamepad2;
 
         /// <summary>
         /// VideoMemory
@@ -414,30 +427,37 @@ namespace Sugoi.Console.Controls
             {
                 case VirtualKey.Up:
                 case VirtualKey.GamepadDPadUp:
-                    this.machine.Gamepad.Press(GamepadKeys.Up);
+                    this.machine.Gamepad1.Press(GamepadKeys.Up);
+                    this.machine.Gamepad2.Press(GamepadKeys.Up);
                     break;
                 case VirtualKey.Down:
                 case VirtualKey.GamepadDPadDown:
-                    this.machine.Gamepad.Press(GamepadKeys.Down);
+                    this.machine.Gamepad1.Press(GamepadKeys.Down);
+                    this.machine.Gamepad2.Press(GamepadKeys.Down);
                     break;
                 case VirtualKey.Right:
                 case VirtualKey.GamepadDPadRight:
-                    this.machine.Gamepad.Press(GamepadKeys.Right);
+                    this.machine.Gamepad1.Press(GamepadKeys.Right);
+                    this.machine.Gamepad2.Press(GamepadKeys.Right);
                     break;
                 case VirtualKey.Left:
                 case VirtualKey.GamepadDPadLeft:
-                    this.machine.Gamepad.Press(GamepadKeys.Left);
+                    this.machine.Gamepad1.Press(GamepadKeys.Left);
+                    this.machine.Gamepad2.Press(GamepadKeys.Left);
                     break;
                 case VirtualKey.GamepadA:
                 case VirtualKey.W:
-                    this.machine.Gamepad.Press(GamepadKeys.ButtonA);
+                    this.machine.Gamepad1.Press(GamepadKeys.ButtonA);
+                    this.machine.Gamepad2.Press(GamepadKeys.ButtonA);
                     break;
                 case VirtualKey.GamepadB:
                 case VirtualKey.X:
-                    this.machine.Gamepad.Press(GamepadKeys.ButtonB);
+                    this.machine.Gamepad1.Press(GamepadKeys.ButtonB);
+                    this.machine.Gamepad2.Press(GamepadKeys.ButtonB);
                     break;
                 case VirtualKey.Space:
-                    this.machine.Gamepad.Press(GamepadKeys.ButtonStart);
+                    this.machine.Gamepad1.Press(GamepadKeys.ButtonStart);
+                    this.machine.Gamepad2.Press(GamepadKeys.ButtonStart);
                     break;
                 // pleine écran
                 case VirtualKey.Enter:
@@ -470,27 +490,33 @@ namespace Sugoi.Console.Controls
             {
                 case VirtualKey.Up:
                 case VirtualKey.GamepadDPadUp:
-                    this.machine.Gamepad.Release(GamepadKeys.Up);
+                    this.machine.Gamepad1.Release(GamepadKeys.Up);
+                    this.machine.Gamepad2.Release(GamepadKeys.Up);
                     break;
                 case VirtualKey.Down:
                 case VirtualKey.GamepadDPadDown:
-                    this.machine.Gamepad.Release(GamepadKeys.Down);
+                    this.machine.Gamepad1.Release(GamepadKeys.Down);
+                    this.machine.Gamepad2.Release(GamepadKeys.Down);
                     break;
                 case VirtualKey.Right:
                 case VirtualKey.GamepadDPadRight:
-                    this.machine.Gamepad.Release(GamepadKeys.Right);
+                    this.machine.Gamepad1.Release(GamepadKeys.Right);
+                    this.machine.Gamepad2.Release(GamepadKeys.Right);
                     break;
                 case VirtualKey.Left:
                 case VirtualKey.GamepadDPadLeft:
-                    this.machine.Gamepad.Release(GamepadKeys.Left);
+                    this.machine.Gamepad1.Release(GamepadKeys.Left);
+                    this.machine.Gamepad2.Release(GamepadKeys.Left);
                     break;
                 case VirtualKey.GamepadA:
                 case VirtualKey.W:
-                    this.machine.Gamepad.Release(GamepadKeys.ButtonA);
+                    this.machine.Gamepad1.Release(GamepadKeys.ButtonA);
+                    this.machine.Gamepad2.Release(GamepadKeys.ButtonA);
                     break;
                 case VirtualKey.GamepadB:
                 case VirtualKey.X:
-                    this.machine.Gamepad.Release(GamepadKeys.ButtonB);
+                    this.machine.Gamepad1.Release(GamepadKeys.ButtonB);
+                    this.machine.Gamepad2.Release(GamepadKeys.ButtonB);
                     break;
             }
         }

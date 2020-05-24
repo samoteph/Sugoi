@@ -55,6 +55,11 @@ namespace Sugoi.Core
             this.SetClip(oldClip);
         }
 
+        public void ResetClip()
+        {
+            this.SetClip(null);
+        }
+
         public void SetClip(Rectangle? value)
         {
             if (value == null)

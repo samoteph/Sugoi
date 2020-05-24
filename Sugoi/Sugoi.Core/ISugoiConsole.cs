@@ -52,7 +52,12 @@ namespace Sugoi.Core
             get;
         }
 
-        Gamepad Gamepad
+        Gamepad Gamepad1
+        {
+            get;
+        }
+
+        Gamepad Gamepad2
         {
             get;
         }

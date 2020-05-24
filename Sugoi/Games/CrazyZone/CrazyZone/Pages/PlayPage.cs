@@ -13,6 +13,7 @@ namespace CrazyZone.Pages
 
         private Game game;
         private Machine machine;
+        private Gamepad gamepad;
 
         private Menu menuRetry = new Menu();
 
@@ -36,6 +37,9 @@ namespace CrazyZone.Pages
 
         private OpaSprite opa;
 
+        // page accueillant le multi joueur
+        private MultiPlayPage multiPage;
+
         private SpritePool<MotherSprite> mothers = new SpritePool<MotherSprite>(10);
         private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
         private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
@@ -45,6 +49,20 @@ namespace CrazyZone.Pages
         private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(20);
         private SpritePool<FlySprite> flies = new SpritePool<FlySprite>(20);
         private SpritePool<CoinSprite> coins = new SpritePool<CoinSprite>(10);
+
+        public Gamepad Gamepad
+        {
+            get
+            {
+                return this.gamepad;
+            }
+        }
+
+        public Players Player
+        {
+            get;
+            private set;
+        } = Players.Solo;
 
         public PlayStates State
         {
@@ -146,8 +164,36 @@ namespace CrazyZone.Pages
             this.opa = new OpaSprite(machine, this);
         }
 
+        /// <summary>
+        /// intitialize le jeu à plusieurs
+        /// </summary>
+        /// <param name="player"></param>
+
+        public void Initialize(MultiPlayPage multiPage, Players player)
+        {
+            this.Player = player;
+            this.multiPage = multiPage;
+
+            this.Initialize();
+        }
+
+        /// <summary>
+        /// initialisation du jeu en mode Solo
+        /// </summary>
+
         public void Initialize()
         {
+            switch(this.Player)
+            {
+                case Players.Solo:
+                case Players.Player1:
+                    gamepad = this.machine.Gamepad1;
+                    break;
+                case Players.Player2:
+                    gamepad = this.machine.Gamepad2;
+                    break;
+            }
+
             State = PlayStates.Play;
 
             this.machine.Audio.PlayLoop("playSound");
@@ -285,19 +331,23 @@ namespace CrazyZone.Pages
                 kabooms.Updated();
 
                 // Quit le GameOver au bout d'un certain temps si le player n'a pas appuyé sur son choix (retry, exit)
-                if (State == PlayStates.GameOver)
-                {
-                    if (frameGameOver == 60 * 5)
-                    {
-                        // il ne passera qu'une seule fois
-                        frameGameOver++;
-                        this.machine.StopWait(false);
 
-                        State = PlayStates.Quit;
-                    }
-                    else
+                if (this.Player == Players.Solo || this.multiPage.State == MultiPlayPage.MultiStates.GameOver)
+                {
+                    if (State == PlayStates.GameOver)
                     {
-                        frameGameOver++;
+                        if (frameGameOver == 60 * 5)
+                        {
+                            // il ne passera qu'une seule fois
+                            frameGameOver++;
+                            this.machine.StopWait(false);
+
+                            this.Quit();
+                        }
+                        else
+                        {
+                            frameGameOver++;
+                        }
                     }
                 }
             }
@@ -330,9 +380,12 @@ namespace CrazyZone.Pages
             {
                 case PlayStates.GameOver:
 
-                    if (this.machine.Gamepad.IsButtonsPressed())
+                    if (this.Player == Players.Solo || this.multiPage.State == MultiPlayPage.MultiStates.GameOver)
                     {
-                        this.machine.Gamepad.WaitForRelease(() => State = PlayStates.Quit);
+                        if (gamepad.IsButtonsPressed())
+                        {
+                            gamepad.WaitForRelease(() => this.Quit() );
+                        }
                     }
 
                     break;
@@ -378,19 +431,23 @@ namespace CrazyZone.Pages
 
                 if (State == PlayStates.GameOver)
                 {
-                    screen.DrawText(GAMEOVER_TEXT, (screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2, (screen.BoundsClipped.Height - 8) / 2);
+                    screen.DrawText(GAMEOVER_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
                 }
 
                 // score
                 screen.DrawText(SCORE_TEXT, screen.BoundsClipped.X + 4, 0);
                 screen.DrawText(score, screen.BoundsClipped.X + SCORE_TEXT.Length * fontWidth, 0);
-                // hi score
-                screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
+
+                if (Player == Players.Solo)
+                {
+                    // hi score
+                    screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
 
 #if DEBUG
-                // scroll
-                screen.DrawText((int)ScrollX, 160, 0);
+                    // scroll
+                    screen.DrawText((int)ScrollX, 160, 0);
 #endif
+                }
             }
             else
             {
@@ -408,10 +465,30 @@ namespace CrazyZone.Pages
         {
             this.State = PlayStates.GameOver;
 
-            if (this.hiScore < this.score)
+            if (this.Player == Players.Solo)
             {
-                this.machine.BatteryRam.WriteInt(0x0000, this.score);
-                await this.machine.BatteryRam.FlashAsync();
+                if (this.hiScore < this.score)
+                {
+                    this.machine.BatteryRam.WriteInt(0x0000, this.score);
+                    await this.machine.BatteryRam.FlashAsync();
+                }
+            }
+            else
+            {
+                this.multiPage?.GameOver();
+            }
+        }
+
+        /// <summary>
+        /// On s'en va
+        /// </summary>
+
+        public void Quit()
+        {
+            if (this.State != PlayStates.Quit)
+            {
+                this.State = PlayStates.Quit;
+                this.multiPage?.Quit();
             }
         }
 
@@ -485,5 +562,16 @@ namespace CrazyZone.Pages
         Play,
         GameOver,
         Quit
+    }
+
+    /// <summary>
+    /// Joueur en train de jouer pour le jeu à plusieurs. Solo represente le player en mode Solo
+    /// </summary>
+
+    public enum Players
+    {
+        Solo = -1,
+        Player1,
+        Player2
     }
 }

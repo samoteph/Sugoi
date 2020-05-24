@@ -127,8 +127,8 @@ namespace CrazyZone.Sprites
 
             var screen = this.machine.Screen;
 
-            this.X = (screen.BoundsClipped.Width - 16) / 2;
-            this.Y = (screen.BoundsClipped.Height - 16) / 2;
+            this.X = screen.BoundsClipped.X + (screen.BoundsClipped.Width - flightAnimator.Width) / 2;
+            this.Y = screen.BoundsClipped.Y + (screen.BoundsClipped.Height - flightAnimator.Height) / 2;
 
             Direction = 1;
             isOpaHorizontalFlipped = true;
@@ -141,8 +141,18 @@ namespace CrazyZone.Sprites
             frameBomb = 0;
             frameDeathStar = 0;
 
-            var widthScroll = (screen.BoundsClipped.Width * 1) / 3;
-            var xScroll = (screen.BoundsClipped.Width - widthScroll) / 2;
+            int widthScroll;
+
+            if (page.Player == Players.Solo)
+            {
+                widthScroll = (screen.BoundsClipped.Width * 1) / 3;
+            }
+            else
+            {
+                widthScroll = (screen.BoundsClipped.Width * 1) / 5;
+            }
+
+            var xScroll = screen.BoundsClipped.X + (screen.BoundsClipped.Width - widthScroll) / 2;
 
             this.rectScroll = new Rectangle(xScroll, screen.BoundsClipped.Y, widthScroll, screen.BoundsClipped.Height);
 
@@ -167,7 +177,7 @@ namespace CrazyZone.Sprites
 
             if (this.IsDying == false)
             {
-                var gamepad = machine.Gamepad;
+                var gamepad = this.page.Gamepad;
 
                 switch (gamepad.HorizontalController)
                 {
