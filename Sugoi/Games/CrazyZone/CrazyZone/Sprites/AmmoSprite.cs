@@ -58,6 +58,10 @@ namespace CrazyZone.Sprites
             {
                 page.AddBonusScore(1);
             }
+            else
+            {
+                this.machine.Audio.Play("ammoExplosionSound");
+            }
         }
 
         public void Fire(int x, int y, int direction)

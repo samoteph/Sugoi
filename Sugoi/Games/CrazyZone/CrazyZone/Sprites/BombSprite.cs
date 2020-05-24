@@ -75,6 +75,8 @@ namespace CrazyZone.Sprites
             {
                 page.AddBonusScore(5);
             }
+
+            this.machine.Audio.Play("bombExplosionSound");
         }
 
         public void Fire(int x, int y, int direction)
@@ -145,6 +147,12 @@ namespace CrazyZone.Sprites
 
                     if (Y > machine.Screen.BoundsClipped.Bottom - Height - 5 )
                     {
+                        if(this.IsExploding == false )
+                        {
+                            // juste la première fois
+                            this.machine.Audio.Play("bombExplosionSound");
+                        }
+
                         this.IsExploding = true;
                     }
                 }

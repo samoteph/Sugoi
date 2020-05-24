@@ -67,6 +67,11 @@ namespace Sugoi.Core.IO.Builders
                 throw new Exception("The manifest of the cartridge must be read before the build of cartridge!");
             }
 
+            if (File.Exists(cartridgePath))
+            {
+                File.Delete(cartridgePath);
+            }
+
             using (var stream = File.OpenWrite(cartridgePath))
             {
                 using (var writer = new BinaryWriter(stream))

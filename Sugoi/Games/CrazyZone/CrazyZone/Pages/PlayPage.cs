@@ -1,10 +1,6 @@
-﻿using CrazyZone.Sprites;
+﻿using CrazyZone.Controls;
+using CrazyZone.Sprites;
 using Sugoi.Core;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Text;
 
 namespace CrazyZone.Pages
 {
@@ -17,7 +13,8 @@ namespace CrazyZone.Pages
 
         private Game game;
         private Machine machine;
-        private float scrollX;
+
+        private Menu menuRetry = new Menu();
 
         private int frameGameOver = 0;
         private int frameDucks = 0;
@@ -114,6 +111,8 @@ namespace CrazyZone.Pages
             }
         }
 
+#region ScrollView
+
         public int ScrollHeight
         {
             get
@@ -128,18 +127,7 @@ namespace CrazyZone.Pages
             private set;
         }
 
-        public float ScrollX
-        {
-            get
-            {
-                return this.scrollX;
-            }
-
-            private set
-            {
-                this.scrollX = value;
-            }
-        }
+        public float ScrollX { get; private set; }
 
         public float ScrollY
         {
@@ -148,6 +136,8 @@ namespace CrazyZone.Pages
                 return 0;
             }
         }
+
+#endregion
 
         public PlayPage(Game game)
         {
@@ -212,7 +202,7 @@ namespace CrazyZone.Pages
             {
                 if (opa.IsAlive && opa.IsDying == false)
                 {
-                    scrollX += opa.Speed;
+                    ScrollX += opa.Speed;
                 }
 
                 if (frameDucks > (60 * 8))
@@ -262,7 +252,7 @@ namespace CrazyZone.Pages
                 ammos.Updated();
 
                 // on place le setscroll ici car c'est Opa qui Fire la bomb et elle a besoin du scroll une fois tirée
-                bombs.SetScroll((int)-scrollX, 0);
+                bombs.SetScroll((int)-ScrollX, 0);
                 bombs.Updated();
 
                 mothers.Updated();
@@ -365,12 +355,12 @@ namespace CrazyZone.Pages
 
             if (State != PlayStates.Quit)
             {
-                screen.DrawScrollMap(maps[0], true, (int)(-scrollX * 0.50), 0, 0, 0, 320, 136);
-                screen.DrawScrollMap(maps[1], true, (int)(-scrollX * 0.60), 0, 0, screen.Height - maps[1].Height - 16, 320, 136);
-                screen.DrawScrollMap(maps[3], true, (int)(-scrollX * 0.70), 0, 0, screen.Height - maps[3].Height - 16, 320, 136);
-                screen.DrawScrollMap(maps[2], true, (int)(-scrollX * 0.80), 0, 0, screen.Height - maps[2].Height, 320, 136);
-                screen.DrawScrollMap(maps[4], true, (int)(-scrollX * 0.90), 0, 0, screen.Height - maps[4].Height, 320, 136);
-                screen.DrawScrollMap(maps[5], true, (int)(-scrollX * 1.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
+                screen.DrawScrollMap(maps[0], true, (int)(-ScrollX * 0.50), 0, 0, 0, 320, 136);
+                screen.DrawScrollMap(maps[1], true, (int)(-ScrollX * 0.60), 0, 0, screen.Height - maps[1].Height - 16, 320, 136);
+                screen.DrawScrollMap(maps[3], true, (int)(-ScrollX * 0.70), 0, 0, screen.Height - maps[3].Height - 16, 320, 136);
+                screen.DrawScrollMap(maps[2], true, (int)(-ScrollX * 0.80), 0, 0, screen.Height - maps[2].Height, 320, 136);
+                screen.DrawScrollMap(maps[4], true, (int)(-ScrollX * 0.90), 0, 0, screen.Height - maps[4].Height, 320, 136);
+                screen.DrawScrollMap(maps[5], true, (int)(-ScrollX * 1.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
 
                 ammos.Draw(frameExecuted);
                 babies.Draw(frameExecuted);
@@ -399,7 +389,7 @@ namespace CrazyZone.Pages
 
 #if DEBUG
                 // scroll
-                screen.DrawText((int)scrollX, 160, 0);
+                screen.DrawText((int)ScrollX, 160, 0);
 #endif
             }
             else

@@ -105,6 +105,7 @@ namespace CrazyZone.Sprites
             // ajoute un score
             this.page.AddBonusScore((int)coinType * 10);
             this.IsAlive = false;
+            this.machine.Audio.Play("startSound");
         }
 
         public override void Updated()

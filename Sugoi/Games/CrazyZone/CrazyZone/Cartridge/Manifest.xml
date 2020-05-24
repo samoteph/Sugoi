@@ -17,5 +17,7 @@
     <Asset Name="startSound" Type="Sound" Filename="Start.wav"/>
     <Asset Name="menuSound" Type="Sound" Filename="Menu.wav"/>
     <Asset Name="selectSound" Type="Sound" Filename="Select.wav"/>
+    <Asset Name="bombExplosionSound" Type="Sound" Filename="BombExplosion.wav"/>
+    <Asset Name="ammoExplosionSound" Type="Sound" Filename="AmmoExplosion.wav"/>
   </Assets>
 </Cartridge>

@@ -345,18 +345,18 @@ namespace CrazyZone
 
             // Son
 
-
-
             await audio.PreloadAsync("homeSound", 1);
             await audio.PreloadAsync("playSound", 1);
             await audio.PreloadAsync("bombSound", 2);
             await audio.PreloadAsync("ammoSound", 2);
-            await audio.PreloadAsync("startSound", 1);
+            await audio.PreloadAsync("startSound", 3);
             await audio.PreloadAsync("opaExplosionSound", 1);
             await audio.PreloadAsync("motherExplosionSound", 1);
             await audio.PreloadAsync("monsterExplosionSound", 1);
             await audio.PreloadAsync("selectSound", 1);
             await audio.PreloadAsync("menuSound", 1);
+            await audio.PreloadAsync("bombExplosionSound", 1);
+            await audio.PreloadAsync("ammoExplosionSound", 1);
         }
 
         public static SurfaceSprite Title
