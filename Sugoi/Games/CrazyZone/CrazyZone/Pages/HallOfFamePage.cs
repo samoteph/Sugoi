@@ -14,7 +14,9 @@ namespace CrazyZone.Pages
         Screen screen;
         Gamepad gamepad;
 
-        float scrollY;
+        float frameArrow = 0;
+
+        float scrollX;
         float frameScroll;
 
         bool isMoving = false;
@@ -39,15 +41,9 @@ namespace CrazyZone.Pages
 
             maps = AssetStore.ParallaxMaps;
 
-            mapFameItems.Create("mapFame", 40, 108, AssetStore.Font, MapTileDescriptor.HiddenTile);
+            mapFameItems.Create("mapFame", 40 * 10, 10, AssetStore.Font, MapTileDescriptor.HiddenTile);
 
-            mapFameItems.SetText(14, 3, "HALL OF FAME");
-            mapFameItems.SetText(14, 4, "------------");
-            mapFameItems.SetText(9, 6, "RANK");
-            mapFameItems.SetText(16, 6, "NAME");
-            mapFameItems.SetText(26, 6, "SCORE");
-
-            path.Initialize(EasingFunctions.Linear, EasingFunctions.CircularEaseOut, 0, screen.Height - 4, 1, 1, 30);
+            path.Initialize(EasingFunctions.CircularEaseOut, EasingFunctions.Linear, screen.Width, 0, 1, 1, 30);
 
             int rank = 1;
 
@@ -65,13 +61,19 @@ namespace CrazyZone.Pages
 
         private void DrawFameItems()
         {
-            for (int i = 0; i < items.Length; i++)
+            for (int j = 0; j < 10  ; j++)
             {
-                var item = items[i];
+                int pageIndex = j * 40;
+                int itemIndex = j * 10;
 
-                mapFameItems.SetText(10, 8 + i, item.Rank);
-                mapFameItems.SetText(14, 8 + i, item.Name);
-                mapFameItems.SetText(21, 8 + i, item.Score);
+                for (int i = 0; i < 10; i++)
+                {
+                    var item = items[i + itemIndex];
+
+                    mapFameItems.SetText(10 + pageIndex, i, item.Rank);
+                    mapFameItems.SetText(14 + pageIndex, i, item.Name);
+                    mapFameItems.SetText(21 + pageIndex, i, item.Score);
+                }
             }
         }
 
@@ -83,7 +85,7 @@ namespace CrazyZone.Pages
         {
             frameMoving = 0;
             isMoving = false;
-            scrollY = 0;
+            scrollX = 0;
             page = 0;
             pageIndex = 0;
 
@@ -99,11 +101,11 @@ namespace CrazyZone.Pages
 
             if (isMoving == false)
             {
-                var key = gamepad.VerticalController;
+                var key = gamepad.HorizontalController;
 
                 switch (key)
                 {
-                    case GamepadKeys.Down:
+                    case GamepadKeys.Left:
 
                         if (pageIndex > 0)
                         {
@@ -113,9 +115,9 @@ namespace CrazyZone.Pages
 
                         break;
 
-                    case GamepadKeys.Up:
+                    case GamepadKeys.Right:
 
-                        if (pageIndex < 4)
+                        if (pageIndex < 9)
                         {
                             isMoving = true;
                             direction = 1;
@@ -131,13 +133,13 @@ namespace CrazyZone.Pages
                     this.path.GetPosition(frameMoving, out int offsetX, out int offsetY);
                     frameMoving++;
 
-                    scrollY = page + offsetY * direction;
+                    scrollX = page + offsetX * direction;
                 }
                 else
                 {
                     frameMoving = 0;
                     isMoving = false;
-                    page += this.path.Height * direction;
+                    page += this.path.Width * direction;
                     pageIndex += direction;
                 }
             }
@@ -165,7 +167,26 @@ namespace CrazyZone.Pages
             screen.DrawScrollMap(maps[4], true, (int)(-frameScroll * 1.50), 0, 0, screen.Height - maps[4].Height, 320, 136);
             screen.DrawScrollMap(maps[5], true, (int)(-frameScroll * 2.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
 
-            this.screen.DrawScrollMap(mapFameItems, false, 0, (int)-scrollY);
+            screen.DrawText("HALL OF FAME", 14 * 8, 3 * 8);
+            screen.DrawText("------------", 14 * 8, 4 * 8);
+            screen.DrawText("RANK", 9 * 8, 6 * 8);
+            screen.DrawText("NAME", 16 * 8, 6 * 8);
+            screen.DrawText("SCORE", 26 * 8, 6 * 8);
+
+            this.screen.DrawScrollMap(mapFameItems, false, (int)-scrollX, 8 * 8);
+
+            frameArrow = (frameArrow + 0.2f) % 5;
+            var arrowOffset = (int)frameArrow;
+
+            if (pageIndex > 0)
+            {
+                screen.DrawText('<', 2 * 8 - arrowOffset, (screen.Height / 2) - 4);
+            }
+
+            if (pageIndex < 9)
+            {
+                screen.DrawText('>', 38 * 8 + arrowOffset, (screen.Height / 2) - 4);
+            }
         }
     }
 
