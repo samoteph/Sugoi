@@ -16,6 +16,16 @@ namespace CrazyZone.Pages
         PlayPage player1Page;
         PlayPage player2Page;
 
+        /// <summary>
+        /// Stockage du Gamepad de la PlayPage qui appuie en premier sur Start
+        /// </summary>
+
+        public Gamepad FirstGamepad
+        {
+            get;
+            private set;
+        }
+
         public MultiPlayPage(Game game)
         {
             machine = game.Machine;
@@ -36,8 +46,29 @@ namespace CrazyZone.Pages
             private set;
         }
 
+        public void ReadyToPlay()
+        {
+            this.State = MultiStates.P1andP2Ready;
+
+            this.machine.WaitForFrame(30, () =>
+            {
+                this.player1Page.State = PlayStates.Play;
+                this.player2Page.State = PlayStates.Play;
+                this.player1Page.ScrollX = 0;
+                this.player2Page.ScrollX = 0;
+                this.State = MultiStates.Play;
+            });
+        }
+
         public void Draw(int frameExecuted)
         {
+            if(State == MultiStates.P1andP2Ready)
+            {
+                screen.ResetClip();
+                screen.Clear(Argb32.Black);
+                return;
+            }
+
             if (State != MultiStates.Quit)
             {
                 screen.SetClip(rectPlayer1);
@@ -61,7 +92,8 @@ namespace CrazyZone.Pages
 
         public void Initialize()
         {
-            this.State = MultiStates.Play;
+            this.State = MultiStates.WaitForP1andP2;
+            this.FirstGamepad = null;
 
             screen.SetClip(rectPlayer1);
             player1Page.Initialize(this, Players.Player1);
@@ -75,6 +107,11 @@ namespace CrazyZone.Pages
 
         public void Updated()
         {
+            if(State == MultiStates.P1andP2Ready)
+            {
+                return;
+            }
+
             if (State != MultiStates.Quit)
             {
                 screen.SetClip(rectPlayer1);
@@ -95,6 +132,11 @@ namespace CrazyZone.Pages
 
         public void Updating()
         {
+            if(State == MultiStates.P1andP2Ready)
+            {
+                return;
+            }
+
             if (State!= MultiStates.Quit)
             {
                 screen.SetClip(rectPlayer1);
@@ -138,11 +180,35 @@ namespace CrazyZone.Pages
             }
         }
 
+        public int GetOpponentScore(Players player)
+        {
+            if(player == Players.Player1)
+            {
+                return player2Page.Score;
+            }
+
+            return player1Page.Score;
+        }
+
         public enum MultiStates
         {
+            WaitForP1andP2,
+            P1andP2Ready, // fade après que les deux jouer
             Play,
             GameOver,
             Quit
+        }
+
+        public void SelectFirstGamepad(Gamepad g)
+        {
+            this.FirstGamepad = g;
+            this.player2Page.MultiPlayState = MultiPlayStates.WaitStart;
+        }
+
+        public void UnselectFirstGamepad()
+        {
+            this.FirstGamepad = null;
+            this.player2Page.MultiPlayState = MultiPlayStates.WaitOtherPlayer;
         }
     }
 }

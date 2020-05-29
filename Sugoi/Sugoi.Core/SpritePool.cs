@@ -6,7 +6,7 @@ namespace Sugoi.Core
 {
     public class SpritePool<TSprite> where TSprite : ISprite
     {
-        public TSprite[] sprites;
+        private TSprite[] sprites;
 
         public SpritePool(int size)
         {
@@ -68,20 +68,6 @@ namespace Sugoi.Core
 
             // tout est pris !
             return -1;
-        }
-
-        public void SetScroll(int scrollX, int scrollY)
-        {
-            for (int i = 0; i < this.sprites.Length; i++)
-            {
-                var sprite = this.sprites[i];
-
-                if (sprite.IsAlive)
-                {
-                    sprite.ScrollX = scrollX;
-                    sprite.ScrollY = scrollY;
-                }
-            }
         }
 
         public void Updated()
@@ -147,8 +133,6 @@ namespace Sugoi.Core
 
         public void Create( Action<TSprite> spriteCreate = null)
         {
-            this.CurrentIndex = 0;
-
             for(int i=0; i<this.sprites.Length;i++)
             {
                 var sprite = this.sprites[i];
@@ -156,6 +140,24 @@ namespace Sugoi.Core
                 sprite.IsAlive = false;
 
                 spriteCreate?.Invoke(sprite);
+            }
+        }
+
+        public void ForeachAlive(Action<TSprite> action)
+        {
+            if(action == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < this.sprites.Length; i++)
+            {
+                var sprite = this.sprites[i];
+
+                if(sprite.IsAlive == true)
+                {
+                    action.Invoke(sprite);
+                }
             }
         }
 

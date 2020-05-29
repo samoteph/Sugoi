@@ -42,13 +42,13 @@ namespace Sugoi.Core
             private set;
         }
 
-        public Gamepad Gamepad1
+        public Gamepad GamepadGlobal
         {
             get;
             private set;
         }
 
-        public Gamepad Gamepad2
+        public GamepadPool Gamepads
         {
             get;
             private set;
@@ -74,8 +74,8 @@ namespace Sugoi.Core
 
         public Machine()
         {
-            this.Gamepad1 = new Gamepad();
-            this.Gamepad2 = new Gamepad();
+            this.GamepadGlobal = new Gamepad();
+            this.Gamepads = new GamepadPool(10);
 
             this.videoMemory = new VideoMemory();
             this.BatteryRam = new BatteryRam();
@@ -116,8 +116,8 @@ namespace Sugoi.Core
                 cartridge.Header.VideoMemorySize,
                 this);
 
-            this.Gamepad1.Start(this);
-            this.Gamepad2.Start(this);
+            this.GamepadGlobal.Start(this);
+            this.Gamepads.Start(this);
 
             // demarrage de la Ram avec battery
             await this.BatteryRam.StartAsync(this);
@@ -158,6 +158,9 @@ namespace Sugoi.Core
 
         private void Update()
         {
+            var gamepadGlobalValue = this.Gamepads.GetGamepadGlobalValue();
+            this.GamepadGlobal.SetValue(gamepadGlobalValue);
+
             // Toujours executé car avant le Wait
             this.UpdatingCallback?.Invoke();
 
@@ -446,8 +449,8 @@ namespace Sugoi.Core
 
             this.State = States.Stop;
 
-            this.Gamepad1.Stop();
-            this.Gamepad2.Stop();
+            this.GamepadGlobal.Stop();
+            this.Gamepads.Stop();
 
             this.Screen.Stop();
             this.VideoMemory.Stop();

@@ -4,17 +4,16 @@ using SamuelBlanchard.Audio;
 using Sugoi.Core;
 using Sugoi.Core.IO;
 using System;
-using System.Collections;
-using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Windows.Devices.Input;
 using Windows.Storage;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Input;
+
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -26,6 +25,7 @@ namespace Sugoi.Console.Controls
         private byte[] screenArray;
         private AudioPlayer<string> audioPlayer = new AudioPlayer<string>();
         private SystemNavigationManager navigationManager;
+        private XBoxGamepadManager xboxGamepadManager = new XBoxGamepadManager();
 
         public SugoiControl()
         {
@@ -103,8 +103,9 @@ namespace Sugoi.Console.Controls
                 this.screen = this.machine.Screen;
                 this.videoMemory = this.machine.VideoMemory;
 
-                this.gamepad1 = this.machine.Gamepad1;
-                this.gamepad2 = this.machine.Gamepad2;
+                this.xboxGamepadManager.Start(this.machine);
+
+                this.keyboardGamepad = this.machine.Gamepads.GetFreeGamepad();
 
                 this.screenArray = new byte[4 * screen.Size];
 
@@ -141,12 +142,15 @@ namespace Sugoi.Console.Controls
                 };
 
                 this.SlateView.DrawStart += OnSlateViewDraw;
-                //this.SlateView.Update += OnSlateViewUpdate;
+                this.SlateView.Update += OnSlateViewUpdate;
 
                 this.GotFocus += OnSugoiGotFocus;
                 this.LostFocus += OnSugoiLostFocus;
             }
         }
+
+        // La manette virtuelle keyboard
+        Sugoi.Core.Gamepad keyboardGamepad = new Core.Gamepad();
 
         /// <summary>
         /// Touche retour en arrière
@@ -296,8 +300,8 @@ namespace Sugoi.Console.Controls
             this.Focus(FocusState.Programmatic);
 
             // nettoyage au cas ou une touche n'aurait pas été relevée après le départ du controle
-            this.gamepad1.Release();
-            this.gamepad2.Release();
+            //this.gamepad1.Release();
+            //this.gamepad2.Release();
 
             System.Diagnostics.Debug.WriteLine("SUGOI GotFocus");
         }
@@ -313,7 +317,7 @@ namespace Sugoi.Console.Controls
                 }
 
                 this.SlateView.DrawStart -= OnSlateViewDraw;
-                //this.SlateView.Update -= OnSlateViewUpdate;
+                this.SlateView.Update -= OnSlateViewUpdate;
 
                 Window.Current.CoreWindow.KeyDown -= OnKeyDown;
                 Window.Current.CoreWindow.KeyUp -= OnKeyUp;
@@ -349,26 +353,6 @@ namespace Sugoi.Console.Controls
         }
 
         private SurfaceSprite screen;
-
-        public Gamepad Gamepad1
-        {
-            get
-            {
-                return gamepad1;
-            }
-        }
-
-        private Gamepad gamepad1;
-
-        public Gamepad Gamepad2
-        {
-            get
-            {
-                return gamepad2;
-            }
-        }
-
-        private Gamepad gamepad2;
 
         /// <summary>
         /// VideoMemory
@@ -426,38 +410,25 @@ namespace Sugoi.Console.Controls
             switch (e.VirtualKey)
             {
                 case VirtualKey.Up:
-                case VirtualKey.GamepadDPadUp:
-                    this.machine.Gamepad1.Press(GamepadKeys.Up);
-                    this.machine.Gamepad2.Press(GamepadKeys.Up);
+                    keyboardGamepad.Press(GamepadKeys.Up);
                     break;
                 case VirtualKey.Down:
-                case VirtualKey.GamepadDPadDown:
-                    this.machine.Gamepad1.Press(GamepadKeys.Down);
-                    this.machine.Gamepad2.Press(GamepadKeys.Down);
+                    keyboardGamepad.Press(GamepadKeys.Down);
                     break;
                 case VirtualKey.Right:
-                case VirtualKey.GamepadDPadRight:
-                    this.machine.Gamepad1.Press(GamepadKeys.Right);
-                    this.machine.Gamepad2.Press(GamepadKeys.Right);
+                    keyboardGamepad.Press(GamepadKeys.Right);
                     break;
                 case VirtualKey.Left:
-                case VirtualKey.GamepadDPadLeft:
-                    this.machine.Gamepad1.Press(GamepadKeys.Left);
-                    this.machine.Gamepad2.Press(GamepadKeys.Left);
+                    keyboardGamepad.Press(GamepadKeys.Left);
                     break;
-                case VirtualKey.GamepadA:
                 case VirtualKey.W:
-                    this.machine.Gamepad1.Press(GamepadKeys.ButtonA);
-                    this.machine.Gamepad2.Press(GamepadKeys.ButtonA);
+                    keyboardGamepad.Press(GamepadKeys.ButtonA);
                     break;
-                case VirtualKey.GamepadB:
                 case VirtualKey.X:
-                    this.machine.Gamepad1.Press(GamepadKeys.ButtonB);
-                    this.machine.Gamepad2.Press(GamepadKeys.ButtonB);
+                    keyboardGamepad.Press(GamepadKeys.ButtonB);
                     break;
                 case VirtualKey.Space:
-                    this.machine.Gamepad1.Press(GamepadKeys.ButtonStart);
-                    this.machine.Gamepad2.Press(GamepadKeys.ButtonStart);
+                    keyboardGamepad.Press(GamepadKeys.ButtonStart);
                     break;
                 // pleine écran
                 case VirtualKey.Enter:
@@ -489,34 +460,22 @@ namespace Sugoi.Console.Controls
             switch (e.VirtualKey)
             {
                 case VirtualKey.Up:
-                case VirtualKey.GamepadDPadUp:
-                    this.machine.Gamepad1.Release(GamepadKeys.Up);
-                    this.machine.Gamepad2.Release(GamepadKeys.Up);
+                    keyboardGamepad.Release(GamepadKeys.Up);
                     break;
                 case VirtualKey.Down:
-                case VirtualKey.GamepadDPadDown:
-                    this.machine.Gamepad1.Release(GamepadKeys.Down);
-                    this.machine.Gamepad2.Release(GamepadKeys.Down);
+                    keyboardGamepad.Release(GamepadKeys.Down);
                     break;
                 case VirtualKey.Right:
-                case VirtualKey.GamepadDPadRight:
-                    this.machine.Gamepad1.Release(GamepadKeys.Right);
-                    this.machine.Gamepad2.Release(GamepadKeys.Right);
+                    keyboardGamepad.Release(GamepadKeys.Right);
                     break;
                 case VirtualKey.Left:
-                case VirtualKey.GamepadDPadLeft:
-                    this.machine.Gamepad1.Release(GamepadKeys.Left);
-                    this.machine.Gamepad2.Release(GamepadKeys.Left);
+                    keyboardGamepad.Release(GamepadKeys.Left);
                     break;
-                case VirtualKey.GamepadA:
                 case VirtualKey.W:
-                    this.machine.Gamepad1.Release(GamepadKeys.ButtonA);
-                    this.machine.Gamepad2.Release(GamepadKeys.ButtonA);
+                    keyboardGamepad.Release(GamepadKeys.ButtonA);
                     break;
-                case VirtualKey.GamepadB:
                 case VirtualKey.X:
-                    this.machine.Gamepad1.Release(GamepadKeys.ButtonB);
-                    this.machine.Gamepad2.Release(GamepadKeys.ButtonB);
+                    keyboardGamepad.Release(GamepadKeys.ButtonB);
                     break;
             }
         }
@@ -536,10 +495,37 @@ namespace Sugoi.Console.Controls
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="args"></param>
-        //private void OnSlateViewUpdate(ICanvasAnimatedControl sender, CanvasAnimatedUpdateEventArgs args)
-        //{
-        //    this.machine.Update();
-        //}
+        
+        private void OnSlateViewUpdate(ICanvasAnimatedControl sender, CanvasAnimatedUpdateEventArgs args)
+        {
+            if (machine.IsStarted)
+            {
+                var xboxGamepads = xboxGamepadManager.GetGamepads();
+
+                // fusion entre les Gamepads XBOX et le keyboard
+
+                int value1 = 0;
+                int value2 = 0;
+
+                if (xboxGamepads[0] != null)
+                {
+                    value1 = xboxGamepads[0].GetValue();
+                }
+
+                if (xboxGamepads[1] != null)
+                {
+                    value2 = xboxGamepads[1].GetValue();
+                }
+
+                value1 = value1 | value2;
+
+                value2 = keyboardGamepad.GetValue();
+
+                value1 = value1 | value2;
+
+                machine.GamepadGlobal.SetValue(value1);
+            }
+        }
 
         /// <summary>
         /// Drw du SlateView
@@ -564,6 +550,17 @@ namespace Sugoi.Console.Controls
         public void ExecuteScript(string script)
         {
             throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Y a t'il un keyboard
+        /// </summary>
+        /// <returns></returns>
+
+        private bool HavePhysicalKeyboard()
+        {
+            KeyboardCapabilities capabilities = new KeyboardCapabilities();
+            return capabilities.KeyboardPresent == 1;
         }
     }
 }

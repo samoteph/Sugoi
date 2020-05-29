@@ -83,5 +83,39 @@ namespace Sugoi.Core
         {
             return machine.WriteBatteryRamAsync(memory);
         }
+
+        /// <summary>
+        /// Ecriture d'un tableau d'array
+        /// </summary>
+        /// <param name="name1"></param>
+        /// <param name="name2"></param>
+
+        public void WriteCharArray(int address, char[] charArray)
+        {
+            if(charArray == null || charArray.Length == 0)
+            {
+                return;
+            }
+
+            for(int i=0; i<charArray.Length; i++)
+            {
+                WriteChar(address, charArray[i]);
+                address += 2;
+            }
+        }
+
+        public void ReadCharArray(int address, char[] charArray)
+        {
+            if (charArray == null || charArray.Length == 0)
+            {
+                return;
+            }
+
+            for (int i = 0; i < charArray.Length; i++)
+            {
+                charArray[i] = ReadChar(address);
+                address += 2;
+            }
+        }
     }
 }

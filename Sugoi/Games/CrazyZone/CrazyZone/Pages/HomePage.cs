@@ -164,7 +164,7 @@ namespace CrazyZone.Pages
 
             frameScroll = 0;
 
-            hiScore = this.machine.BatteryRam.ReadInt(0x0000);
+            hiScore = this.machine.BatteryRam.ReadInt((int)BatteryRamAddress.HiScore);
             hiScoreString = "hiscore: " + hiScore;
 
             this.fontWidth = this.machine.Screen.Font.FontSheet.TileWidth;
@@ -178,17 +178,14 @@ namespace CrazyZone.Pages
         {
             var frame = this.machine.Frame;
 
-            if (homeState == HomeStates.Menu)
-            {
-                cursor.Update();
-            }
+            cursor.Update();
 
             frameScroll = (int)(frame * 0.5);
         }
 
         public void Updated()
         {
-            var gamepad = this.machine.Gamepad1;
+            var gamepad = this.machine.GamepadGlobal;
 
             switch (homeState)
             {
@@ -218,7 +215,7 @@ namespace CrazyZone.Pages
 
                 case HomeStates.Credits:
 
-                    if (gamepad.IsButtonsPressed())
+                    if (gamepad.IsButtonsPressed)
                     {
                         this.machine.Audio.Play("selectSound");
 
@@ -235,17 +232,14 @@ namespace CrazyZone.Pages
 
                     this.machine.Audio.Stop("homeSound");
 
-                    machine.WaitForFrame(30, () =>
+                    if (Player == Players.Solo)
                     {
-                        if (Player == Players.Solo)
-                        {
-                            game.Navigate(typeof(PlayPage));
-                        }
-                        else
-                        {
-                            game.Navigate(typeof(MultiPlayPage));
-                        }
-                    });
+                        game.NavigateWithFade(typeof(PlayPage));
+                    }
+                    else
+                    {
+                        game.NavigateWithFade(typeof(MultiPlayPage));
+                    }
 
                     break;
             }
@@ -306,19 +300,10 @@ namespace CrazyZone.Pages
                     }
 
                     break;
-
-                case HomeStates.Quit:
-
-                    screen.Clear(Argb32.Black);
-                    
-                    break;
             }
 
-            if(homeState != HomeStates.Quit)
-            {
-                // hi score
-                screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
-            }
+            // hi score
+            screen.DrawText(hiScoreString, screen.BoundsClipped.Right - hiScoreString.Length * fontWidth - 4, 0);
 
 #if DEBUG
             screen.DrawText(frameExecuted == 1 ? "1" : "2", 0, 0);

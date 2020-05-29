@@ -25,6 +25,14 @@ namespace Sugoi.Core
             this.hidden = false;
         }
 
+        public MapTileDescriptor(int number, bool isHorizontalFlipped, bool isVerticalFlipped)
+        {
+            this.number = number;
+            this.isHorizontalFlipped = isHorizontalFlipped;
+            this.isVerticalFlipped = isVerticalFlipped;
+            this.hidden = false;
+        }
+
         // la tuile ne sera jamais affiché
         public bool hidden;
         public int number;

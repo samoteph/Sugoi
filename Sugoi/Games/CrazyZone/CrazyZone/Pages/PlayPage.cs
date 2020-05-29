@@ -1,6 +1,7 @@
 ﻿using CrazyZone.Controls;
 using CrazyZone.Sprites;
 using Sugoi.Core;
+using System;
 
 namespace CrazyZone.Pages
 {
@@ -11,9 +12,19 @@ namespace CrazyZone.Pages
         const string SCORE_TEXT = "Score: ";
         const string HISCORE_TEXT = "HiScore: ";
 
+        const string MULTI_PRESS_START_TEXT = "Press start";
+        const string MULTI_WAITING_FOR_P1_TEXT = "Waiting for p1";
+        const string MULTI_WAITING_FOR_P2_TEXT = "Waiting for p2";
+
+        const string MULTI_WIN_TEXT = "YOU WIN!";
+        const string MULTI_LOOSE_TEXT = "YOU LOOSE!";
+
         private Game game;
         private Machine machine;
         private Gamepad gamepad;
+
+        // nom du joueur
+        private char[] name = new char[6];
 
         private Menu menuRetry = new Menu();
 
@@ -21,7 +32,12 @@ namespace CrazyZone.Pages
         private int frameDucks = 0;
         private int frameFlies = 0;
 
-        private int score;
+        public int Score
+        {
+            get;
+            private set;
+        }
+
         private int frameScore = 0;
 
         private int fontWidth;
@@ -39,6 +55,13 @@ namespace CrazyZone.Pages
 
         // page accueillant le multi joueur
         private MultiPlayPage multiPage;
+        // etat du jeu en mode multi pour l'occurence PlayPage
+        
+        public MultiPlayStates MultiPlayState
+        {
+            get;
+            set;
+        }
 
         private SpritePool<MotherSprite> mothers = new SpritePool<MotherSprite>(10);
         private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
@@ -67,7 +90,7 @@ namespace CrazyZone.Pages
         public PlayStates State
         {
             get;
-            private set;
+            set;
         }
 
         Map[] maps;
@@ -145,7 +168,7 @@ namespace CrazyZone.Pages
             private set;
         }
 
-        public float ScrollX { get; private set; }
+        public float ScrollX { get; set; }
 
         public float ScrollY
         {
@@ -183,18 +206,28 @@ namespace CrazyZone.Pages
 
         public void Initialize()
         {
-            switch(this.Player)
-            {
-                case Players.Solo:
-                case Players.Player1:
-                    gamepad = this.machine.Gamepad1;
-                    break;
-                case Players.Player2:
-                    gamepad = this.machine.Gamepad2;
-                    break;
-            }
+            gamepad = this.machine.GamepadGlobal;
 
-            State = PlayStates.Play;
+            // Lecture du nom du joueur dans la Ram
+            this.machine.BatteryRam.ReadCharArray((int)BatteryRamAddress.Name, name);
+
+            if (Player == Players.Solo)
+            {
+                State = PlayStates.Play;
+            }
+            else
+            {
+                State = PlayStates.ChooseGamepadP1andP2;
+            
+                if(Player ==  Players.Player1 )
+                {
+                    MultiPlayState = MultiPlayStates.WaitStart;
+                }
+                else
+                {
+                    MultiPlayState = MultiPlayStates.WaitOtherPlayer;
+                }
+            }
 
             this.machine.Audio.PlayLoop("playSound");
 
@@ -205,11 +238,11 @@ namespace CrazyZone.Pages
             frameFlies = 0;
 
             frameScore = 0;
-            score = 0;
+            Score = 0;
 
             fontWidth = machine.Screen.Font.FontSheet.TileWidth;
 
-            hiScore = this.machine.BatteryRam.ReadInt(0x0000);
+            hiScore = this.machine.BatteryRam.ReadInt((int)BatteryRamAddress.HiScore);
             hiScoreString = HISCORE_TEXT + hiScore;
 
             hitSmallMonsterCount = 0;
@@ -244,6 +277,71 @@ namespace CrazyZone.Pages
 
         public void Updating()
         {
+            // attente que les deux players soientt prêt
+            if(State == PlayStates.ChooseGamepadP1andP2)
+            {
+                // on continue a faire un scroll lent mais on affiche aucun autre sprte a part le texte "press start" et waiting for p2"
+                ScrollX += 0.5f;
+
+                if (MultiPlayState == MultiPlayStates.WaitStart)
+                {
+                    // Player1 quitte car ne veut pas commencer la partie à 2
+                    if(Player == Players.Player1)
+                    {
+                        if(machine.GamepadGlobal.IsPressed(GamepadKeys.ButtonB))
+                        {
+                            this.machine.GamepadGlobal.WaitForRelease(() =>
+                            {
+                                this.Quit();
+                            });
+                        }
+                    }
+
+                    machine.Gamepads.FindGamepadByKeyPressed(GamepadKeys.ButtonA, (g) =>
+                    {
+                        if (multiPage.FirstGamepad != g)
+                        {
+                            // Player 1
+                            if (multiPage.FirstGamepad == null)
+                            {
+                                multiPage.SelectFirstGamepad(g);
+                                MultiPlayState = MultiPlayStates.WaitOtherPlayer;
+                                this.machine.Audio.Play("startSound");
+                            }
+                            // player2
+                            else
+                            {
+                                multiPage.ReadyToPlay();
+                            }
+
+                            this.gamepad = g;
+
+                            return true;
+                        }
+
+                        return false;
+                    });
+                }
+                else if(MultiPlayState == MultiPlayStates.WaitOtherPlayer)
+                {
+                    if (Player == Players.Player1)
+                    {
+                        // demande de retour
+                        if (this.machine.GamepadGlobal.IsPressed(GamepadKeys.ButtonB))
+                        {
+                            this.machine.GamepadGlobal.WaitForRelease(() =>
+                            {
+                                this.gamepad = machine.GamepadGlobal;
+                                this.multiPage.UnselectFirstGamepad();
+                                MultiPlayState = MultiPlayStates.WaitStart;
+                            });
+                        }
+                    }
+                }
+
+                return;
+            }
+
             if (State != PlayStates.Quit)
             {
                 if (opa.IsAlive && opa.IsDying == false)
@@ -294,11 +392,11 @@ namespace CrazyZone.Pages
                     frameFlies++;
                 }
 
+                // il y a un ordre dans les Updated
+                // selon que les sprites soient créees par d'autres sprites : par exemple bomb est crée par opa, baby par mothers, ...
                 opa.Updated();
-                ammos.Updated();
 
-                // on place le setscroll ici car c'est Opa qui Fire la bomb et elle a besoin du scroll une fois tirée
-                bombs.SetScroll((int)-ScrollX, 0);
+                ammos.Updated();
                 bombs.Updated();
 
                 mothers.Updated();
@@ -336,7 +434,7 @@ namespace CrazyZone.Pages
                 {
                     if (State == PlayStates.GameOver)
                     {
-                        if (frameGameOver == 60 * 5)
+                        if (frameGameOver == 60 * 20)
                         {
                             // il ne passera qu'une seule fois
                             frameGameOver++;
@@ -359,6 +457,11 @@ namespace CrazyZone.Pages
 
         public void Updated()
         {
+            if(State == PlayStates.ChooseGamepadP1andP2)
+            {
+                return;
+            }
+
             if (State != PlayStates.Quit)
             {
                 // Augmente le score toutes les secondes environs
@@ -367,7 +470,7 @@ namespace CrazyZone.Pages
                     if (frameScore > 60)
                     {
                         frameScore = 0;
-                        score++;
+                        Score++;
                     }
                     else
                     {
@@ -382,7 +485,7 @@ namespace CrazyZone.Pages
 
                     if (this.Player == Players.Solo || this.multiPage.State == MultiPlayPage.MultiStates.GameOver)
                     {
-                        if (gamepad.IsButtonsPressed())
+                        if (gamepad.IsButtonsPressed)
                         {
                             gamepad.WaitForRelease(() => this.Quit() );
                         }
@@ -396,7 +499,22 @@ namespace CrazyZone.Pages
 
                     machine.WaitForFrame(30, () =>
                     {
-                        game.Navigate(typeof(HomePage));
+                        if (Score < hiScore)
+                        {
+                            game.Navigate(typeof(HomePage));
+                        }
+                        else
+                        {
+                            if (name[0] == 0)
+                            {
+                                var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
+                                page.TypeOfPageDestination = typeof(HallOfFamePage);
+                            }
+                            else
+                            {
+                                game.Navigate(typeof(HallOfFamePage));
+                            }
+                        }
                     });
                     break;
             }
@@ -415,28 +533,78 @@ namespace CrazyZone.Pages
                 screen.DrawScrollMap(maps[4], true, (int)(-ScrollX * 0.90), 0, 0, screen.Height - maps[4].Height, 320, 136);
                 screen.DrawScrollMap(maps[5], true, (int)(-ScrollX * 1.00), 0, 0, screen.Height - maps[5].Height, 320, 136);
 
-                ammos.Draw(frameExecuted);
-                babies.Draw(frameExecuted);
-                mothers.Draw(frameExecuted);
-
-                ducks.Draw(frameExecuted);
-                flies.Draw(frameExecuted);
-
-                kabooms.Draw(frameExecuted);
-
-                opa.Draw(frameExecuted);
-                bombs.Draw(frameExecuted);
-                bullets.Draw(frameExecuted);
-                coins.Draw(frameExecuted);
-
-                if (State == PlayStates.GameOver)
+                if (State != PlayStates.ChooseGamepadP1andP2)
                 {
-                    screen.DrawText(GAMEOVER_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
+                    ammos.Draw(frameExecuted);
+                    babies.Draw(frameExecuted);
+                    mothers.Draw(frameExecuted);
+
+                    ducks.Draw(frameExecuted);
+                    flies.Draw(frameExecuted);
+
+                    kabooms.Draw(frameExecuted);
+
+                    opa.Draw(frameExecuted);
+                    bombs.Draw(frameExecuted);
+                    bullets.Draw(frameExecuted);
+                    coins.Draw(frameExecuted);
+                }
+
+                switch(State)
+                {
+                    case PlayStates.GameOver:
+                        screen.DrawText(GAMEOVER_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
+                        
+                        if(Player != Players.Solo)
+                        {
+                            if (this.multiPage.State == MultiPlayPage.MultiStates.GameOver)
+                            {
+                                if (Score < this.multiPage.GetOpponentScore(this.Player))
+                                {
+                                    screen.DrawText(MULTI_LOOSE_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_LOOSE_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2 + 16);
+                                }
+                                else
+                                {
+                                    screen.DrawText(MULTI_WIN_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_WIN_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2 + 16);
+                                }
+                            }
+                        }
+
+                        break;
+
+                    case PlayStates.ChooseGamepadP1andP2:
+
+                        if (Player == Players.Player1)
+                        {
+                            switch (MultiPlayState)
+                            {
+                                case MultiPlayStates.WaitStart:
+                                    screen.DrawText(MULTI_PRESS_START_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_PRESS_START_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
+                                    break;
+                                case MultiPlayStates.WaitOtherPlayer:
+                                    screen.DrawText(MULTI_WAITING_FOR_P2_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_WAITING_FOR_P2_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
+                                    break;
+                            }
+                        }
+                        else if(Player == Players.Player2)
+                        {
+                            switch (MultiPlayState)
+                            {
+                                case MultiPlayStates.WaitStart:
+                                    screen.DrawText(MULTI_PRESS_START_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_PRESS_START_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
+                                    break;
+                                case MultiPlayStates.WaitOtherPlayer:
+                                    screen.DrawText(MULTI_WAITING_FOR_P1_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_WAITING_FOR_P2_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
+                                    break;
+                            }
+                        }
+
+                        break;
                 }
 
                 // score
                 screen.DrawText(SCORE_TEXT, screen.BoundsClipped.X + 4, 0);
-                screen.DrawText(score, screen.BoundsClipped.X + SCORE_TEXT.Length * fontWidth, 0);
+                screen.DrawText(Score, screen.BoundsClipped.X + SCORE_TEXT.Length * fontWidth, 0);
 
                 if (Player == Players.Solo)
                 {
@@ -467,9 +635,9 @@ namespace CrazyZone.Pages
 
             if (this.Player == Players.Solo)
             {
-                if (this.hiScore < this.score)
+                if (this.hiScore < this.Score)
                 {
-                    this.machine.BatteryRam.WriteInt(0x0000, this.score);
+                    this.machine.BatteryRam.WriteInt((int)BatteryRamAddress.HiScore, this.Score);
                     await this.machine.BatteryRam.FlashAsync();
                 }
             }
@@ -499,7 +667,7 @@ namespace CrazyZone.Pages
 
         public void AddBonusScore(int bonus)
         {
-            this.score += bonus;
+            this.Score += bonus;
         }
 
         /// <summary>
@@ -561,7 +729,8 @@ namespace CrazyZone.Pages
         Pause,
         Play,
         GameOver,
-        Quit
+        Quit,
+        ChooseGamepadP1andP2
     }
 
     /// <summary>
@@ -573,5 +742,12 @@ namespace CrazyZone.Pages
         Solo = -1,
         Player1,
         Player2
+    }
+
+    public enum MultiPlayStates
+    {
+        WaitStart,
+        WaitOtherPlayer,
+        StartPlaying,
     }
 }

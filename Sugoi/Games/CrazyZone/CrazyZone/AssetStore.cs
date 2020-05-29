@@ -20,14 +20,45 @@ namespace CrazyZone
 
             font.AddCharacters(CharactersGroups.AlphaUpperAndLower);
             font.AddCharacters(CharactersGroups.Numeric);
-            font.AddCharacters(".,\"'?!@*#$%&: ");
-            font.CharacterIndex += 4;
-            font.AddCharacters("()+-/=©<>");
+            font.AddCharacters(".,\"'?!@*#$%: ");
+            font.CharacterIndex += 5;
+            font.AddCharacters("()+-/=©<>~"); //~ correspond à la disquette
             font.UnknownTileNumber = font.GetTileNumber('$');
 
             font.FontSheet = fontSheet;
 
             return font;
+        }
+
+        private static Animator CreateCursorGlyphAnimation()
+        {
+            Animator animator = new Animator();
+            MapAnimationFrame[] frames = new MapAnimationFrame[2];
+            var tileSheet = AssetStore.Tiles;
+
+            var map = new Map();
+            map.Create("MotherOpen1", 3, 3, tileSheet, MapTileDescriptor.HiddenTile);
+            
+            map.SetTile(0, 0, new MapTileDescriptor(205, false, false));
+            map.SetTile(2, 0, new MapTileDescriptor(205, true, false));
+            map.SetTile(0, 2, new MapTileDescriptor(205, false, true));
+            map.SetTile(2, 2, new MapTileDescriptor(205, true, true));
+
+            frames[0] = new MapAnimationFrame(map, 30, false, false, 0, 0);
+
+            map = new Map();
+            map.Create("MotherOpen2", 3, 3, tileSheet, MapTileDescriptor.HiddenTile);
+
+            map.SetTile(0, 0, new MapTileDescriptor(206, false, false));
+            map.SetTile(2, 0, new MapTileDescriptor(206, true, false));
+            map.SetTile(0, 2, new MapTileDescriptor(206, false, true));
+            map.SetTile(2, 2, new MapTileDescriptor(206, true, true));
+
+            frames[1] = new MapAnimationFrame(map, 30, false, false);
+
+            animator.Initialize(frames);
+
+            return animator;
         }
 
         public static Animator CreateMotherOpenAnimation()
@@ -51,9 +82,10 @@ namespace CrazyZone
             return animator;
         }
 
-        private static Map CreateMotherTiredMap(SurfaceTileSheet tileSheet)
+        private static Map CreateMotherTiredMap()
         {
             var map = new Map();
+            var tileSheet = AssetStore.Tiles;
             map.Create("MotherTired1", 6, 3, tileSheet, MapTileDescriptor.HiddenTile);
             map.SetTiles(80, 81, 82, 83, 84, 80, 90, 91, 92, 93, 94, 95, 100,101,102,103,104, 105);
             
@@ -86,9 +118,11 @@ namespace CrazyZone
             return animator;
         }
 
-        private static Animator CreateOpaWalkAnimation(SurfaceTileSheet tileSheet)
+        private static Animator CreateOpaWalkAnimation()
         {
             Animator animator = new Animator();
+            var tileSheet = AssetStore.Tiles;
+
             MapAnimationFrame[] frames = new MapAnimationFrame[2];
 
             var map = new Map();
@@ -106,10 +140,11 @@ namespace CrazyZone
             return animator;
         }
 
-        private static Animator CreateOpaCursorAnimation(SurfaceTileSheet tileSheet)
+        private static Animator CreateOpaCursorAnimation()
         {
             Animator animator = new Animator();
-            MapAnimationFrame[] frames = new MapAnimationFrame[2]; 
+            MapAnimationFrame[] frames = new MapAnimationFrame[2];
+            var tileSheet = AssetStore.Tiles;
 
             var map = new Map();
             map.Create("OpaCursor1", 2, 2, tileSheet, MapTileDescriptor.HiddenTile);
@@ -128,9 +163,11 @@ namespace CrazyZone
             return animator;
         }
 
-        private static Animator CreateOpaFlightAnimation(SurfaceTileSheet tileSheet)
+        private static Animator CreateOpaFlightAnimation()
         {
             Animator animator = new Animator();
+            var tileSheet = AssetStore.Tiles;
+
             MapAnimationFrame[] frames = new MapAnimationFrame[3];
 
             var map = new Map();
@@ -334,11 +371,13 @@ namespace CrazyZone
             Tiles = videoMemory.CreateTileSheet("tiles");
             ParallaxMaps = videoMemory.CreateMapTmx("map");
 
-            OpaCursorAnimator = CreateOpaCursorAnimation(Tiles);
-            OpaFlightAnimator = CreateOpaFlightAnimation(Tiles);
-            OpaWalkAnimator = CreateOpaWalkAnimation(Tiles);
+            GlyphCursorAnimator = CreateCursorGlyphAnimation();
 
-            MotherTired = CreateMotherTiredMap(Tiles);
+            OpaCursorAnimator = CreateOpaCursorAnimation();
+            OpaFlightAnimator = CreateOpaFlightAnimation();
+            OpaWalkAnimator = CreateOpaWalkAnimation();
+
+            MotherTired = CreateMotherTiredMap();
 
             var fontSheet = videoMemory.CreateFontSheet("font");
             Font = CreateFont(fontSheet);
@@ -372,6 +411,12 @@ namespace CrazyZone
         }
 
         public static Map[] ParallaxMaps
+        {
+            get;
+            private set;
+        }
+
+        public static Animator GlyphCursorAnimator
         {
             get;
             private set;

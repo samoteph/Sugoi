@@ -874,15 +874,16 @@ namespace Sugoi.Core
             this.SetClip(clip);
         }
 
-        public void DrawText(Font font, string text, int xScreen = 0, int yScreen = 0, int bank = 0)
+        public void DrawText(char glyph, int xScreen = 0, int yScreen = 0, int bank = 0)
         {
-            var oldFont = this.Font;
+            var font = this.Font;
 
-            this.Font = font;
+            int tileWidth = font.FontSheet.TileWidth;
 
-            DrawText(text, xScreen, yScreen, bank);
+            font.FontSheet.SetBank(bank);
 
-            this.Font = oldFont;
+            var tileNumber = font.GetTileNumber(glyph);
+            this.DrawTile(font.FontSheet, tileNumber, xScreen, yScreen);
         }
 
         public void DrawText(string text, int xScreen = 0, int yScreen = 0, int bank = 0)

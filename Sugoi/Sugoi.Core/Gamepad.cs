@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 
@@ -14,6 +15,16 @@ namespace Sugoi.Core
         public Gamepad()
         {
         }
+
+        /// <summary>
+        /// Permet de savoir si un gamepad est libre pour le Gamepad Pool 
+        /// </summary>
+
+        public bool IsFree
+        {
+            get;
+            set;
+        } = true;
 
         internal void Start(Machine machine)
         {
@@ -94,30 +105,33 @@ namespace Sugoi.Core
             return gamePadKeyValues[(int)key];
         }
 
-        public bool IsButtonsPressed()
+        public bool IsButtonsPressed
         {
-            if(IsPressed(GamepadKeys.ButtonA))
+            get
             {
-                return true;
-            }
-            else if(IsPressed(GamepadKeys.ButtonB))
-            {
-                return true;
-            }
-            else if(IsPressed(GamepadKeys.ButtonC))
-            {
-                return true;
-            }
-            else if(IsPressed(GamepadKeys.ButtonD))
-            {
-                return true;
-            }
-            else if(IsPressed(GamepadKeys.ButtonStart))
-            {
-                return true;
-            }
+                if (IsPressed(GamepadKeys.ButtonA))
+                {
+                    return true;
+                }
+                else if (IsPressed(GamepadKeys.ButtonB))
+                {
+                    return true;
+                }
+                else if (IsPressed(GamepadKeys.ButtonC))
+                {
+                    return true;
+                }
+                else if (IsPressed(GamepadKeys.ButtonD))
+                {
+                    return true;
+                }
+                else if (IsPressed(GamepadKeys.ButtonStart))
+                {
+                    return true;
+                }
 
-            return false;
+                return false;
+            }
         }
 
         public void Release()
@@ -128,7 +142,7 @@ namespace Sugoi.Core
             }
         }
 
-            public void Release(GamepadKeys key)
+        public void Release(GamepadKeys key)
         {
             gamePadKeyValues[(int)key] = false;
         }
@@ -153,14 +167,84 @@ namespace Sugoi.Core
 
         public void WaitForRelease(Action completed = null)
         {
-            Debug.WriteLine("WaitForRelease");
-
             this.machine.PrepareWaiting( () =>
             {
                 return this.IsRelease() == false;
             },
             completed
             );
+        }
+
+        private int frameWaitCount = 0;
+
+        /// <summary>
+        /// Attent que les touche se relache avec un temps maximum
+        /// </summary>
+        /// <param name="maximumFrame"></param>
+        /// <param name="completed"></param>
+
+        public void WaitForRelease(int maximumFrame, Action completed = null)
+        {
+            frameWaitCount = 0;
+            this.machine.PrepareWaiting(() =>
+            {
+                if (frameWaitCount < maximumFrame)
+                {
+                    frameWaitCount++;
+                    return this.IsRelease() == false;
+                }
+
+                // on attend plus
+                return false;
+            },
+            completed
+            );
+        }
+
+        /// <summary>
+        /// Obtenir la valeur en bit
+        /// </summary>
+        /// <returns></returns>
+
+        public int GetValue()
+        {
+            if(gamePadKeyValues == null)
+            {
+                return 0;
+            }
+
+            int value = 0;
+
+            for (int i = 0; i < gamePadKeyValues.Length; i++)
+            {
+                if (gamePadKeyValues[i] == true)
+                {
+                    value += (1 << i);
+                }
+            }
+
+            return value;
+        }
+
+        /// <summary>
+        /// Set a value
+        /// </summary>
+        /// <param name="value1"></param>
+
+        public void SetValue(int value1)
+        {
+            if (gamePadKeyValues == null)
+            {
+                return;
+            }
+
+            for (int i = 0; i < gamePadKeyValues.Length; i++)
+            {
+                bool isPressed = (value1 & 0x1) == 0x1;
+                gamePadKeyValues[i] = isPressed;
+
+                value1 = value1 >> 1;
+            }
         }
     }
 

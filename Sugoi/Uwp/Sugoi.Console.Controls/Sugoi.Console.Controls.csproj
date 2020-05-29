@@ -127,6 +127,7 @@
     <Compile Include="SugoiControl.xaml.cs">
       <DependentUpon>SugoiControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="XBoxGamepadManager.cs" />
     <EmbeddedResource Include="Properties\Sugoi.Console.Controls.rd.xml" />
   </ItemGroup>
   <ItemGroup>

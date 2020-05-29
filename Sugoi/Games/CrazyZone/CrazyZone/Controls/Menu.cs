@@ -26,7 +26,7 @@ namespace CrazyZone.Controls
         {
             this.machine = machine;
             this.screen = this.machine.Screen;
-            this.gamepad = this.machine.Gamepad1;
+            this.gamepad = this.machine.GamepadGlobal;
 
             this.verticalInterval = verticalInterval;
             this.topCursorMargin = topCursorMargin;
