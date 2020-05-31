@@ -1,14 +1,19 @@
-﻿using Sugoi.Core;
+﻿using GameJolt;
+using GameJolt.Objects;
+using Sugoi.Core;
 using Sugoi.Core.IO;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CrazyZone.Pages
 {
     public class HallOfFamePage : IPage
     {
+        public const string LOADING_SCORE_TEXT = "Loading scores";
+
         Game game;
         Machine machine;
         Screen screen;
@@ -31,6 +36,12 @@ namespace CrazyZone.Pages
         MapText mapFameItems = new MapText();
 
         FameItem[] items = new FameItem[100];
+
+        HallOfFameStates State
+        {
+            get;
+            set;
+        }
 
         public HallOfFamePage(Game game)
         {
@@ -81,7 +92,7 @@ namespace CrazyZone.Pages
         /// Initilize
         /// </summary>
 
-        public void Initialize()
+        public async void Initialize()
         {
             frameMoving = 0;
             isMoving = false;
@@ -89,6 +100,37 @@ namespace CrazyZone.Pages
             page = 0;
             pageIndex = 0;
 
+            State = HallOfFameStates.Loading;
+
+            await this.LoadScoresAsync();
+        }
+
+        private async Task LoadScoresAsync()
+        {
+            await this.machine.ExecuteAsync(async () =>
+            {
+                bool isLoaded = await this.game.Leaderboard.LoadScoresAsync();
+
+                if (isLoaded)
+                {
+                    var leaderboardItems = this.game.Leaderboard.Items;
+
+                    for (int i = 0; i < leaderboardItems.Count; i++)
+                    {
+                        var leaderboardItem = leaderboardItems[i];
+
+                        var item = items[i];
+
+                        item.Rank = i + 1;
+                        item.Name = leaderboardItem.Name.ToCharArray();
+                        item.Score = leaderboardItem.Score;
+                    }
+
+                    this.DrawFameItems();
+                }
+
+                State = HallOfFameStates.Play;
+            });
         }
 
         /// <summary>
@@ -98,6 +140,19 @@ namespace CrazyZone.Pages
         public void Updating()
         {
             frameScroll += 0.5f;
+
+            if(State == HallOfFameStates.Loading)
+            {
+                return;
+            }
+
+            if(gamepad.IsPressed(GamepadKeys.ButtonA) || gamepad.IsPressed(GamepadKeys.ButtonB))
+            {
+                this.gamepad.WaitForRelease(30, () =>
+                {
+                    this.game.NavigateWithFade(typeof(HomePage));
+                });
+            }
 
             if (isMoving == false)
             {
@@ -173,21 +228,34 @@ namespace CrazyZone.Pages
             screen.DrawText("NAME", 16 * 8, 6 * 8);
             screen.DrawText("SCORE", 26 * 8, 6 * 8);
 
-            this.screen.DrawScrollMap(mapFameItems, false, (int)-scrollX, 8 * 8);
-
-            frameArrow = (frameArrow + 0.2f) % 5;
-            var arrowOffset = (int)frameArrow;
-
-            if (pageIndex > 0)
+            if (State == HallOfFameStates.Loading)
             {
-                screen.DrawText('<', 2 * 8 - arrowOffset, (screen.Height / 2) - 4);
+                screen.DrawText(LOADING_SCORE_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (LOADING_SCORE_TEXT.Length * 8)) / 2), 8 * (8 + 5));
             }
-
-            if (pageIndex < 9)
+            else
             {
-                screen.DrawText('>', 38 * 8 + arrowOffset, (screen.Height / 2) - 4);
+                this.screen.DrawScrollMap(mapFameItems, false, (int)-scrollX, 8 * 8);
+
+                frameArrow = (frameArrow + 0.2f) % 5;
+                var arrowOffset = (int)frameArrow;
+
+                if (pageIndex > 0)
+                {
+                    screen.DrawText('<', 2 * 8 - arrowOffset, (screen.Height / 2) - 4);
+                }
+
+                if (pageIndex < 9)
+                {
+                    screen.DrawText('>', 38 * 8 + arrowOffset, (screen.Height / 2) - 4);
+                }
             }
         }
+    }
+
+    public enum HallOfFameStates
+    {
+        Loading,
+        Play
     }
 
     /// <summary>

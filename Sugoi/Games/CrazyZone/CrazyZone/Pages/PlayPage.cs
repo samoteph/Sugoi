@@ -495,27 +495,31 @@ namespace CrazyZone.Pages
 
                 case PlayStates.Quit:
 
-                    this.machine.Audio.Stop("playSound");
-
-                    machine.WaitForFrame(30, () =>
+                    if (Player != Players.Player2)
                     {
-                        if (Score < hiScore)
+                        this.machine.Audio.Stop("playSound");
+
+                        machine.WaitForFrame(30, () =>
                         {
-                            game.Navigate(typeof(HomePage));
-                        }
-                        else
-                        {
-                            if (name[0] == 0)
+                            if (Score < hiScore)
                             {
-                                var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
-                                page.TypeOfPageDestination = typeof(HallOfFamePage);
+                                game.Navigate(typeof(HomePage));
                             }
                             else
                             {
-                                game.Navigate(typeof(HallOfFamePage));
+                                if (name[0] == 0)
+                                {
+                                    var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
+                                    page.Score = this.Score;
+                                    page.TypeOfPageDestination = typeof(HallOfFamePage);
+                                }
+                                else
+                                {
+                                    game.Navigate(typeof(HallOfFamePage));
+                                }
                             }
-                        }
-                    });
+                        });
+                    }
                     break;
             }
         }

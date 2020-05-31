@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -282,6 +283,26 @@ namespace Sugoi.Core
         }
 
         /// <summary>
+        /// Ecriture d'un fichier
+        /// </summary>
+
+        public Func<string, Stream, Task<bool>> WriteFileAsyncCallback
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Lecture d'un fichier
+        /// </summary>
+
+        public Func<string, Task<Stream>> ReadFileAsyncCallback
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
         /// Ecriture de la RAM sur batterie
         /// </summary>
 
@@ -310,6 +331,28 @@ namespace Sugoi.Core
             get;
             set;
         }
+
+        /// <summary>
+        /// Callback permettant l'execution sur le thread de Initialize, Updating/Updated et Draw
+        /// </summary>
+
+        public Func<Func<Task>, Task> ExecuteAsyncCallBack
+        {
+            get;
+            set;
+        }
+
+        /// <summary>
+        /// Execution asynchrone sur le thread de la machine
+        /// </summary>
+        /// <param name="delegateAsync"></param>
+        /// <returns></returns>
+
+        public Task ExecuteAsync(Func<Task> delegateAsync)
+        {
+            return ExecuteAsyncCallBack?.Invoke( delegateAsync );
+        }
+
 
         /// <summary>
         /// Jouer un son preloadé

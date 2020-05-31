@@ -48,7 +48,7 @@ namespace Sugoi.Console.Controls
 
                 cartridge.ExportFileAsyncCallback = (name, stream, count) =>
                 {
-                    return this.WriteCartridgeFileAsync(name, stream, count);
+                    return this.WriteFileAsync(name, stream, count);
                 };
 
                 // Chargement de la cartouche
@@ -65,8 +65,13 @@ namespace Sugoi.Console.Controls
                     return this.WriteBatteryRamAsync(memory);
                 };
 
-                // Gestion du son
+                //Execution asynchrone
+                this.machine.ExecuteAsyncCallBack = (delegateAsync) =>
+                {
+                    return this.SlateView.RunOnGameLoopThreadAsync(delegateAsync);
+                };
 
+                // Gestion du son
                 await audioPlayer.InitializeAsync();
 
                 this.machine.PreloadSoundAsyncCallBack = (name, channelCount) =>
@@ -175,7 +180,7 @@ namespace Sugoi.Console.Controls
         {
             StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
 
-            var folder = (StorageFolder)await storageFolder.TryGetItemAsync("Cartridge");
+            var folder = (StorageFolder)await storageFolder.TryGetItemAsync("Files");
             var file = await folder.GetFileAsync(name);
 
             await audioPlayer.AddSoundAsync(name, file, channelCount);
@@ -189,17 +194,17 @@ namespace Sugoi.Console.Controls
         /// <param name="count"></param>
         /// <returns></returns>
 
-        private async Task<bool> WriteCartridgeFileAsync(string name, BinaryReader streamReader, int count)
+        private async Task<bool> WriteFileAsync(string name, BinaryReader streamReader, int count)
         {
             try
             {
                 StorageFolder storageFolder = ApplicationData.Current.LocalFolder;
 
-                StorageFolder folder = (StorageFolder)await storageFolder.TryGetItemAsync("Cartridge");
+                StorageFolder folder = (StorageFolder)await storageFolder.TryGetItemAsync("Files");
                 
                 if (folder == null)
                 {
-                    folder = await storageFolder.CreateFolderAsync("Cartridge");
+                    folder = await storageFolder.CreateFolderAsync("Files");
                 }
 
                 var storageFile = await folder.CreateFileAsync(name, CreationCollisionOption.ReplaceExisting);

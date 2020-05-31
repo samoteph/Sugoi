@@ -11,6 +11,12 @@ namespace CrazyZone
         private Action emptyAction = () => { };
         private Action<int> fadeDrawAction;
 
+        public Leaderboard Leaderboard
+        {
+            get;
+            private set;
+        }
+
         public Machine Machine
         {
             get;
@@ -27,6 +33,8 @@ namespace CrazyZone
         {
             this.Machine = machine;
 
+            this.Leaderboard = new Leaderboard(machine);
+
             this.Pages = new Dictionary<Type, IPage>(10);
 
             // ajout des pages
@@ -42,8 +50,8 @@ namespace CrazyZone
             };
 
             // Lancement du jeu
-            //this.Navigate(typeof(HomePage));
-            this.Navigate(typeof(HallOfFamePage));
+            this.Navigate(typeof(HomePage));
+            //this.Navigate(typeof(HallOfFamePage));
         }
 
         public IPage Navigate(Type typePage)

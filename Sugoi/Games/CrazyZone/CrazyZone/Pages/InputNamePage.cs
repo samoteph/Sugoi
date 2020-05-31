@@ -2,12 +2,14 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace CrazyZone.Pages
 {
     public class InputNamePage : IPage
     {
         const string ENTER_NAME_TEXT = "Enter your name";
+        const string SAVING_SCORE_TEXT = "saving score and name";
 
         Game game;
         Machine machine;
@@ -31,6 +33,12 @@ namespace CrazyZone.Pages
         private char[] name;
         private int xName = 0;
 
+        private InputNameStates State
+        {
+            get;
+            set;
+        } = InputNameStates.Input;
+
         /// <summary>
         /// Type de la page destination
         /// </summary>
@@ -40,6 +48,8 @@ namespace CrazyZone.Pages
             get;
             set;
         } = typeof(HomePage);
+
+        public int Score { get; internal set; }
 
         public InputNamePage(Game game)
         {
@@ -84,6 +94,8 @@ namespace CrazyZone.Pages
 
         public void Initialize()
         {
+            this.State = InputNameStates.Input;
+
             if (name[0] == '-')
             {
                 // aucun enregistrement
@@ -103,11 +115,20 @@ namespace CrazyZone.Pages
         public void Updating()
         {
             frameScroll += 0.5;
-            cursor.Update();
+
+            if (State == InputNameStates.Input)
+            {
+                cursor.Update();
+            }
         }
 
-        public void Updated()
+        public async void Updated()
         {
+            if(State == InputNameStates.Saving)
+            {
+                return;
+            }
+
             if(gamepad.IsButtonsPressed)
             {
                 if(gamepad.IsPressed(GamepadKeys.ButtonA))
@@ -119,8 +140,12 @@ namespace CrazyZone.Pages
                     {
                         if (name[0] != '-')
                         {
-                            this.Save();
-                            this.game.NavigateWithFade(TypeOfPageDestination);
+                            this.State = InputNameStates.Saving;
+
+                           this.Save(() =>
+                           {
+                               this.game.NavigateWithFade(TypeOfPageDestination);
+                           });
                         }
                         else
                         {
@@ -221,16 +246,48 @@ namespace CrazyZone.Pages
                 var glyph = name[i];
                 screen.DrawText(glyph, xScreen + i * 16 + 16, 8 * 6);
             }
+
+            if (State == InputNameStates.Saving)
+            {
+                screen.DrawText(SAVING_SCORE_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (SAVING_SCORE_TEXT.Length * 8)) / 2), 8 * 20);
+            }
         }
 
         /// <summary>
         /// Sauvegarde du nom
         /// </summary>
 
-        public void Save()
+        public async void Save( Action saveCompleted )
         {
             this.machine.BatteryRam.WriteCharArray((int)BatteryRamAddress.Name, name);
-            this.machine.BatteryRam.FlashAsync();
+
+            await this.machine.ExecuteAsync(async () =>
+            {
+                await this.machine.BatteryRam.FlashAsync();
+
+                if (Score > 0)
+                {
+
+                    this.State = InputNameStates.Saving;
+
+                    // name avec padleft sur 6 caractères
+                    var nameString = new string(name).Replace("-", "").PadLeft(6, ' ');
+
+                    await this.game.Leaderboard.SaveScoreAsync(nameString, Score);
+
+                    saveCompleted?.Invoke();
+                }
+            });
+        }
+
+        /// <summary>
+        /// Etat
+        /// </summary>
+
+        public enum InputNameStates
+        {
+            Input,
+            Saving
         }
     }
 }

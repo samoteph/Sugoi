@@ -2,6 +2,7 @@
 using Microsoft.Graphics.Canvas.Effects;
 using Microsoft.Graphics.Canvas.UI;
 using Microsoft.Graphics.Canvas.UI.Xaml;
+using Sugoi.Console.Controls;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -97,6 +98,17 @@ namespace SamuelBlanchard.Xaml.Controls
                 pixel.b,
                 pixel.a
                 );
+        }
+
+        /// <summary>
+        /// Execition asynchrone sur le thread de Draw/Update
+        /// </summary>
+        /// <param name="delegateAsync"></param>
+        /// <returns></returns>
+
+        public Task RunOnGameLoopThreadAsync(Func<Task> delegateAsync)
+        {
+            return GameLoopSynchronizationContext.RunOnGameLoopThreadAsync(this.canvas, delegateAsync);
         }
 
         /// <summary>
