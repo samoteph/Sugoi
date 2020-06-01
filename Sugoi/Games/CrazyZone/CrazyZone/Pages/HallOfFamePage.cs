@@ -13,6 +13,7 @@ namespace CrazyZone.Pages
     public class HallOfFamePage : IPage
     {
         public const string LOADING_SCORE_TEXT = "Loading scores";
+        public const string MANUAL_TEXT = "< and > to navigate";
 
         Game game;
         Machine machine;
@@ -27,6 +28,7 @@ namespace CrazyZone.Pages
         bool isMoving = false;
         int frameMoving = 0;
         int page = 0;
+        int maxPage = 9;
         int pageIndex = 0;
         int direction = -1;
 
@@ -66,13 +68,11 @@ namespace CrazyZone.Pages
 
                 items[i] = item;
             }
-
-            this.DrawFameItems();
         }
 
         private void DrawFameItems()
         {
-            for (int j = 0; j < 10  ; j++)
+            for (int j = 0; j < maxPage  ; j++)
             {
                 int pageIndex = j * 40;
                 int itemIndex = j * 10;
@@ -81,9 +81,12 @@ namespace CrazyZone.Pages
                 {
                     var item = items[i + itemIndex];
 
-                    mapFameItems.SetText(10 + pageIndex, i, item.Rank);
-                    mapFameItems.SetText(14 + pageIndex, i, item.Name);
-                    mapFameItems.SetText(21 + pageIndex, i, item.Score);
+                    if (string.IsNullOrWhiteSpace(item.Name) == false)
+                    {
+                        mapFameItems.SetText(12 + pageIndex, i, item.Rank, MapText.TextPositions.RightToLeft);
+                        mapFameItems.SetText(19 + pageIndex, i, item.Name, MapText.TextPositions.RightToLeft);
+                        mapFameItems.SetText(30 + pageIndex, i, item.Score, MapText.TextPositions.RightToLeft);
+                    }
                 }
             }
         }
@@ -122,9 +125,17 @@ namespace CrazyZone.Pages
                         var item = items[i];
 
                         item.Rank = i + 1;
-                        item.Name = leaderboardItem.Name.ToCharArray();
+                        item.Name = leaderboardItem.Name;
+
+                        if(item.Name.Length > 6)
+                        {
+                            item.Name = leaderboardItem.Name.Substring(0, 6);
+                        }
+
                         item.Score = leaderboardItem.Score;
                     }
+
+                    this.maxPage = ((leaderboardItems.Count - 1) / 10) + 1;
 
                     this.DrawFameItems();
                 }
@@ -172,7 +183,7 @@ namespace CrazyZone.Pages
 
                     case GamepadKeys.Right:
 
-                        if (pageIndex < 9)
+                        if (pageIndex < this.maxPage - 1)
                         {
                             isMoving = true;
                             direction = 1;
@@ -244,10 +255,12 @@ namespace CrazyZone.Pages
                     screen.DrawText('<', 2 * 8 - arrowOffset, (screen.Height / 2) - 4);
                 }
 
-                if (pageIndex < 9)
+                if (pageIndex < (maxPage - 1))
                 {
                     screen.DrawText('>', 38 * 8 + arrowOffset, (screen.Height / 2) - 4);
                 }
+
+                screen.DrawText(MANUAL_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MANUAL_TEXT.Length * 8)) / 2), 8 * 20);
             }
         }
     }
@@ -270,11 +283,11 @@ namespace CrazyZone.Pages
             set;
         }
 
-        public char[] Name
+        public string Name
         {
             get;
             set;
-        } = new char[6];
+        }
 
         public int Score
         {

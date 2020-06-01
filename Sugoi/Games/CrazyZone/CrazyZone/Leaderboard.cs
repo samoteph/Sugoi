@@ -90,7 +90,28 @@ namespace CrazyZone
 
         public Task SaveScoreAsync(string name, int score)
         {
-            return gameJolt.Scores.AddAsync(name, score, score.ToString());
+            var scoreString = score.ToString();
+            return gameJolt.Scores.AddAsync(name, score, scoreString, Encode(name, scoreString));
+        }
+
+        private string Encode(string name, string scoreString)
+        {
+            string base64 = EncodeTo64(name + "/" + scoreString);
+
+            return base64[1] + base64[0] + base64.Substring(2);                        
+        }
+
+        private string EncodeTo64(string toEncode)
+        {
+            byte[] toEncodeAsBytes
+
+                  = System.Text.ASCIIEncoding.ASCII.GetBytes(toEncode);
+
+            string returnValue
+
+                  = System.Convert.ToBase64String(toEncodeAsBytes);
+
+            return returnValue;
         }
 
         /// <summary>

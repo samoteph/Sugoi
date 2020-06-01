@@ -271,7 +271,7 @@ namespace CrazyZone.Pages
                     this.State = InputNameStates.Saving;
 
                     // name avec padleft sur 6 caractères
-                    var nameString = new string(name).Replace("-", "").PadLeft(6, ' ');
+                    var nameString = new string(name).Replace("-", "");
 
                     await this.game.Leaderboard.SaveScoreAsync(nameString, Score);
 

@@ -27,7 +27,7 @@ namespace Sugoi.Core
         /// <param name="yMap"></param>
         /// <param name="text"></param>
 
-        public void SetText(int xMap, int yMap, string text)
+        public void SetText(int xMap, int yMap, string text, TextPositions textPosition = TextPositions.LeftToRight)
         {
             var index = xMap + yMap * MapWidth;
             var length = text.Length;
@@ -37,15 +37,27 @@ namespace Sugoi.Core
                 length = Tiles.Length;
             }
 
-            for (int i = 0; i < length; i++)
+            if (textPosition == TextPositions.LeftToRight)
             {
-                var character = text[i];
-                var number = this.Font.GetTileNumber(character);
-                this.Tiles[i + index] = new MapTileDescriptor(number);
+                for (int i = 0; i < length; i++)
+                {
+                    var character = text[i];
+                    var number = this.Font.GetTileNumber(character);
+                    this.Tiles[i + index] = new MapTileDescriptor(number);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    var character = text[text.Length - 1 - i];
+                    var number = this.Font.GetTileNumber(character);
+                    this.Tiles[index - i] = new MapTileDescriptor(number);
+                }
             }
         }
 
-        public void SetText(int xMap, int yMap, char[] text)
+        public void SetText(int xMap, int yMap, char[] text, TextPositions textPosition = TextPositions.LeftToRight)
         {
             var index = xMap + yMap * MapWidth;
             var length = text.Length;
@@ -55,15 +67,34 @@ namespace Sugoi.Core
                 length = Tiles.Length;
             }
 
-            for (int i = 0; i < length; i++)
+            if (textPosition == TextPositions.LeftToRight)
             {
-                var character = text[i];
-                var number = this.Font.GetTileNumber(character);
-                this.Tiles[i + index] = new MapTileDescriptor(number);
+                for (int i = 0; i < length; i++)
+                {
+                    var character = text[i];
+                    var number = this.Font.GetTileNumber(character);
+                    this.Tiles[i + index] = new MapTileDescriptor(number);
+                }
+            }
+            else
+            {
+                for (int i = 0; i < length; i++)
+                {
+                    var character = text[text.Length - 1 - i];
+                    var number = this.Font.GetTileNumber(character);
+                    this.Tiles[index - i] = new MapTileDescriptor(number);
+                }
             }
         }
 
-        public void SetText(int xMap, int yMap, int integer)
+        /// <summary>
+        /// Affiche un integer
+        /// </summary>
+        /// <param name="xMap"></param>
+        /// <param name="yMap"></param>
+        /// <param name="integer"></param>
+
+        public void SetText(int xMap, int yMap, int integer, TextPositions textPosition = TextPositions.LeftToRight)
         {
             int index = 0;
             var font = this.Font;
@@ -97,12 +128,30 @@ namespace Sugoi.Core
 
             int x = 0;
 
-            for (int i = index - 1; i >= 0; i--)
+            if (textPosition == TextPositions.LeftToRight)
             {
-                var tileNumber = font.GetTileNumber(integerString[i]);
-                this.SetTile(xMap + x, yMap, new MapTileDescriptor(tileNumber));
-                x++;
+                for (int i = index - 1; i >= 0; i--)
+                {
+                    var tileNumber = font.GetTileNumber(integerString[i]);
+                    this.SetTile(xMap + x, yMap, new MapTileDescriptor(tileNumber));
+                    x++;
+                }
             }
+            else
+            {
+                for (int i = 0; i < index; i++)
+                {
+                    var tileNumber = font.GetTileNumber(integerString[i]);
+                    this.SetTile(xMap + x, yMap, new MapTileDescriptor(tileNumber));
+                    x--;
+                }
+            }
+        }
+
+        public enum TextPositions
+        {
+            LeftToRight,
+            RightToLeft,
         }
     }
 }

@@ -507,16 +507,9 @@ namespace CrazyZone.Pages
                             }
                             else
                             {
-                                if (name[0] == 0)
-                                {
-                                    var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
-                                    page.Score = this.Score;
-                                    page.TypeOfPageDestination = typeof(HallOfFamePage);
-                                }
-                                else
-                                {
-                                    game.Navigate(typeof(HallOfFamePage));
-                                }
+                                var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
+                                page.Score = this.Score;
+                                page.TypeOfPageDestination = typeof(HallOfFamePage);
                             }
                         });
                     }
