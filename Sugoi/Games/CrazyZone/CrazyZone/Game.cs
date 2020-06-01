@@ -50,8 +50,8 @@ namespace CrazyZone
             };
 
             // Lancement du jeu
-            //this.Navigate(typeof(HomePage));
-            this.Navigate(typeof(HallOfFamePage));
+            this.Navigate(typeof(HomePage));
+            //this.Navigate(typeof(HallOfFamePage));
         }
 
         public IPage Navigate(Type typePage)

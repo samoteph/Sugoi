@@ -122,7 +122,9 @@ namespace CrazyZone.Controls
                 });
             }
 
-            if (gamepad.VerticalController == GamepadKeys.Down)
+            var verticalController = gamepad.VerticalController;
+
+            if (verticalController == GamepadKeys.Down)
             {
                 MenuPosition++;
 
@@ -130,7 +132,7 @@ namespace CrazyZone.Controls
 
                 gamepad.WaitForRelease();
             }
-            else if (gamepad.VerticalController == GamepadKeys.Up)
+            else if (verticalController == GamepadKeys.Up)
             {
                 MenuPosition--;
 

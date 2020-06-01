@@ -83,13 +83,28 @@ namespace CrazyZone.Pages
 
                     if (string.IsNullOrWhiteSpace(item.Name) == false)
                     {
+                        // coeur qui marque son propre score
+                        if(item.Name == name)
+                        {
+                            mapFameItems.SetText(9 + pageIndex, i, "§");
+                            mapFameItems.SetText(31 + pageIndex, i, "§");
+                        }
+                        else
+                        {
+                            mapFameItems.SetTile(9 + pageIndex, i, MapTileDescriptor.HiddenTile);
+                            mapFameItems.SetTile(31 + pageIndex, i, MapTileDescriptor.HiddenTile);
+                        }
+
                         mapFameItems.SetText(12 + pageIndex, i, item.Rank, MapText.TextPositions.RightToLeft);
-                        mapFameItems.SetText(19 + pageIndex, i, item.Name, MapText.TextPositions.RightToLeft);
+                        mapFameItems.SetText(19 + pageIndex, i, item.Name6Characters, MapText.TextPositions.RightToLeft);
                         mapFameItems.SetText(30 + pageIndex, i, item.Score, MapText.TextPositions.RightToLeft);
                     }
                 }
             }
         }
+
+        char[] names = new char[6];
+        string name;
 
         /// <summary>
         /// Initilize
@@ -104,6 +119,9 @@ namespace CrazyZone.Pages
             pageIndex = 0;
 
             State = HallOfFameStates.Loading;
+
+            machine.BatteryRam.ReadCharArray((int)BatteryRamAddress.Name, names);
+            name = new string(names).Replace("-","");
 
             await this.LoadScoresAsync();
         }
@@ -284,6 +302,22 @@ namespace CrazyZone.Pages
         }
 
         public string Name
+        {
+            get
+            {
+                return name;
+            }
+
+            set
+            {
+                this.name = value;
+                this.Name6Characters = value.PadLeft(6, ' ');
+            }
+        }
+
+        private string name;
+
+        public string Name6Characters
         {
             get;
             set;

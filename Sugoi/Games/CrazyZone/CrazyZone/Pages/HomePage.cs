@@ -17,6 +17,7 @@ namespace CrazyZone.Pages
 
         private const string MENU_LINE1 = "game start";
         private const string MENU_LINE2 = "credits";
+        private const string MENU_LINE3 = "hall of fame";
 
         private const string MENU1POR2P_LINE1 = "1 player";
         private const string MENU1POR2P_LINE2 = "2 players";
@@ -27,7 +28,8 @@ namespace CrazyZone.Pages
         private string[] menuEntries = new string[]
         {
             MENU_LINE1,
-            MENU_LINE2
+            MENU_LINE2,
+            MENU_LINE3,
         };
 
         private string[] menu1Por2Pentries = new string[]
@@ -100,12 +102,18 @@ namespace CrazyZone.Pages
                     this.machine.Audio.Play("selectSound");
                     this.homeState = HomeStates.P1OrP2;
                 }
-                else
+                else if(menuPosition == 1)
                 {
                     this.machine.Audio.Play("selectSound");
 
                     // clique sur Credits
                     this.homeState = HomeStates.Credits;
+                }
+                else
+                {
+                    // clique sur Hall Of Fame
+                    this.machine.Audio.Play("startSound");
+                    this.game.NavigateWithFade(typeof(HallOfFamePage));
                 }
             };
 

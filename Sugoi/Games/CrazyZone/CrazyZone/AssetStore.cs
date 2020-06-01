@@ -22,7 +22,7 @@ namespace CrazyZone
             font.AddCharacters(CharactersGroups.Numeric);
             font.AddCharacters(".,\"'?!@*#$%: ");
             font.CharacterIndex += 5;
-            font.AddCharacters("()+-/=©<>~"); //~ correspond à la disquette
+            font.AddCharacters("()+-/=©<>~§"); //~ correspond à la disquette, § au coeur
             font.UnknownTileNumber = font.GetTileNumber('$');
 
             font.FontSheet = fontSheet;
