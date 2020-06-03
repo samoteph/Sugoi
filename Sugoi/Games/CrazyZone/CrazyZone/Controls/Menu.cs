@@ -61,7 +61,7 @@ namespace CrazyZone.Controls
                 {
                     if (value < 0)
                     {
-                        menuPosition = -(value % entries.Length);
+                        menuPosition = entries.Length - 1;
                     }
                     else
                     {
@@ -130,7 +130,7 @@ namespace CrazyZone.Controls
 
                 this.CursorMoveCallback?.Invoke(MenuPosition);
 
-                gamepad.WaitForRelease();
+                gamepad.WaitForRelease(30);
             }
             else if (verticalController == GamepadKeys.Up)
             {
@@ -138,7 +138,7 @@ namespace CrazyZone.Controls
 
                 this.CursorMoveCallback?.Invoke(MenuPosition);
 
-                gamepad.WaitForRelease();
+                gamepad.WaitForRelease(30);
             }
 
             if (gamepad.IsPressed(GamepadKeys.ButtonA))

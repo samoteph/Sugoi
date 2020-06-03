@@ -384,6 +384,7 @@ namespace CrazyZone
 
             // Son
 
+            await audio.PreloadAsync("hallOfFameSound", 1);
             await audio.PreloadAsync("homeSound", 1);
             await audio.PreloadAsync("playSound", 1);
             await audio.PreloadAsync("bombSound", 2);

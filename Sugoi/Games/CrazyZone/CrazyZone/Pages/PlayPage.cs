@@ -501,15 +501,22 @@ namespace CrazyZone.Pages
 
                         machine.WaitForFrame(30, () =>
                         {
-                            if (Score < hiScore)
+                            if (Score <= hiScore)
                             {
                                 game.Navigate(typeof(HomePage));
                             }
                             else
                             {
-                                var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
-                                page.Score = this.Score;
-                                page.TypeOfPageDestination = typeof(HallOfFamePage);
+                                if (Player == Players.Solo)
+                                {
+                                    var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
+                                    page.Score = this.Score;
+                                    page.TypeOfPageDestination = typeof(HallOfFamePage);
+                                }
+                                else
+                                {
+                                    game.Navigate(typeof(HomePage));
+                                }
                             }
                         });
                     }

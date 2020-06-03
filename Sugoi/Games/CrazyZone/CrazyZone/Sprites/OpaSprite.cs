@@ -17,7 +17,6 @@ namespace CrazyZone.Sprites
 
         private Animator deathStarAnimator;
         private int frameDeathStar;
-        private int deathStarIndex;
 
         private int frameDeathStarThresold0;
         private int frameDeathStarThresold1;
@@ -159,8 +158,6 @@ namespace CrazyZone.Sprites
             this.Width = flightAnimator.Width;
             this.Height = flightAnimator.Height;
 
-            deathStarIndex = 0;
-
             this.flightAnimator.Start();
             this.walkAnimator.Start();
             this.deathStarAnimator.Start();
@@ -200,10 +197,10 @@ namespace CrazyZone.Sprites
                 switch (gamepad.VerticalController)
                 {
                     case GamepadKeys.Up:
-                        Y += 2;
+                        Y -= 2;
                         break;
                     case GamepadKeys.Down:
-                        Y -= 2;
+                        Y += 2;
                         break;
                 }
 

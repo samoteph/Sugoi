@@ -12,6 +12,7 @@ namespace CrazyZone.Pages
 {
     public class HallOfFamePage : IPage
     {
+        public const string LOADING_SCORE_ERROR_TEXT = "Loading error!";
         public const string LOADING_SCORE_TEXT = "Loading scores";
         public const string MANUAL_TEXT = "< and > to navigate";
 
@@ -120,11 +121,15 @@ namespace CrazyZone.Pages
 
             State = HallOfFameStates.Loading;
 
+            this.machine.Audio.PlayLoop("hallOfFameSound");
+
             machine.BatteryRam.ReadCharArray((int)BatteryRamAddress.Name, names);
             name = new string(names).Replace("-","");
 
             await this.LoadScoresAsync();
         }
+
+        bool isScoreLoaded = false;
 
         private async Task LoadScoresAsync()
         {
@@ -134,6 +139,8 @@ namespace CrazyZone.Pages
 
                 if (isLoaded)
                 {
+                    isScoreLoaded = true;
+
                     var leaderboardItems = this.game.Leaderboard.Items;
 
                     for (int i = 0; i < leaderboardItems.Count; i++)
@@ -179,6 +186,8 @@ namespace CrazyZone.Pages
             {
                 this.gamepad.WaitForRelease(30, () =>
                 {
+                    this.machine.Audio.Stop("hallOfFameSound");
+                    this.machine.Audio.Play("selectSound");
                     this.game.NavigateWithFade(typeof(HomePage));
                 });
             }
@@ -195,6 +204,7 @@ namespace CrazyZone.Pages
                         {
                             isMoving = true;
                             direction = -1;
+                            this.machine.Audio.Play("menuSound");
                         }
 
                         break;
@@ -205,6 +215,7 @@ namespace CrazyZone.Pages
                         {
                             isMoving = true;
                             direction = 1;
+                            this.machine.Audio.Play("menuSound");
                         }
 
                         break;
@@ -263,22 +274,29 @@ namespace CrazyZone.Pages
             }
             else
             {
-                this.screen.DrawScrollMap(mapFameItems, false, (int)-scrollX, 8 * 8);
-
-                frameArrow = (frameArrow + 0.2f) % 5;
-                var arrowOffset = (int)frameArrow;
-
-                if (pageIndex > 0)
+                if (isScoreLoaded)
                 {
-                    screen.DrawText('<', 2 * 8 - arrowOffset, (screen.Height / 2) - 4);
-                }
+                    this.screen.DrawScrollMap(mapFameItems, false, (int)-scrollX, 8 * 8);
 
-                if (pageIndex < (maxPage - 1))
+                    frameArrow = (frameArrow + 0.2f) % 5;
+                    var arrowOffset = (int)frameArrow;
+
+                    if (pageIndex > 0)
+                    {
+                        screen.DrawText('<', 2 * 8 - arrowOffset, (screen.Height / 2) - 4);
+                    }
+
+                    if (pageIndex < (maxPage - 1))
+                    {
+                        screen.DrawText('>', 38 * 8 + arrowOffset, (screen.Height / 2) - 4);
+                    }
+
+                    screen.DrawText(MANUAL_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MANUAL_TEXT.Length * 8)) / 2), 8 * 20);
+                }
+                else
                 {
-                    screen.DrawText('>', 38 * 8 + arrowOffset, (screen.Height / 2) - 4);
+                    screen.DrawText(LOADING_SCORE_ERROR_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (LOADING_SCORE_ERROR_TEXT.Length * 8)) / 2), 8 * (8 + 5));
                 }
-
-                screen.DrawText(MANUAL_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MANUAL_TEXT.Length * 8)) / 2), 8 * 20);
             }
         }
     }

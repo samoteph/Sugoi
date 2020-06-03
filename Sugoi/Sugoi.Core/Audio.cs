@@ -36,9 +36,19 @@ namespace Sugoi.Core
             }
         }
 
+        public string CurrentLoopName
+        {
+            get;
+            private set;
+        }
+
         public void PlayLoop(string name)
         {
-            this.Play(name, 1, true);
+            if (CurrentLoopName != name)
+            {
+                this.CurrentLoopName = name;
+                this.Play(name, 1, true);
+            }
         }
 
         public void Play(string name)

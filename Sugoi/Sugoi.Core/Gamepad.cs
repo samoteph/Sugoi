@@ -60,11 +60,11 @@ namespace Sugoi.Core
             {
                 if (gamePadKeyValues[(int)GamepadKeys.Up])
                 {
-                    return GamepadKeys.Down;
+                    return GamepadKeys.Up;
                 }
                 else if (gamePadKeyValues[(int)GamepadKeys.Down])
                 {
-                    return GamepadKeys.Up;
+                    return GamepadKeys.Down;
                 }
 
                 return GamepadKeys.None;

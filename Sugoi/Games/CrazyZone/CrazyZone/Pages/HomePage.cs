@@ -50,12 +50,16 @@ namespace CrazyZone.Pages
 
         private string[] credits_lines = new string[]
         {
+            "mini crazy zone for",
+            "sugoi virtual console",
+            "---------------------",
+            "",
             "code:",
             "samuel blanchard",
             "",
             "music:",
-            "eric matyas",
-            "www.soundimage.org",
+            "Komiku",
+            "medium.com/@Monplaisir",
             "",
             "redesigned logo:",
             "alessandra sada"
@@ -112,6 +116,7 @@ namespace CrazyZone.Pages
                 else
                 {
                     // clique sur Hall Of Fame
+                    this.machine.Audio.Stop("homeSound");
                     this.machine.Audio.Play("startSound");
                     this.game.NavigateWithFade(typeof(HallOfFamePage));
                 }
@@ -298,7 +303,7 @@ namespace CrazyZone.Pages
 
                 case HomeStates.Credits:
 
-                    int y = 50;
+                    int y = (screen.Height - (credits_lines.Length * 8)) / 2;
 
                     for (int i = 0; i < this.credits_lines.Length; i++)
                     {
