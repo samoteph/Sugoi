@@ -12,8 +12,8 @@ namespace CrazyZone.Pages
     {
         private const string PRESS_START = "press start";
 
-        private const string TITLE_LINE1 = "original from ©sega";
-        private const string TITLE_LINE2 = "programmed by ©samsoft";
+        private const string TITLE_LINE1 = "programmed by ©samsoft";
+        private const string TITLE_LINE2 = "for sugoi Virtual console";
 
         private const string MENU_LINE1 = "game start";
         private const string MENU_LINE2 = "credits";
@@ -61,8 +61,11 @@ namespace CrazyZone.Pages
             "Komiku",
             "medium.com/@Monplaisir",
             "",
-            "redesigned logo:",
-            "alessandra sada"
+            "logo:",
+            "alessandra sada",
+            "",
+            "inspired by fantazy zone",
+            "by ©sega",
         };
 
         SurfaceSprite title;

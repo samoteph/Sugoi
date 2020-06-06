@@ -11,6 +11,7 @@ namespace CrazyZone.Pages
         const string GAMEOVER_TEXT = "Game Over";
         const string SCORE_TEXT = "Score: ";
         const string HISCORE_TEXT = "HiScore: ";
+        const string GAMEOVER_HISCORE_TEXT = "New Hiscore!";
 
         const string MULTI_PRESS_START_TEXT = "Press start";
         const string MULTI_WAITING_FOR_P1_TEXT = "Waiting for p1";
@@ -38,12 +39,15 @@ namespace CrazyZone.Pages
             private set;
         }
 
+        public string scoreString;
+
         private int frameScore = 0;
 
         private int fontWidth;
 
         private int hiScore;
         private string hiScoreString;
+        private int frameHiScore;
 
         // hit de petit monstre
         private int hitSmallMonsterCount = 0;
@@ -239,6 +243,8 @@ namespace CrazyZone.Pages
 
             frameScore = 0;
             Score = 0;
+
+            frameHiScore = 0;
 
             fontWidth = machine.Screen.Font.FontSheet.TileWidth;
 
@@ -557,7 +563,10 @@ namespace CrazyZone.Pages
                 switch(State)
                 {
                     case PlayStates.GameOver:
-                        screen.DrawText(GAMEOVER_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2);
+
+                        var yCenter = (screen.BoundsClipped.Height - 8) / 2;
+
+                        screen.DrawText(GAMEOVER_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (GAMEOVER_TEXT.Length * 8)) / 2), yCenter);
                         
                         if(Player != Players.Solo)
                         {
@@ -565,12 +574,26 @@ namespace CrazyZone.Pages
                             {
                                 if (Score < this.multiPage.GetOpponentScore(this.Player))
                                 {
-                                    screen.DrawText(MULTI_LOOSE_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_LOOSE_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2 + 16);
+                                    screen.DrawText(MULTI_LOOSE_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_LOOSE_TEXT.Length * 8)) / 2), yCenter + 16);
                                 }
                                 else
                                 {
-                                    screen.DrawText(MULTI_WIN_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_WIN_TEXT.Length * 8)) / 2), (screen.BoundsClipped.Height - 8) / 2 + 16);
+                                    screen.DrawText(MULTI_WIN_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (MULTI_WIN_TEXT.Length * 8)) / 2), yCenter + 16);
                                 }
+                            }
+                        }
+                        else
+                        {
+                            // en solo seulement
+                            if(Score > this.hiScore)
+                            {
+                                if (frameHiScore < 30)
+                                {
+                                    screen.DrawText(GAMEOVER_HISCORE_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (GAMEOVER_HISCORE_TEXT.Length * 8)) / 2), yCenter + 16);
+                                    screen.DrawText(scoreString, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (scoreString.Length * 8)) / 2), yCenter + 24);
+                                }
+
+                                frameHiScore = (frameHiScore + 1) % 60;
                             }
                         }
 
@@ -641,6 +664,7 @@ namespace CrazyZone.Pages
             {
                 if (this.hiScore < this.Score)
                 {
+                    this.scoreString = "§ " + this.Score.ToString() + " §";
                     this.machine.BatteryRam.WriteInt((int)BatteryRamAddress.HiScore, this.Score);
                     await this.machine.BatteryRam.FlashAsync();
                 }

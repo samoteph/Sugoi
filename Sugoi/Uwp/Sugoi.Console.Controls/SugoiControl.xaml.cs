@@ -482,6 +482,9 @@ namespace Sugoi.Console.Controls
                 case VirtualKey.X:
                     keyboardGamepad.Release(GamepadKeys.ButtonB);
                     break;
+                case VirtualKey.Space:
+                    keyboardGamepad.Release(GamepadKeys.ButtonStart);
+                    break;
             }
         }
 
