@@ -110,6 +110,8 @@ namespace CrazyZone.Pages
             }
 
             this.cursor.Start();
+
+            this.machine.Audio.PlayLoop("inputNameSound");
         }
 
         public void Updating()
@@ -142,8 +144,11 @@ namespace CrazyZone.Pages
                         {
                             this.State = InputNameStates.Saving;
 
-                           this.Save(() =>
+                            this.machine.Audio.Play("startSound");
+
+                           this.Save((isSaved) =>
                            {
+                               this.machine.Audio.Stop("inputNameSound");
                                this.game.NavigateWithFade(TypeOfPageDestination);
                            });
                         }
@@ -161,6 +166,8 @@ namespace CrazyZone.Pages
                     {
                         xName++;
                     }
+
+                    this.machine.Audio.Play("selectSound");
                     
                     this.gamepad.WaitForRelease();
                 }
@@ -176,12 +183,16 @@ namespace CrazyZone.Pages
                         name[xName] = '-';
                     }
 
+                    this.machine.Audio.Play("selectSound");
+
                     this.gamepad.WaitForRelease();
                 }
             }
             else if (gamepad.IsControllerPressed == true)
             {
                 // on ne veut pas de déplacement en diagonal
+
+                this.machine.Audio.Play("menuSound");
 
                 if (gamepad.IsPressed(GamepadKeys.Right))
                 {
@@ -257,25 +268,15 @@ namespace CrazyZone.Pages
         /// Sauvegarde du nom
         /// </summary>
 
-        public async void Save( Action saveCompleted )
+        public async void Save( Action<bool> saveCompleted )
         {
-            this.machine.BatteryRam.WriteCharArray((int)BatteryRamAddress.Name, name);
-
             await this.machine.ExecuteAsync(async () =>
             {
-                await this.machine.BatteryRam.FlashAsync();
+                await this.game.SaveNameAndHisScoreAsync(name, Score, saveCompleted);
 
                 if (Score > 0)
                 {
-
                     this.State = InputNameStates.Saving;
-
-                    // name avec padleft sur 6 caractères
-                    var nameString = new string(name).Replace("-", "");
-
-                    await this.game.Leaderboard.SaveScoreAsync(nameString, Score);
-
-                    saveCompleted?.Invoke();
                 }
             });
         }

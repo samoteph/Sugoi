@@ -57,6 +57,9 @@ namespace CrazyZone.Pages
                 this.player1Page.ScrollX = 0;
                 this.player2Page.ScrollX = 0;
                 this.State = MultiStates.Play;
+
+                this.machine.Audio.PlayLoop("playSound");
+
             });
         }
 

@@ -4,6 +4,7 @@ using SamuelBlanchard.Audio;
 using Sugoi.Core;
 using Sugoi.Core.IO;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using Windows.Devices.Input;
@@ -51,7 +52,6 @@ namespace Sugoi.Console.Controls
                     return this.WriteFileAsync(name, stream, count);
                 };
 
-                // Chargement de la cartouche
                 await cartridge.LoadAsync();
 
                 // callback de Ram avec battery (appelé dans le Start de la machine)
@@ -65,7 +65,7 @@ namespace Sugoi.Console.Controls
                     return this.WriteBatteryRamAsync(memory);
                 };
 
-                //Execution asynchrone
+                //Execution asynchrone quand ce n'est pas possible normalement via un await
                 this.machine.ExecuteAsyncCallBack = (delegateAsync) =>
                 {
                     return this.SlateView.RunOnGameLoopThreadAsync(delegateAsync);
@@ -412,7 +412,24 @@ namespace Sugoi.Console.Controls
                 return;
             }
 
-            switch (e.VirtualKey)
+            //if (e.VirtualKey != VirtualKey.GamepadRightShoulder)
+            //{
+            //    Debug.WriteLine(e.VirtualKey + " " + e.KeyStatus.ScanCode);
+            //}
+
+            var virtualKey = e.VirtualKey;
+
+            switch(e.KeyStatus.ScanCode)
+            {
+                case 44: // W en français, Z en anglais, ..
+                    virtualKey = VirtualKey.W;
+                    break;
+                case 45: // X en français, ? en anglais, ..
+                    virtualKey = VirtualKey.X;
+                    break;
+            }
+
+            switch (virtualKey)
             {
                 case VirtualKey.Up:
                     keyboardGamepad.Press(GamepadKeys.Up);
@@ -436,18 +453,24 @@ namespace Sugoi.Console.Controls
                     keyboardGamepad.Press(GamepadKeys.ButtonStart);
                     break;
                 // pleine écran
-                case VirtualKey.Enter:
+                case VirtualKey.F11:
 
-                    // alt (pour alt+entrée) est compliqué à trouver, on verra plus tard...
-                    ApplicationView view = ApplicationView.GetForCurrentView();
-                        
-                    if (view.IsFullScreenMode)
+                    try
                     {
-                        view.ExitFullScreenMode();
+                        // alt (pour alt+entrée) est compliqué à trouver, on verra plus tard...
+                        ApplicationView view = ApplicationView.GetForCurrentView();
+
+                        if (view.IsFullScreenMode)
+                        {
+                            view.ExitFullScreenMode();
+                        }
+                        else
+                        {
+                            view.TryEnterFullScreenMode();
+                        }
                     }
-                    else
+                    catch
                     {
-                        view.TryEnterFullScreenMode();
                     }
 
                     break;

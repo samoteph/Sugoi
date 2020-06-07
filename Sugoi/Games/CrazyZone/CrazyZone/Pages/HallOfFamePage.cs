@@ -126,6 +126,8 @@ namespace CrazyZone.Pages
             machine.BatteryRam.ReadCharArray((int)BatteryRamAddress.Name, names);
             name = new string(names).Replace("-","");
 
+            await this.machine.ExecuteAsync(() => this.game.SaveNameAndScoreIfNeededAsync());
+
             await this.LoadScoresAsync();
         }
 

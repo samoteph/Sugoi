@@ -46,6 +46,7 @@ namespace Sugoi.Core.IO
         }
 
         public abstract Task LoadAsync();
+        public abstract Task LoadHeaderAsync();
 
         /// <summary>
         /// Chargement de la cartridge qui doit se trouver en ressource embedded
@@ -54,12 +55,17 @@ namespace Sugoi.Core.IO
 
         protected async Task LoadFromResourceAsync(string resourceName)
         {
-            var assembly = this.GetType().Assembly;
-
-            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            using (var stream = GetStreamResource(resourceName))
             {
                 await this.LoadAsync(stream);
             }
+        }
+
+        protected Stream GetStreamResource(string resourceName)
+        {
+            var assembly = this.GetType().Assembly;
+
+            return assembly.GetManifestResourceStream(resourceName);
         }
 
         /// <summary>
@@ -144,6 +150,11 @@ namespace Sugoi.Core.IO
         public T GetAsset<T>(string assetName) where T : Asset
         {
             return (T)this.assets[assetName];
+        }
+
+        public void ClearAssets()
+        {
+            this.assets.Clear();
         }
 
         public virtual void Stop()

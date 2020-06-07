@@ -88,10 +88,18 @@ namespace CrazyZone
             gameJolt.Scores.Add(name, score, score.ToString(), callback: completed);
         }
 
-        public Task SaveScoreAsync(string name, int score)
+        public async Task<bool> SaveScoreAsync(string name, int score)
         {
-            var scoreString = score.ToString();
-            return gameJolt.Scores.AddAsync(name, score, scoreString, Encode(name, scoreString));
+            try
+            {
+                var scoreString = score.ToString();
+                await gameJolt.Scores.AddAsync(name, score, scoreString, Encode(name, scoreString));
+                return true;
+            }
+            catch
+            {
+                return false; 
+            }
         }
 
         private string Encode(string name, string scoreString)

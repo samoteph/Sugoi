@@ -2,6 +2,7 @@
 using CrazyZone.Sprites;
 using Sugoi.Core;
 using System;
+using System.Diagnostics;
 
 namespace CrazyZone.Pages
 {
@@ -218,12 +219,15 @@ namespace CrazyZone.Pages
             if (Player == Players.Solo)
             {
                 State = PlayStates.Play;
+                this.machine.Audio.PlayLoop("playSound");
             }
             else
             {
                 State = PlayStates.ChooseGamepadP1andP2;
-            
-                if(Player ==  Players.Player1 )
+
+                this.machine.Audio.PlayLoop("waitForP2Sound");
+
+                if (Player ==  Players.Player1 )
                 {
                     MultiPlayState = MultiPlayStates.WaitStart;
                 }
@@ -232,8 +236,6 @@ namespace CrazyZone.Pages
                     MultiPlayState = MultiPlayStates.WaitOtherPlayer;
                 }
             }
-
-            this.machine.Audio.PlayLoop("playSound");
 
             this.machine.Frame = 0;
 
@@ -288,62 +290,6 @@ namespace CrazyZone.Pages
             {
                 // on continue a faire un scroll lent mais on affiche aucun autre sprte a part le texte "press start" et waiting for p2"
                 ScrollX += 0.5f;
-
-                if (MultiPlayState == MultiPlayStates.WaitStart)
-                {
-                    // Player1 quitte car ne veut pas commencer la partie à 2
-                    if(Player == Players.Player1)
-                    {
-                        if(machine.GamepadGlobal.IsPressed(GamepadKeys.ButtonB))
-                        {
-                            this.machine.GamepadGlobal.WaitForRelease(() =>
-                            {
-                                this.Quit();
-                            });
-                        }
-                    }
-
-                    machine.Gamepads.FindGamepadByKeyPressed(GamepadKeys.ButtonA, (g) =>
-                    {
-                        if (multiPage.FirstGamepad != g)
-                        {
-                            // Player 1
-                            if (multiPage.FirstGamepad == null)
-                            {
-                                multiPage.SelectFirstGamepad(g);
-                                MultiPlayState = MultiPlayStates.WaitOtherPlayer;
-                                this.machine.Audio.Play("startSound");
-                            }
-                            // player2
-                            else
-                            {
-                                multiPage.ReadyToPlay();
-                            }
-
-                            this.gamepad = g;
-
-                            return true;
-                        }
-
-                        return false;
-                    });
-                }
-                else if(MultiPlayState == MultiPlayStates.WaitOtherPlayer)
-                {
-                    if (Player == Players.Player1)
-                    {
-                        // demande de retour
-                        if (this.machine.GamepadGlobal.IsPressed(GamepadKeys.ButtonB))
-                        {
-                            this.machine.GamepadGlobal.WaitForRelease(() =>
-                            {
-                                this.gamepad = machine.GamepadGlobal;
-                                this.multiPage.UnselectFirstGamepad();
-                                MultiPlayState = MultiPlayStates.WaitStart;
-                            });
-                        }
-                    }
-                }
 
                 return;
             }
@@ -463,8 +409,71 @@ namespace CrazyZone.Pages
 
         public void Updated()
         {
-            if(State == PlayStates.ChooseGamepadP1andP2)
+            if (State == PlayStates.ChooseGamepadP1andP2)
             {
+                if (MultiPlayState == MultiPlayStates.WaitStart)
+                {
+                    // Player1 quitte car ne veut pas commencer la partie à 2
+                    if (Player == Players.Player1)
+                    {
+                        if (machine.GamepadGlobal.IsPressed(GamepadKeys.ButtonB))
+                        {
+                            this.machine.Audio.Stop("waitForP2Sound");
+                            this.machine.Audio.Play("selectSound");
+
+                            this.machine.GamepadGlobal.WaitForRelease(() =>
+                            {
+                                this.Quit();
+                            });
+                        }
+                    }
+
+                    machine.Gamepads.FindGamepadByKeyPressed(GamepadKeys.ButtonA, (g) =>
+                    {
+                        if (multiPage.FirstGamepad != g)
+                        {
+                            // Player 1
+                            if (multiPage.FirstGamepad == null)
+                            {
+                                multiPage.SelectFirstGamepad(g);
+                                MultiPlayState = MultiPlayStates.WaitOtherPlayer;
+                                this.machine.Audio.Play("startSound");
+                            }
+                            // player2
+                            else
+                            {
+                                this.machine.Audio.Stop("waitForP2Sound");
+                                this.machine.Audio.Play("startSound");
+                                multiPage.ReadyToPlay();
+                            }
+
+                            this.gamepad = g;
+
+                            return true;
+                        }
+
+                        return false;
+                    });
+                }
+                else if (MultiPlayState == MultiPlayStates.WaitOtherPlayer)
+                {
+                    if (Player == Players.Player1)
+                    {
+                        // demande de retour
+                        if (this.machine.GamepadGlobal.IsPressed(GamepadKeys.ButtonB))
+                        {
+                            this.machine.Audio.Play("selectSound");
+
+                            this.machine.GamepadGlobal.WaitForRelease(() =>
+                            {
+                                this.gamepad = machine.GamepadGlobal;
+                                this.multiPage.UnselectFirstGamepad();
+                                MultiPlayState = MultiPlayStates.WaitStart;
+                            });
+                        }
+                    }
+                }
+
                 return;
             }
 
@@ -664,6 +673,8 @@ namespace CrazyZone.Pages
             {
                 if (this.hiScore < this.Score)
                 {
+                    this.machine.Audio.Play("winSound");
+
                     this.scoreString = "§ " + this.Score.ToString() + " §";
                     this.machine.BatteryRam.WriteInt((int)BatteryRamAddress.HiScore, this.Score);
                     await this.machine.BatteryRam.FlashAsync();

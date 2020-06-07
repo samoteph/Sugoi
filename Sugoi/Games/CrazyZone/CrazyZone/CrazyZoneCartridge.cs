@@ -4,6 +4,7 @@ using Sugoi.Core.IO;
 using System;
 using System.IO;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace CrazyZone
@@ -42,6 +43,20 @@ namespace CrazyZone
         public override Task LoadAsync()
         {
             return this.LoadFromResourceAsync("CrazyZone.Cartridge.Cartridge.sugoi");
+        }
+
+        public override Task LoadHeaderAsync()
+        {
+            return Task.Run(() =>
+            {
+                using (var stream = GetStreamResource("CrazyZone.Cartridge.Cartridge.sugoi"))
+                {
+                    using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
+                    {
+                        this.LoadHeader(reader);
+                    }
+                }
+            });
         }
     }
 }

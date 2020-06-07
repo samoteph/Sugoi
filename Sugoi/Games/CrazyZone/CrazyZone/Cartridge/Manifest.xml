@@ -17,8 +17,11 @@
     <Asset Name="startSound" Type="Sound" Filename="Start.wav"/>
     <Asset Name="menuSound" Type="Sound" Filename="Menu.wav"/>
     <Asset Name="hallOfFameSound" Type="Sound" Filename="HallOfFame.mp3"/>
+    <Asset Name="inputNameSound" Type="Sound" Filename="InputName.mp3"/>
     <Asset Name="selectSound" Type="Sound" Filename="Select.wav"/>
     <Asset Name="bombExplosionSound" Type="Sound" Filename="BombExplosion.wav"/>
     <Asset Name="ammoExplosionSound" Type="Sound" Filename="AmmoExplosion.wav"/>
+    <Asset Name="waitForP2Sound" Type="Sound" Filename="WaitForP2.mp3"/>
+    <Asset Name="winSound" Type="Sound" Filename="Win.mp3"/>
   </Assets>
 </Cartridge>

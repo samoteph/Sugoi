@@ -163,7 +163,7 @@ namespace CrazyZone.Pages
             this.menu1Por2P.CursorMoveCallback = handlerMove;
         }
 
-        public void Initialize()
+        public async void Initialize()
         {
             this.machine.Frame = 0;
 
@@ -186,6 +186,8 @@ namespace CrazyZone.Pages
             this.fontWidth = this.machine.Screen.Font.FontSheet.TileWidth;
 
             this.machine.Audio.PlayLoop("homeSound");
+
+            await this.machine.ExecuteAsync(() => this.game.SaveNameAndScoreIfNeededAsync()); 
 
             cursor.Start();
         }

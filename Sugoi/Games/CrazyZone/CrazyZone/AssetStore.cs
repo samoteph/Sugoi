@@ -384,6 +384,9 @@ namespace CrazyZone
 
             // Son
 
+            await audio.PreloadAsync("winSound", 1);
+            await audio.PreloadAsync("waitForP2Sound", 1);
+            await audio.PreloadAsync("inputNameSound", 1);
             await audio.PreloadAsync("hallOfFameSound", 1);
             await audio.PreloadAsync("homeSound", 1);
             await audio.PreloadAsync("playSound", 1);
@@ -397,6 +400,8 @@ namespace CrazyZone
             await audio.PreloadAsync("menuSound", 1);
             await audio.PreloadAsync("bombExplosionSound", 1);
             await audio.PreloadAsync("ammoExplosionSound", 1);
+
+            videoMemory.Machine.Cartridge.ClearAssets();
         }
 
         public static SurfaceSprite Title

@@ -13,6 +13,14 @@ namespace Sugoi.Core
 
         public Dictionary<string, SurfaceSprite> sprites = new Dictionary<string, SurfaceSprite>(1000);
 
+        public Machine Machine
+        {
+            get
+            {
+                return machine;
+            }
+        }
+
         /// <summary>
         /// Allocation de la video Memoire
         /// </summary>

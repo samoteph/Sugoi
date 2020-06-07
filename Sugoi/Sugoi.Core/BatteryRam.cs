@@ -117,5 +117,15 @@ namespace Sugoi.Core
                 address += 2;
             }
         }
+
+        public void WriteBool(int address, bool isSaved)
+        {
+            this.WriteByte(address, Convert.ToByte(isSaved));
+        }
+
+        public bool ReadBool(int address)
+        {
+            return ReadByte(address) == 1 ? true : false;
+        }
     }
 }
