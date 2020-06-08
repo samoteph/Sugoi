@@ -485,6 +485,18 @@ namespace Sugoi.Console.Controls
                 return;
             }
 
+            var virtualKey = e.VirtualKey;
+
+            switch (e.KeyStatus.ScanCode)
+            {
+                case 44: // W en français, Z en anglais, ..
+                    virtualKey = VirtualKey.W;
+                    break;
+                case 45: // X en français, ? en anglais, ..
+                    virtualKey = VirtualKey.X;
+                    break;
+            }
+
             switch (e.VirtualKey)
             {
                 case VirtualKey.Up:
