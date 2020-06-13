@@ -8,7 +8,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sugoi.Core", "Sugoi.Core\Su
 		{398822A5-C582-4752-B5CD-66AB3B2BEBBD} = {398822A5-C582-4752-B5CD-66AB3B2BEBBD}
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sugoi.Console", "Uwp\Sugoi.Console\Sugoi.Console.csproj", "{1A31366E-1D80-49D3-ACC2-2C554566F8E3}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sugoi.Console.Uwp", "Uwp\Sugoi.Console\Sugoi.Console.Uwp.csproj", "{1A31366E-1D80-49D3-ACC2-2C554566F8E3}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Uwp", "Uwp", "{FBDB15AA-B3E1-436F-8651-0E83B22C7A50}"
 EndProject

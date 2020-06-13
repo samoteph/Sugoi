@@ -9,7 +9,7 @@
   <Identity
     Name="22070SamuelBlanchard.CrazyZone"
     Publisher="CN=A8FEBBB3-8777-47DD-B2CA-0DCEA5B56EC5"
-    Version="1.0.2.0" />
+    Version="1.0.3.0" />
 
   <mp:PhoneIdentity PhoneProductId="3d2cf8a3-7d82-4b62-8b75-f11ac20ddf8f" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
 

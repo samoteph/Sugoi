@@ -107,6 +107,18 @@ namespace CrazyZone.Pages
                 // on place sur la disquette
                 xGlyph = wGlyph - 1;
                 yGlyph = hGlyph - 1;
+                
+                for(int x=0; x < name.Length; x++)
+                {
+                    if(name[x] != '-')
+                    {
+                        xName++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
             }
 
             this.cursor.Start();
