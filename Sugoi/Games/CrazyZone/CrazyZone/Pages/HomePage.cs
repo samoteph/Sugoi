@@ -10,7 +10,7 @@ namespace CrazyZone.Pages
 {
     public class HomePage : IPage
     {
-        private const string PRESS_START = "press start";
+        private const string PRESS_START = "press button A";
 
         private const string TITLE_LINE1 = "programmed by ©samsoft";
         private const string TITLE_LINE2 = "for sugoi Virtual console";

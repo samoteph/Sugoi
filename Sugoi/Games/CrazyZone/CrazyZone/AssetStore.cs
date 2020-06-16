@@ -1,6 +1,7 @@
 ﻿using Sugoi.Core;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -384,6 +385,9 @@ namespace CrazyZone
 
             // Son
 
+            Stopwatch watch = new System.Diagnostics.Stopwatch();
+            watch.Restart();
+
             await audio.PreloadAsync("winSound", 1);
             await audio.PreloadAsync("waitForP2Sound", 1);
             await audio.PreloadAsync("inputNameSound", 1);
@@ -400,6 +404,9 @@ namespace CrazyZone
             await audio.PreloadAsync("menuSound", 1);
             await audio.PreloadAsync("bombExplosionSound", 1);
             await audio.PreloadAsync("ammoExplosionSound", 1);
+
+            watch.Stop();
+            Debug.WriteLine("PreLoad=" + watch.ElapsedMilliseconds + "ms");
 
             videoMemory.Machine.Cartridge.ClearAssets();
         }

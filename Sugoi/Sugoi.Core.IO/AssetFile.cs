@@ -1,6 +1,7 @@
 ﻿using Sugoi.Core.Shared;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,6 +32,8 @@ namespace Sugoi.Core.IO
             {
                 throw new Exception("Please set a callback to ExportFileAsyncCallback!");
             }
+
+            Debug.WriteLine("ExportFile=" + this.Name);
 
             return this.cartridge.ExportFileAsyncCallback.Invoke(this.Name, reader, count);
         }

@@ -7,6 +7,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.VoiceCommands;
 using Windows.Devices.Input;
 using Windows.Storage;
 using Windows.System;
@@ -40,6 +41,21 @@ namespace Sugoi.Console.Controls
             this.Focus(FocusState.Programmatic);
         }
 
+        Stopwatch watch = new Stopwatch();
+
+        private void StartWatch()
+        {
+            watch.Restart();
+        }
+
+        private void StopWatch(string description)
+        {
+            watch.Stop();
+
+            Debug.WriteLine("{0}={1}ms", description, watch.ElapsedMilliseconds);
+        }
+
+
         public async Task StartAsync(Cartridge cartridge)
         {
             if (this.machine.IsStarted == false)
@@ -49,10 +65,15 @@ namespace Sugoi.Console.Controls
 
                 cartridge.ExportFileAsyncCallback = (name, stream, count) =>
                 {
+                    //stream.BaseStream.Seek(stream.BaseStream.Position + count, SeekOrigin.Begin);
+                    //return Task.FromResult<bool>(true);
+
                     return this.WriteFileAsync(name, stream, count);
                 };
 
+                StartWatch();
                 await cartridge.LoadAsync();
+                StopWatch("LoadAsync");
 
                 // callback de Ram avec battery (appelé dans le Start de la machine)
                 this.machine.ReadBatteryRamAsyncCallback = () =>
@@ -71,8 +92,10 @@ namespace Sugoi.Console.Controls
                     return this.SlateView.RunOnGameLoopThreadAsync(delegateAsync);
                 };
 
+                StartWatch();
                 // Gestion du son
                 await audioPlayer.InitializeAsync();
+                StopWatch("Audio InitializeAsync");
 
                 this.machine.PreloadSoundAsyncCallBack = (name, channelCount) =>
                 {
@@ -101,8 +124,20 @@ namespace Sugoi.Console.Controls
                     // TODO : y a pas de pause pour le moment dans le audioplayer
                 };
 
+                // L'affichage est ready
+
+                this.machine.DrawCallback = (frameExecuted) =>
+                {
+                    this.machine.Screen.Clear(Argb32.White);
+                };
+
+                this.SlateView.DrawStart += OnSlateViewDraw;
+                this.SlateView.Update += OnSlateViewUpdate;
+
                 // Lancement de la console
+                StartWatch();
                 await this.machine.StartAsync(cartridge);
+                StopWatch("machine.StartAsync");
 
                 this.cartridge = this.machine.Cartridge;
                 this.screen = this.machine.Screen;
@@ -127,27 +162,29 @@ namespace Sugoi.Console.Controls
                 };
 
                 // initialisation du code de l'application
+                StartWatch();
                 this.machine.Initialize();
+                StopWatch("Machine initialize");
 
                 // On appelle Update de la machine pour lancer le callback
-                var cartridgeUpdateCallback = this.machine.UpdatedCallback;
+                //var cartridgeUpdateCallback = this.machine.UpdatedCallback;
 
-                this.machine.UpdatedCallback = () =>
-                {
-                    cartridgeUpdateCallback?.Invoke();
-                    this.FrameUpdated?.Invoke();
-                };
+                //this.machine.UpdatedCallback = () =>
+                //{
+                //    cartridgeUpdateCallback?.Invoke();
+                //    this.FrameUpdated?.Invoke();
+                //};
 
                 // la machine appelera le DrawCallback à chaque Render
-                var cartridgeDrawCallback = this.machine.DrawCallback;
-                this.machine.DrawCallback = (frameExecuted) =>
-                {
-                    cartridgeDrawCallback?.Invoke(frameExecuted);
-                    this.FrameDrawn?.Invoke(frameExecuted);
-                };
+                //var cartridgeDrawCallback = this.machine.DrawCallback;
+                //this.machine.DrawCallback = (frameExecuted) =>
+                //{
+                //    cartridgeDrawCallback?.Invoke(frameExecuted);
+                //    this.FrameDrawn?.Invoke(frameExecuted);
+                //};
 
-                this.SlateView.DrawStart += OnSlateViewDraw;
-                this.SlateView.Update += OnSlateViewUpdate;
+                //this.SlateView.DrawStart += OnSlateViewDraw;
+                //this.SlateView.Update += OnSlateViewUpdate;
 
                 this.GotFocus += OnSugoiGotFocus;
                 this.LostFocus += OnSugoiLostFocus;

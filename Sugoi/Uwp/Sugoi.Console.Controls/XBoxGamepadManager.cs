@@ -132,13 +132,16 @@ namespace Sugoi.Console.Controls
 
         private void SetSugoiGamepadButton(Gamepad gamepadSugoi, GamepadWindows.GamepadReading gamepadValues, GamepadWindows.GamepadButtons buttonWindows, GamepadKeys buttonSugoi)
         {
-            if ((gamepadValues.Buttons & buttonWindows) == buttonWindows)
+            if (gamepadSugoi != null)
             {
-                gamepadSugoi.Press(buttonSugoi);
-            }
-            else if (gamepadSugoi.IsPressed(buttonSugoi))
-            {
-                gamepadSugoi.Release(buttonSugoi);
+                if ((gamepadValues.Buttons & buttonWindows) == buttonWindows)
+                {
+                    gamepadSugoi.Press(buttonSugoi);
+                }
+                else if (gamepadSugoi.IsPressed(buttonSugoi))
+                {
+                    gamepadSugoi.Release(buttonSugoi);
+                }
             }
         }
     }
