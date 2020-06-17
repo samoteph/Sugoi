@@ -14,7 +14,7 @@ namespace CrazyZone.Pages
     {
         public const string LOADING_SCORE_ERROR_TEXT = "Loading error!";
         public const string LOADING_SCORE_TEXT = "Loading scores";
-        public const string MANUAL_TEXT = "< and > to navigate";
+        public const string MANUAL_TEXT = "< or > to navigate";
 
         Game game;
         Machine machine;

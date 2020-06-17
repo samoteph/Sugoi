@@ -41,19 +41,19 @@ namespace Sugoi.Console.Controls
             this.Focus(FocusState.Programmatic);
         }
 
-        Stopwatch watch = new Stopwatch();
+        //Stopwatch watch = new Stopwatch();
 
-        private void StartWatch()
-        {
-            watch.Restart();
-        }
+        //private void StartWatch()
+        //{
+        //    watch.Restart();
+        //}
 
-        private void StopWatch(string description)
-        {
-            watch.Stop();
+        //private void StopWatch(string description)
+        //{
+        //    watch.Stop();
 
-            Debug.WriteLine("{0}={1}ms", description, watch.ElapsedMilliseconds);
-        }
+        //    Debug.WriteLine("{0}={1}ms", description, watch.ElapsedMilliseconds);
+        //}
 
 
         public async Task StartAsync(Cartridge cartridge)
@@ -71,9 +71,9 @@ namespace Sugoi.Console.Controls
                     return this.WriteFileAsync(name, stream, count);
                 };
 
-                StartWatch();
+                //StartWatch();
                 await cartridge.LoadAsync();
-                StopWatch("LoadAsync");
+                //StopWatch("LoadAsync");
 
                 // callback de Ram avec battery (appelé dans le Start de la machine)
                 this.machine.ReadBatteryRamAsyncCallback = () =>
@@ -92,10 +92,10 @@ namespace Sugoi.Console.Controls
                     return this.SlateView.RunOnGameLoopThreadAsync(delegateAsync);
                 };
 
-                StartWatch();
+                //StartWatch();
                 // Gestion du son
                 await audioPlayer.InitializeAsync();
-                StopWatch("Audio InitializeAsync");
+                //StopWatch("Audio InitializeAsync");
 
                 this.machine.PreloadSoundAsyncCallBack = (name, channelCount) =>
                 {
@@ -125,19 +125,20 @@ namespace Sugoi.Console.Controls
                 };
 
                 // L'affichage est ready
+                // il semblerait que le demrrage trop to de DrawStart / Update fasse planter la XBOX
 
-                this.machine.DrawCallback = (frameExecuted) =>
-                {
-                    this.machine.Screen.Clear(Argb32.White);
-                };
+                //this.machine.DrawCallback = (frameExecuted) =>
+                //{
+                //    this.machine.Screen.Clear(Argb32.White);
+                //};
 
-                this.SlateView.DrawStart += OnSlateViewDraw;
-                this.SlateView.Update += OnSlateViewUpdate;
+                //this.SlateView.DrawStart += OnSlateViewDraw;
+                //this.SlateView.Update += OnSlateViewUpdate;
 
                 // Lancement de la console
-                StartWatch();
+                //StartWatch();
                 await this.machine.StartAsync(cartridge);
-                StopWatch("machine.StartAsync");
+                //StopWatch("machine.StartAsync");
 
                 this.cartridge = this.machine.Cartridge;
                 this.screen = this.machine.Screen;
@@ -162,29 +163,29 @@ namespace Sugoi.Console.Controls
                 };
 
                 // initialisation du code de l'application
-                StartWatch();
+                //StartWatch();
                 this.machine.Initialize();
-                StopWatch("Machine initialize");
+                //StopWatch("Machine initialize");
 
                 // On appelle Update de la machine pour lancer le callback
-                //var cartridgeUpdateCallback = this.machine.UpdatedCallback;
+                var cartridgeUpdateCallback = this.machine.UpdatedCallback;
 
-                //this.machine.UpdatedCallback = () =>
-                //{
-                //    cartridgeUpdateCallback?.Invoke();
-                //    this.FrameUpdated?.Invoke();
-                //};
+                this.machine.UpdatedCallback = () =>
+                {
+                    cartridgeUpdateCallback?.Invoke();
+                    this.FrameUpdated?.Invoke();
+                };
 
                 // la machine appelera le DrawCallback à chaque Render
-                //var cartridgeDrawCallback = this.machine.DrawCallback;
-                //this.machine.DrawCallback = (frameExecuted) =>
-                //{
-                //    cartridgeDrawCallback?.Invoke(frameExecuted);
-                //    this.FrameDrawn?.Invoke(frameExecuted);
-                //};
+                var cartridgeDrawCallback = this.machine.DrawCallback;
+                this.machine.DrawCallback = (frameExecuted) =>
+                {
+                    cartridgeDrawCallback?.Invoke(frameExecuted);
+                    this.FrameDrawn?.Invoke(frameExecuted);
+                };
 
-                //this.SlateView.DrawStart += OnSlateViewDraw;
-                //this.SlateView.Update += OnSlateViewUpdate;
+                this.SlateView.DrawStart += OnSlateViewDraw;
+                this.SlateView.Update += OnSlateViewUpdate;
 
                 this.GotFocus += OnSugoiGotFocus;
                 this.LostFocus += OnSugoiLostFocus;
