@@ -1,5 +1,8 @@
 
 # Sugoi
+
+![img](https://github.com/samoteph/Sugoi/blob/master/Assets/Sugoi-GitHub.png)
+
 The project SUGOI is virtual console written in C#.
 The console allows the creation of 16/8 bits games very quickly and in a fun way.
 It is crossplateform, thanks to .net standard, but there is only one platform supported at this point : UWP.
