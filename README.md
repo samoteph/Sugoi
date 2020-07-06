@@ -51,6 +51,7 @@ In the Crazy Zone game you can learn advanced scenario like :
 - load tmx map as asset
 - spritepool
 - path for sprite
+- play sound
 
 # What SUGOI can't do
 
