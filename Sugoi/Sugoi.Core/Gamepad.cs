@@ -147,10 +147,21 @@ namespace Sugoi.Core
             gamePadKeyValues[(int)key] = false;
         }
 
+        /// <summary>
+        /// One key is released
+        /// </summary>
+        /// <param name="key"></param>
+        /// <returns></returns>
+
         public bool IsRelease(GamepadKeys key)
         {
-            return gamePadKeyValues[(int)key];
+            return gamePadKeyValues[(int)key] == false;
         }
+
+        /// <summary>
+        /// All keys are released
+        /// </summary>
+        /// <returns></returns>
 
         public bool IsRelease()
         {
@@ -165,7 +176,35 @@ namespace Sugoi.Core
             return true;
         }
 
-        public void WaitForRelease(Action completed = null)
+        public void WaitForRelease(GamepadKeys gamepadKey, Action completed = null)
+        {
+            this.machine.PrepareWaiting(() =>
+            {
+                return this.IsRelease(gamepadKey) == false;
+            },
+            completed
+            );
+        }
+
+        public void WaitForRelease(GamepadKeys gamepadKey, int maximumFrame, Action completed = null)
+        {
+            frameWaitCount = 0;
+            this.machine.PrepareWaiting(() =>
+            {
+                if (frameWaitCount < maximumFrame)
+                {
+                    frameWaitCount++;
+                    return this.IsRelease(gamepadKey) == false;
+                }
+
+                // on attend plus
+                return false;
+            },
+            completed
+            );
+        }
+
+        public void WaitForRelease(Action completed = null)   
         {
             this.machine.PrepareWaiting( () =>
             {

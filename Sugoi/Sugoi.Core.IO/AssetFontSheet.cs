@@ -145,7 +145,7 @@ namespace Sugoi.Core.IO
     /// <param name="mapHeightBank"></param>
     /// <returns></returns>
 
-    public static AssetFontSheet Import(Cartridge cartridge, string assetName, Stream stream, int tileWidth, int tileHeight, FontTypes fontType, int mapHeightBank)
+    public static AssetFontSheet Import(Cartridge cartridge, string assetName, Stream stream, int tileWidth, int tileHeight, FontTypes fontType, int mapHeightBank = int.MaxValue)
         {
             AssetFontSheet font = new AssetFontSheet(cartridge);
             font.Name = assetName;
@@ -153,6 +153,11 @@ namespace Sugoi.Core.IO
 
             font.TileWidth = tileWidth;
             font.TileHeight = tileHeight;
+
+            if(mapHeightBank == int.MaxValue)
+            {
+                mapHeightBank = font.Height / font.TileHeight;
+            }
 
             PrepareBank(font, tileWidth, tileHeight, fontType, mapHeightBank);
 

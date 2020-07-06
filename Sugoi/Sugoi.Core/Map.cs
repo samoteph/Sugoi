@@ -115,6 +115,16 @@ namespace Sugoi.Core
             this.Height = map.MapHeight * surfaceTileSheet.TileHeight;
         }
 
+        public int GetTileNumber(int tileX, int tileY)
+        {
+            return (tileY * this.TileSheet.TileSheetWidth) + tileX;
+        }
+
+        public void Create(string name, int mapWidth, int mapHeight, SurfaceTileSheet surfaceTileSheet)
+        {
+            this.Create(name, mapWidth, mapHeight, surfaceTileSheet, MapTileDescriptor.TileZero);
+        }
+
         public void Create(string name, int mapWidth, int mapHeight, SurfaceTileSheet surfaceTileSheet, MapTileDescriptor defaultTile)
         {
             this.Name = name;
@@ -173,6 +183,21 @@ namespace Sugoi.Core
             }
 
             this.Tiles[index] = tile;
+        }
+
+        public MapTileDescriptor SetTile(int xMap, int yMap, int tileNumber)
+        {
+            var tile = new MapTileDescriptor(tileNumber);
+            this[xMap, yMap] = tile;
+            return tile;
+        }
+
+        public MapTileDescriptor SetTile(int xMap, int yMap, int tileX, int tileY)
+        {
+            var tile = new MapTileDescriptor(this.GetTileNumber(tileX, tileY));
+            this[xMap, yMap] = tile;
+
+            return tile;
         }
 
         public void SetTiles(params int[] numbers)

@@ -455,19 +455,19 @@ namespace Sugoi.Console.Controls
             //    Debug.WriteLine(e.VirtualKey + " " + e.KeyStatus.ScanCode);
             //}
 
-            var virtualKey = e.VirtualKey;
+            //var virtualKey = e.VirtualKey;
 
-            switch(e.KeyStatus.ScanCode)
-            {
-                case 44: // W en français, Z en anglais, ..
-                    virtualKey = VirtualKey.W;
-                    break;
-                case 45: // X en français, ? en anglais, ..
-                    virtualKey = VirtualKey.X;
-                    break;
-            }
+            //switch(e.KeyStatus.ScanCode)
+            //{
+            //    case 44: // W en français, Z en anglais, ..
+            //        virtualKey = VirtualKey.W;
+            //        break;
+            //    case 45: // X en français, ? en anglais, ..
+            //        virtualKey = VirtualKey.X;
+            //        break;
+            //}
 
-            switch (virtualKey)
+            switch (e.VirtualKey)
             {
                 case VirtualKey.Up:
                     keyboardGamepad.Press(GamepadKeys.Up);
@@ -481,7 +481,9 @@ namespace Sugoi.Console.Controls
                 case VirtualKey.Left:
                     keyboardGamepad.Press(GamepadKeys.Left);
                     break;
+                case VirtualKey.Z:
                 case VirtualKey.W:
+                case VirtualKey.Y:
                     keyboardGamepad.Press(GamepadKeys.ButtonA);
                     break;
                 case VirtualKey.X:
@@ -523,17 +525,17 @@ namespace Sugoi.Console.Controls
                 return;
             }
 
-            var virtualKey = e.VirtualKey;
+            //var virtualKey = e.VirtualKey;
 
-            switch (e.KeyStatus.ScanCode)
-            {
-                case 44: // W en français, Z en anglais, ..
-                    virtualKey = VirtualKey.W;
-                    break;
-                case 45: // X en français, ? en anglais, ..
-                    virtualKey = VirtualKey.X;
-                    break;
-            }
+            //switch (e.KeyStatus.ScanCode)
+            //{
+            //    case 44: // W en français, Z en anglais, ..
+            //        virtualKey = VirtualKey.W;
+            //        break;
+            //    case 45: // X en français, ? en anglais, ..
+            //        virtualKey = VirtualKey.X;
+            //        break;
+            //}
 
             switch (e.VirtualKey)
             {
@@ -549,7 +551,10 @@ namespace Sugoi.Console.Controls
                 case VirtualKey.Left:
                     keyboardGamepad.Release(GamepadKeys.Left);
                     break;
+                    // pour prendre en compte les clavier Qwerty/Azerty/Qwertz
+                case VirtualKey.Z:
                 case VirtualKey.W:
+                case VirtualKey.Y:
                     keyboardGamepad.Release(GamepadKeys.ButtonA);
                     break;
                 case VirtualKey.X:

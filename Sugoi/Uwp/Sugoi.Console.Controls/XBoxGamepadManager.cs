@@ -73,6 +73,11 @@ namespace Sugoi.Console.Controls
                 return;
             }
 
+            if (gamepadSugoi == null)
+            {
+                return;
+            }
+
             var gamepadValues = gamepadWindows.GetCurrentReading();
 
             this.SetSugoiGamepadButton(gamepadSugoi, gamepadValues, GamepadWindows.GamepadButtons.A, GamepadKeys.ButtonA);
@@ -101,23 +106,26 @@ namespace Sugoi.Console.Controls
 
         private void SetSugoiGamepadThumb(Gamepad gamepadSugoi, double thumbStick, GamepadKeys buttonSugoiMin, GamepadKeys buttonSugoiMax)
         {
-            if (thumbStick > 0.3)
+            if (gamepadSugoi != null)
             {
-                gamepadSugoi.Press(buttonSugoiMax);
-            }
-            else if (thumbStick < -0.3)
-            {
-                gamepadSugoi.Press(buttonSugoiMin);
-            }
-            else
-            {
-                if (gamepadSugoi.IsPressed(buttonSugoiMin))
+                if (thumbStick > 0.3)
                 {
-                    gamepadSugoi.Release(buttonSugoiMin);
+                    gamepadSugoi.Press(buttonSugoiMax);
                 }
-                else if (gamepadSugoi.IsPressed(buttonSugoiMax))
+                else if (thumbStick < -0.3)
                 {
-                    gamepadSugoi.Release(buttonSugoiMax);
+                    gamepadSugoi.Press(buttonSugoiMin);
+                }
+                else
+                {
+                    if (gamepadSugoi.IsPressed(buttonSugoiMin))
+                    {
+                        gamepadSugoi.Release(buttonSugoiMin);
+                    }
+                    else if (gamepadSugoi.IsPressed(buttonSugoiMax))
+                    {
+                        gamepadSugoi.Release(buttonSugoiMax);
+                    }
                 }
             }
         }

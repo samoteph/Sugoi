@@ -8,6 +8,7 @@ namespace Sugoi.Core
     public struct MapTileDescriptor
     {
         public static MapTileDescriptor HiddenTile = new MapTileDescriptor(0) { hidden = true };
+        public static MapTileDescriptor TileZero = new MapTileDescriptor(0);
 
         public MapTileDescriptor(MapTileDescriptor tile)
         {

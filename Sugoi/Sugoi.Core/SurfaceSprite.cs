@@ -26,14 +26,18 @@ namespace Sugoi.Core
 
         public int WidthClipped
         {
-            get;
-            private set;
+            get
+            {
+                return this.BoundsClipped.Width;
+            }
         }
 
         public int HeightClipped
         {
-            get;
-            private set;
+            get
+            {
+                return this.BoundsClipped.Height;
+            }
         }
 
         public Rectangle Bounds
@@ -857,6 +861,16 @@ namespace Sugoi.Core
         {
             var clip = this.Clip;
 
+            if(width == int.MaxValue)
+            {
+                width = map.Width;
+            }
+
+            if(height == int.MaxValue)
+            {
+                height = map.Height;
+            }
+
             var currentClip = this.BoundsClipped;    
             currentClip.Intersect(new Rectangle(xScreen, yScreen, width, height));
 
@@ -893,6 +907,11 @@ namespace Sugoi.Core
             if (text == null || text.Length == 0)
             {
                 return;
+            }
+
+            if(font == null)
+            {
+                throw new Exception("You must define a font!");
             }
 
             int tileWidth = font.FontSheet.TileWidth;
@@ -1205,6 +1224,11 @@ namespace Sugoi.Core
             rectVisibility.y = rectRequested.Y;
 
             return rectVisibility;
+        }
+
+        public void DrawAnimator(Animator animator, int x, int y, bool isHorizontalFlipped = false, bool isVerticalFlipped = false)
+        {
+            animator.Draw(this, x, y, isHorizontalFlipped, isVerticalFlipped);
         }
 
         public Argb32 GetPixel(int x, int y)

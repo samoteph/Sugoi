@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SixLabors.ImageSharp;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -98,6 +99,11 @@ namespace Sugoi.Core
             this.Speed = 1;
 
             this.Stop();
+        }
+
+        public void Initialize(int numberAnimationFrames)
+        {
+            this.Initialize( new AnimationFrame[numberAnimationFrames] );
         }
 
         /// <summary>

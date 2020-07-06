@@ -49,6 +49,15 @@ namespace Sugoi.Core.IO
         public abstract Task LoadHeaderAsync();
 
         /// <summary>
+        /// Chargement d'une cartouche vide pour s'amuser
+        /// </summary>
+
+        protected void LoadEmptyCartridge()
+        {
+            this.IsLoaded = true;
+        }
+
+        /// <summary>
         /// Chargement de la cartridge qui doit se trouver en ressource embedded
         /// "CrazyZone.Cartridge.Cartridge.sugoi" -> Projet.Repertoire.Nom de fichier
         /// </summary>
