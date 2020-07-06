@@ -33,19 +33,7 @@ namespace EmptyGame.Uwp.Cartridges
         int count;
 
         /// <summary>
-        /// Here you can load a asset from cartridge (see CrazyZone game)
-        /// </summary>
-        /// <returns></returns>
-
-        public override Task LoadAsync()
-        {
-            this.LoadEmptyCartridge();
-
-            return Task.CompletedTask;
-        }
-
-        /// <summary>
-        /// Load file integrated in application as Content
+        /// Load file integrated in application as Content in Assets folder
         /// </summary>
         /// <param name="filename"></param>
         /// <returns></returns>
@@ -59,10 +47,11 @@ namespace EmptyGame.Uwp.Cartridges
             return stream.AsStream();
         }
 
-        public override Task LoadHeaderAsync()
-        {
-            return Task.CompletedTask;
-        }
+        /// <summary>
+        /// Start the console
+        /// </summary>
+        /// <param name="machine"></param>
+        /// <returns></returns>
 
         public override async Task StartAsync(Machine machine)
         {
@@ -84,8 +73,10 @@ namespace EmptyGame.Uwp.Cartridges
             var surfaceFont = machine.VideoMemory.CreateFontSheet(assetFont);
 
             // Get the mapping of the font based on FontSheet/surfaceFont
-            Font font = new Font();
-            font.FontSheet = surfaceFont;
+            Font font = new Font
+            {
+                FontSheet = surfaceFont
+            };
 
             font.AddCharacters(CharactersGroups.AlphaUpperAndLower);
             font.AddCharacters(CharactersGroups.Numeric);
@@ -126,6 +117,10 @@ namespace EmptyGame.Uwp.Cartridges
             machine.DrawCallback = Draw;
         }
 
+        /// <summary>
+        /// Here you can update some values use in Draw method. Updating can be executed up to twice, depends if the computer is slow down or not. The  Updating is always executed. 
+        /// </summary>
+
         private void Updating()
         {
             // move scroll
@@ -164,6 +159,11 @@ namespace EmptyGame.Uwp.Cartridges
             }
         }
 
+        /// <summary>
+        /// Here you can update some values use in Draw method. Updated can be executed up to twice, depends if the computer is slow down or not. The  Updated is NOT always executed.
+        /// If a GamePad.WaitForRelease/Machine.WaitForFrame is used, Updated method just wait for its completion before restart in a normal way. 
+        /// </summary>
+
         private void Updated()
         {
             //  
@@ -172,9 +172,10 @@ namespace EmptyGame.Uwp.Cartridges
                 if(this.machine.GamepadGlobal.IsPressed(GamepadKeys.ButtonB))
                 {
                     this.isPressedB = true;
+                    count++;
 
                     // When WaitForRelease is launched the method Updated is not executed until the button B is released (Updating is a always executed)
-                    this.machine.GamepadGlobal.WaitForRelease(GamepadKeys.ButtonB, () => { this.isPressedB = false; count++; });
+                    this.machine.GamepadGlobal.WaitForRelease(GamepadKeys.ButtonB, () => { this.isPressedB = false; });
                 }
             }
         }
@@ -252,10 +253,10 @@ namespace EmptyGame.Uwp.Cartridges
             smallScreen.DrawText("#move", 8, 8);
 
             screen.DrawSprite(smallScreen, x, 0);
-            x += smallScreen.WidthClipped;
             // end of clipping
             smallScreen.ResetClip();
 
+            // Button A et B different way of pression
             if(this.isPressedA == true)
             {
                 screen.DrawText("A pressed", 0, 50);
@@ -263,7 +264,7 @@ namespace EmptyGame.Uwp.Cartridges
 
             if (this.isPressedB == true)
             {
-                screen.DrawText("B pressed and wait for release", 0, 58);
+                screen.DrawText("B pressed and WaitForRelease", 0, 58);
             }
 
             screen.DrawText(count, 0, 66);

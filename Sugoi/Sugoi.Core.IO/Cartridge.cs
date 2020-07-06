@@ -45,8 +45,18 @@ namespace Sugoi.Core.IO
             this.Header.Read(reader);
         }
 
-        public abstract Task LoadAsync();
-        public abstract Task LoadHeaderAsync();
+        /// <summary>
+        /// Load a cartridge from resource or from any source. By default, an empty cartridge is loaded 
+        /// </summary>
+        /// <returns></returns>
+
+        public virtual Task LoadAsync()
+        {
+            this.LoadEmptyCartridge();
+            return Task.CompletedTask;
+        }
+
+        //public abstract Task LoadHeaderAsync();
 
         /// <summary>
         /// Chargement d'une cartouche vide pour s'amuser

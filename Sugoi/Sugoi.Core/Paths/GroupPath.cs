@@ -6,7 +6,7 @@ namespace Sugoi.Core
 {
     public class GroupPath : ItemPath
     {
-        List<IItemPath> itemPaths = new List<IItemPath>(10);
+        readonly List<IItemPath> itemPaths = new List<IItemPath>(10);
 
         public void AddPath(IItemPath itemPath)
         {
@@ -50,7 +50,7 @@ namespace Sugoi.Core
             }
 
             // currentFrame est desormais relatif à l'itemPath
-            currentFrame = currentFrame - oldMaxFrame;
+            currentFrame -= oldMaxFrame;
 
             selectedItemPath.GetPosition(currentFrame, out var currentOffsetX, out var currentOffsetY);
 

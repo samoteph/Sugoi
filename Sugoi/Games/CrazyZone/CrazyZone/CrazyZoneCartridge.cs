@@ -45,18 +45,18 @@ namespace CrazyZone
             return this.LoadFromResourceAsync("CrazyZone.Cartridge.Cartridge.sugoi");
         }
 
-        public override Task LoadHeaderAsync()
-        {
-            return Task.Run(() =>
-            {
-                using (var stream = GetStreamResource("CrazyZone.Cartridge.Cartridge.sugoi"))
-                {
-                    using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
-                    {
-                        this.LoadHeader(reader);
-                    }
-                }
-            });
-        }
+        //public override Task LoadHeaderAsync()
+        //{
+        //    return Task.Run(() =>
+        //    {
+        //        using (var stream = GetStreamResource("CrazyZone.Cartridge.Cartridge.sugoi"))
+        //        {
+        //            using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
+        //            {
+        //                this.LoadHeader(reader);
+        //            }
+        //        }
+        //    });
+        //}
     }
 }

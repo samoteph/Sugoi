@@ -8,7 +8,7 @@ namespace CrazyZone.Pages
 {
     public class PlayPage : IPage, IScrollView
     {
-        const string RETRY_TEXT = "Retry";
+        //const string RETRY_TEXT = "Retry";
         const string GAMEOVER_TEXT = "Game Over";
         const string SCORE_TEXT = "Score: ";
         const string HISCORE_TEXT = "HiScore: ";
@@ -21,14 +21,14 @@ namespace CrazyZone.Pages
         const string MULTI_WIN_TEXT = "YOU WIN!";
         const string MULTI_LOOSE_TEXT = "YOU LOOSE!";
 
-        private Game game;
-        private Machine machine;
+        readonly private Game game;
+        readonly private Machine machine;
         private Gamepad gamepad;
 
         // nom du joueur
-        private char[] name = new char[6];
+        readonly private char[] name = new char[6];
 
-        private Menu menuRetry = new Menu();
+        //readonly private Menu menuRetry = new Menu();
 
         private int frameGameOver = 0;
         private int frameDucks = 0;
@@ -56,7 +56,7 @@ namespace CrazyZone.Pages
         // hit de gros monstre
         private int hitBigMonsterCount = 0;
 
-        private OpaSprite opa;
+        readonly private OpaSprite opa;
 
         // page accueillant le multi joueur
         private MultiPlayPage multiPage;
@@ -68,15 +68,15 @@ namespace CrazyZone.Pages
             set;
         }
 
-        private SpritePool<MotherSprite> mothers = new SpritePool<MotherSprite>(10);
-        private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
-        private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
-        private SpritePool<BulletSprite> bullets = new SpritePool<BulletSprite>(40);
-        private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(100); // Kaboom 10
-        private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(60);
-        private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(20);
-        private SpritePool<FlySprite> flies = new SpritePool<FlySprite>(20);
-        private SpritePool<CoinSprite> coins = new SpritePool<CoinSprite>(10);
+        readonly private SpritePool<MotherSprite> mothers = new SpritePool<MotherSprite>(10);
+        readonly private SpritePool<AmmoSprite> ammos = new SpritePool<AmmoSprite>(10);
+        readonly private SpritePool<BombSprite> bombs = new SpritePool<BombSprite>(10);
+        readonly private SpritePool<BulletSprite> bullets = new SpritePool<BulletSprite>(40);
+        readonly private SpritePool<KaboomSprite> kabooms = new SpritePool<KaboomSprite>(100); // Kaboom 10
+        readonly private SpritePool<BabySprite> babies = new SpritePool<BabySprite>(60);
+        readonly private SpritePool<DuckSprite> ducks = new SpritePool<DuckSprite>(20);
+        readonly private SpritePool<FlySprite> flies = new SpritePool<FlySprite>(20);
+        readonly private SpritePool<CoinSprite> coins = new SpritePool<CoinSprite>(10);
 
         public Gamepad Gamepad
         {

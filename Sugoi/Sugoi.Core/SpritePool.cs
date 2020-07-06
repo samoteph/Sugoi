@@ -6,7 +6,7 @@ namespace Sugoi.Core
 {
     public class SpritePool<TSprite> where TSprite : ISprite
     {
-        private TSprite[] sprites;
+        private readonly TSprite[] sprites;
 
         public SpritePool(int size)
         {
@@ -259,10 +259,10 @@ namespace Sugoi.Core
 
                         throw new NotImplementedException("Collision CCD not implemented yet!");
 
-                        haveCollision = true;
+                        //haveCollision = true;
 
-                        sprite.Collide(collider);
-                        collider.Collide(sprite);
+                        //sprite.Collide(collider);
+                        //collider.Collide(sprite);
                     }
 
                 }

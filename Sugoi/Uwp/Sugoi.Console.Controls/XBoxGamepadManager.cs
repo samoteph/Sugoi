@@ -49,7 +49,7 @@ namespace Sugoi.Console.Controls
                     this.xboxGamepads[0] = null;
                 }
             }
-            catch (Exception ex)
+            catch
             {
             }
 

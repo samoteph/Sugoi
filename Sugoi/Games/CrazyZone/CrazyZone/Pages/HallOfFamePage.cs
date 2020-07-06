@@ -15,11 +15,11 @@ namespace CrazyZone.Pages
         public const string LOADING_SCORE_ERROR_TEXT = "Loading error!";
         public const string LOADING_SCORE_TEXT = "Loading scores";
         public const string MANUAL_TEXT = "< or > to navigate";
-
-        Game game;
-        Machine machine;
-        Screen screen;
-        Gamepad gamepad;
+        
+        readonly Game game;
+        readonly Machine machine;
+        readonly Screen screen;
+        readonly Gamepad gamepad;
 
         float frameArrow = 0;
 
@@ -33,12 +33,12 @@ namespace CrazyZone.Pages
         int pageIndex = 0;
         int direction = -1;
 
-        EasingPath path = new EasingPath();
+        readonly EasingPath path = new EasingPath();
 
-        Map[] maps;
-        MapText mapFameItems = new MapText();
+        readonly Map[] maps;
+        readonly MapText mapFameItems = new MapText();
 
-        FameItem[] items = new FameItem[100];
+        readonly FameItem[] items = new FameItem[100];
 
         HallOfFameStates State
         {
@@ -63,9 +63,10 @@ namespace CrazyZone.Pages
 
             for(int i=0;i<items.Length;i++)
             {
-                var item = new FameItem();
-
-                item.Rank = rank++;
+                var item = new FameItem
+                {
+                    Rank = rank++
+                };
 
                 items[i] = item;
             }
@@ -104,7 +105,7 @@ namespace CrazyZone.Pages
             }
         }
 
-        char[] names = new char[6];
+        readonly char[] names = new char[6];
         string name;
 
         /// <summary>

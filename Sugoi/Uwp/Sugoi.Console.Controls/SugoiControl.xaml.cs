@@ -261,7 +261,7 @@ namespace Sugoi.Console.Controls
                     }
                 }
             }
-            catch (Exception ex)
+            catch
             {
                 return false;
             }
