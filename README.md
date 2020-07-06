@@ -33,7 +33,7 @@ In the 'EmptyGame.Uwp' you can learn how to :
 
 - Make a simple game architecture
 - Load assets into VideoMemory
-- Draw sprite with horizontal and vertical flip)
+- Draw sprite (with horizontal and vertical flip)
 - Draw tileSheet
 - Draw map of tilesheet
 - Scroll a map (infinite scrolling)
