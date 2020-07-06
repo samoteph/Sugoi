@@ -31,7 +31,7 @@ In the 'EmptyGame.Uwp' you can learn how to :
 
 ![img](https://github.com/samoteph/Sugoi/blob/master/Assets/DemoCartridge.png)
 
-- simple game architecture
+- Make a simple game architecture
 - Load assets into VideoMemory
 - Draw sprite with horizontal and vertical flip)
 - Draw tileSheet
