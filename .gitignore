@@ -259,10 +259,6 @@ paket-files/
 # Python Tools for Visual Studio (PTVS)
 __pycache__/
 *.pyc
-/Synergiz.SoCloz/Test/*
-/Synergiz.SoCloz/AutoUpdateRepo/feed.xml
-/Synergiz.SoCloz/AutoUpdateRepo/NAppUpdate.Framework.dll
-/Synergiz.SoCloz/AutoUpdateRepo/Synergiz.SoCloz.exe
-/Synergiz.SoCloz/AutoUpdateRepo/feed.xml
-/Synergiz.SoCloz/AutoUpdateRepo/NAppUpdate.Framework.dll
-/Synergiz.SoCloz/AutoUpdateRepo/Synergiz.SoCloz.exe
+
+#Builds Unity
+Builds/
