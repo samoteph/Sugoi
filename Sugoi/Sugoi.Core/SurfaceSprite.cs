@@ -420,10 +420,18 @@ namespace Sugoi.Core
                     {
                         var pixel = sourcePixels[sourceAddress];
 
-                        if (pixel.A != 0)
+                        if (pixel.A == 255 && this.Opacity == 1)
                         {
+                            // pas d'alpha
                             destinationPixels[destinationAddress] = pixel;
                         }
+                        else if(pixel.A != 0)
+                        {
+                            // Alpha
+                            destinationPixels[destinationAddress].AlphaBlend(pixel, this.Opacity);
+                        }
+
+                        // sinon c'est invisible
 
                         sourceAddress++;
                         destinationAddress += destinationDirection;
@@ -1003,6 +1011,16 @@ namespace Sugoi.Core
                 this.DrawRectangle(BoundsClipped.X, BoundsClipped.Y, BoundsClipped.Width, BoundsClipped.Height, color);
             }
         }
+
+        /// <summary>
+        /// Opacity
+        /// </summary>
+
+        public double Opacity
+        {
+            get;
+            set;
+        } = 1.0;
 
         public void SetPixel(int x, int y, Argb32 color)
         {

@@ -149,6 +149,12 @@ namespace Sugoi.Core
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetColor(Argb32 color)
+        {
+            SetColor(color.a, color.r, color.g, color.b);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void SetColor(byte a, byte r, byte g, byte b)
         {
             this.r = r;
@@ -157,6 +163,17 @@ namespace Sugoi.Core
             this.a = a;
 
             this.color = ((uint)a << 24) | ((uint)r << 16) | ((uint)g << 8) | (uint)b;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SetColor(uint color)
+        {
+            this.Color = color;
+
+            this.a = (byte)(color >> 24);
+            this.r = (byte)(color >> 16);
+            this.g = (byte)(color >> 8);
+            this.b = (byte)color;
         }
 
         /// <summary>
@@ -173,6 +190,88 @@ namespace Sugoi.Core
             this.g = g;
             this.b = b;
             this.color = ((uint)a << 24) | ((uint)r << 16) | ((uint)g << 8) | (uint)b;
+        }
+
+        /// <summary>
+        /// Set a color with alph blending
+        /// </summary>
+        /// <param name="foreGround"></param>
+        /// <param name="opacity"></param>
+        public void AlphaBlend(Argb32 foreGround, double opacity)
+        {
+            var colora = this.color;
+            var colorb = foreGround.color;
+
+            uint a2 = (colorb & 0xFF000000) >> 24;
+
+            // prendre en compte l'opacité globale
+            a2 = (uint)((double)a2 * opacity);
+
+            if (a2 == 0)
+            {
+                return;
+            }
+
+            if (a2 == 255)
+            {
+                this.A = foreGround.A;
+                this.R = foreGround.R;
+                this.G = foreGround.G;
+                this.B = foreGround.B;
+                this.Color = foreGround.Color;
+            }
+
+            uint a1 = (colora & 0xFF000000) >> 24;
+            uint nalpha = 0x100 - a2;
+            uint rb1 = (nalpha * (colora & 0xFF00FF)) >> 8;
+            uint rb2 = (a2 * (colorb & 0xFF00FF)) >> 8;
+            uint g1 = (nalpha * (colora & 0x00FF00)) >> 8;
+            uint g2 = (a2 * (colorb & 0x00FF00)) >> 8;
+            
+            uint anew = a1 + a2;
+
+            if (anew > 255) 
+            { 
+                anew = 255; 
+            }
+            
+            this.SetColor( ((rb1 + rb2) & 0xFF00FF) + ((g1 + g2) & 0x00FF00) + (anew << 24) );
+
+            //if (foreGround.A == 0)
+            //    return;
+
+            //if (this.A == 0)
+            //{
+            //    this.SetColor(foreGround);
+            //    return;
+            //}
+
+            //foreGround.A = (byte)((double)foreGround.A * opacity);
+
+            //if (foreGround.A == 255)
+            //{
+            //    this.SetColor(foreGround);
+            //    return;
+            //}
+
+            //int Alpha = ((int)foreGround.A) + 1;
+            //int B = Alpha * foreGround.B + (255 - Alpha) * this.B >> 8;
+            //int G = Alpha * foreGround.G + (255 - Alpha) * this.G >> 8;
+            //int R = Alpha * foreGround.R + (255 - Alpha) * this.R >> 8;
+            //int A = foreGround.A;
+
+            //if (this.A == 255)
+            //    A = 255;
+            //if (A > 255)
+            //    A = 255;
+            //if (R > 255)
+            //    R = 255;
+            //if (G > 255)
+            //    G = 255;
+            //if (B > 255)
+            //    B = 255;
+
+            //this.SetColor((byte)Math.Abs(A), (byte)Math.Abs(R), (byte)Math.Abs(G), (byte)Math.Abs(B));
         }
     }
 }
