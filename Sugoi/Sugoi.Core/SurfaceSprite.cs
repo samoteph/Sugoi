@@ -418,18 +418,7 @@ namespace Sugoi.Core
                 {
                     for (int ix = 0; ix < widthScreen; ix++)
                     {
-                        var pixel = sourcePixels[sourceAddress];
-
-                        if (pixel.A == 255 && this.Opacity == 1)
-                        {
-                            // pas d'alpha
-                            destinationPixels[destinationAddress] = pixel;
-                        }
-                        else if(pixel.A != 0)
-                        {
-                            // Alpha
-                            destinationPixels[destinationAddress].AlphaBlend(pixel, this.Opacity);
-                        }
+                        destinationPixels[destinationAddress].AlphaBlend(sourcePixels[sourceAddress], this.Opacity);
 
                         // sinon c'est invisible
 
@@ -1029,7 +1018,7 @@ namespace Sugoi.Core
 
             if (position > -1)
             {
-                pixels[this.Address + position] = color;
+                pixels[this.Address + position].AlphaBlend(color, this.Opacity);
             }
         }
 
@@ -1071,7 +1060,7 @@ namespace Sugoi.Core
                 {
                     for (int ix = 0; ix < widthClipped; ix++)
                     {
-                        pixels[addressStart] = color;
+                        pixels[addressStart].AlphaBlend(color, this.Opacity);
                         addressStart++;
                     }
 
@@ -1131,7 +1120,7 @@ namespace Sugoi.Core
 
             for (int ix = 0; ix < widthClipped; ix++)
             {
-                pixels[addressStart] = color;
+                pixels[addressStart].AlphaBlend(color, Opacity);
                 addressStart++;
             }
         }
@@ -1161,7 +1150,7 @@ namespace Sugoi.Core
 
             for (int iy = 0; iy < heightClipped; iy++)
             {
-                pixels[addressStart] = color;
+                pixels[addressStart].AlphaBlend(color, Opacity);
                 addressStart+= stride + 1;
             }
         }

@@ -205,7 +205,9 @@ namespace EmptyGame.Uwp.Cartridges
             screen.DrawTile(tileSheet, 0, x, 8, true, true);
             x += 8;
 
-            // Draw alternatively face and slide of coin to make s aimple animaation
+            // example of Opacity. We use an opacity fixed to 0.5 to drawn on screen. All sprite drawn on screen use this opacity
+            screen.Opacity = 0.5;
+            // Draw alternatively face and slide of coin to make simple animaation
             if (this.machine.Frame % 20 > 10)
             {
                 // Draw a part of tilesheet as sprite (cause TileSheet is also a sprite)
@@ -218,6 +220,7 @@ namespace EmptyGame.Uwp.Cartridges
                 // You can change dynamically the tile in the mapcoin
                 screen.DrawSpriteMap(mapCoin, x, 0);
             }
+            screen.Opacity = 1;
 
             x += 16;
 

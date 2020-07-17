@@ -197,29 +197,31 @@ namespace Sugoi.Core
         /// </summary>
         /// <param name="foreGround"></param>
         /// <param name="opacity"></param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void AlphaBlend(Argb32 foreGround, double opacity)
         {
-            var colora = this.color;
-            var colorb = foreGround.color;
-
-            uint a2 = (colorb & 0xFF000000) >> 24;
-
-            // prendre en compte l'opacité globale
-            a2 = (uint)((double)a2 * opacity);
-
-            if (a2 == 0)
-            {
-                return;
-            }
-
-            if (a2 == 255)
+            if(foreGround.A == 255 && opacity == 1)
             {
                 this.A = foreGround.A;
                 this.R = foreGround.R;
                 this.G = foreGround.G;
                 this.B = foreGround.B;
                 this.Color = foreGround.Color;
+                return;
             }
+
+            if(foreGround.A == 0)
+            {
+                return;
+            }
+
+            var colora = this.color;
+            var colorb = foreGround.color;
+
+            uint a2 = foreGround.A; //(colorb & 0xFF000000) >> 24;
+
+            // prendre en compte l'opacité globale
+            a2 = (uint)((double)a2 * opacity);
 
             uint a1 = (colora & 0xFF000000) >> 24;
             uint nalpha = 0x100 - a2;
