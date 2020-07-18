@@ -138,12 +138,12 @@ namespace CrazyZone.Pages
         {
             await this.machine.ExecuteAsync(async () =>
             {
+                isScoreLoaded = false;
+
                 bool isLoaded = await this.game.Leaderboard.LoadScoresAsync();
 
                 if (isLoaded)
                 {
-                    isScoreLoaded = true;
-
                     var leaderboardItems = this.game.Leaderboard.Items;
 
                     for (int i = 0; i < leaderboardItems.Count; i++)
@@ -166,6 +166,9 @@ namespace CrazyZone.Pages
                     this.maxPage = ((leaderboardItems.Count - 1) / 10) + 1;
 
                     this.DrawFameItems();
+
+                    isScoreLoaded = true;
+
                 }
 
                 State = HallOfFameStates.Play;
@@ -279,7 +282,7 @@ namespace CrazyZone.Pages
             {
                 if (isScoreLoaded)
                 {
-                    this.screen.DrawScrollMap(mapFameItems, false, (int)-scrollX, 8 * 8);
+                    this.screen.DrawScrollMap(mapFameItems, false, (int)-scrollX, 0, 0, 8*8);
 
                     frameArrow = (frameArrow + 0.2f) % 5;
                     var arrowOffset = (int)frameArrow;
