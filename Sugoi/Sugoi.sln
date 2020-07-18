@@ -36,7 +36,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Blazor Wasm", "Blazor Wasm"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Uwp", "Uwp", "{EB7A8BEA-A21A-4095-BF75-E5ED5DBBE72D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EmptyGame.Uwp", "Games\EmptyGame.Uwp\EmptyGame.Uwp.csproj", "{770D17B2-1289-4F56-A869-3AF402941E15}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SampleGame.Uwp", "Games\SampleGame.Uwp\SampleGame.Uwp.csproj", "{770D17B2-1289-4F56-A869-3AF402941E15}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
