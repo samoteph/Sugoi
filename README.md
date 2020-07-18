@@ -43,6 +43,7 @@ In the 'EmptyGame.Uwp' you can learn how to :
 - Create a screen in a screen
 - set a Clipping
 - Manage of the gamepad
+- Transparency (Opacity and Alpha are supported)
 
 In the Crazy Zone game you can learn advanced scenario like :
 
@@ -55,7 +56,6 @@ In the Crazy Zone game you can learn advanced scenario like :
 
 # What SUGOI can't do
 
-- Transparency (alpha is not managed at this point)
 - Zoom
 - Rotation
 - 3D
