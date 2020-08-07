@@ -7,7 +7,7 @@ using System.Diagnostics;
 
 namespace CrazyZone.Pages
 {
-    public class PlayPage : IPage, IScrollView
+    public class PlayPage : INavigationPage, IScrollView
     {
         //const string RETRY_TEXT = "Retry";
         const string GAMEOVER_TEXT = "Game Over";
@@ -761,6 +761,11 @@ namespace CrazyZone.Pages
             {
                 this.coins.GetFreeSprite().Born(x, y, CoinTypes.Coin5);
             }
+        }
+
+        public bool Navigate(NavigationStates state, object parameter)
+        {
+            return true;
         }
     }
 

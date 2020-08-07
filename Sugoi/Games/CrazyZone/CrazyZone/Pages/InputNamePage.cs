@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CrazyZone.Pages
 {
-    public class InputNamePage : IPage
+    public class InputNamePage : INavigationPage
     {
         const string ENTER_NAME_TEXT = "Enter your name";
         const string SAVING_SCORE_TEXT = "saving score and name";
@@ -292,6 +292,11 @@ namespace CrazyZone.Pages
                     this.State = InputNameStates.Saving;
                 }
             });
+        }
+
+        public bool Navigate(NavigationStates state, object parameter)
+        {
+            return true;
         }
 
         /// <summary>

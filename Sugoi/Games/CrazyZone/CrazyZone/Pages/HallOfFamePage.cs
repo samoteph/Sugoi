@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace CrazyZone.Pages
 {
-    public class HallOfFamePage : IPage
+    public class HallOfFamePage : INavigationPage
     {
         public const string LOADING_SCORE_ERROR_TEXT = "Loading error!";
         public const string LOADING_SCORE_TEXT = "Loading scores";
@@ -305,6 +305,11 @@ namespace CrazyZone.Pages
                     screen.DrawText(LOADING_SCORE_ERROR_TEXT, screen.BoundsClipped.X + ((screen.BoundsClipped.Width - (LOADING_SCORE_ERROR_TEXT.Length * 8)) / 2), 8 * (8 + 5));
                 }
             }
+        }
+
+        public bool Navigate(NavigationStates state, object parameter)
+        {
+            return true;
         }
     }
 

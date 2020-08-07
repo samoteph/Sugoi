@@ -9,7 +9,7 @@ using System.Text;
 
 namespace CrazyZone.Pages
 {
-    public class HomePage : IPage
+    public class HomePage : INavigationPage
     {
         private const string PRESS_START = "press button A";
 
@@ -334,6 +334,11 @@ namespace CrazyZone.Pages
 #if DEBUG
             screen.DrawText(frameExecuted == 1 ? "1" : "2", 0, 0);
 #endif
+        }
+
+        public bool Navigate(NavigationStates state, object parameter)
+        {
+            return true;
         }
     }
 }

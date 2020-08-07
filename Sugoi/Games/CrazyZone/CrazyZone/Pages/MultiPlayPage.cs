@@ -6,7 +6,7 @@ using System.Text;
 
 namespace CrazyZone.Pages
 {
-    public class MultiPlayPage : IPage
+    public class MultiPlayPage : INavigationPage
     {
         Machine machine;
         Screen screen;
@@ -214,6 +214,11 @@ namespace CrazyZone.Pages
         {
             this.FirstGamepad = null;
             this.player2Page.MultiPlayState = MultiPlayStates.WaitOtherPlayer;
+        }
+
+        public bool Navigate(NavigationStates state, object parameter)
+        {
+            return true;
         }
     }
 }
