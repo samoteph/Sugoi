@@ -2,6 +2,7 @@
 using GameJolt.Objects;
 using Sugoi.Core;
 using Sugoi.Core.IO;
+using Sugoi.Core.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -16,7 +17,7 @@ namespace CrazyZone.Pages
         public const string LOADING_SCORE_TEXT = "Loading scores";
         public const string MANUAL_TEXT = "< or > to navigate";
         
-        readonly Game game;
+        readonly CrazyZoneGame game;
         readonly Machine machine;
         readonly Screen screen;
         readonly Gamepad gamepad;
@@ -46,9 +47,9 @@ namespace CrazyZone.Pages
             set;
         }
 
-        public HallOfFamePage(Game game)
+        public HallOfFamePage()
         {
-            this.game = game;
+            this.game = GameService.Instance.GetGameSingleton<CrazyZoneGame>();
             this.machine = game.Machine;
             this.screen = machine.Screen;
             this.gamepad = machine.GamepadGlobal;
@@ -194,7 +195,7 @@ namespace CrazyZone.Pages
                 {
                     this.machine.Audio.Stop("hallOfFameSound");
                     this.machine.Audio.Play("selectSound");
-                    this.game.NavigateWithFade(typeof(HomePage));
+                    this.game.Navigation.NavigateWithFade<HomePage>();
                 });
             }
 

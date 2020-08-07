@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<Cartridge Type="Sugoi" Format="1" Version="1" Title="Starter Game" Publisher="SamSoft">
+  <Description>This is a simple sample to start a game!</Description>
+  <Assets>
+    <Asset Name="font" Type="FontSheet" Filename="Font.png" TileWidth="8" TileHeight="8" FontType="PolychromeStatic" MapHeightBank="4" BankColors="#FF0000,#FFFFFFFF,#FF00FF00"/>
+  </Assets>
+</Cartridge>

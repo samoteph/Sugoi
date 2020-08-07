@@ -52,8 +52,7 @@ namespace Sugoi.Core.IO
 
         public virtual Task LoadAsync()
         {
-            this.LoadEmptyCartridge();
-            return Task.CompletedTask;
+            return this.LoadEmptyCartridgeAsync();
         }
 
         //public abstract Task LoadHeaderAsync();
@@ -62,9 +61,10 @@ namespace Sugoi.Core.IO
         /// Chargement d'une cartouche vide pour s'amuser
         /// </summary>
 
-        protected void LoadEmptyCartridge()
+        protected Task LoadEmptyCartridgeAsync()
         {
             this.IsLoaded = true;
+            return Task.CompletedTask;
         }
 
         /// <summary>

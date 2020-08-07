@@ -238,42 +238,6 @@ namespace Sugoi.Core
             }
             
             this.SetColor( ((rb1 + rb2) & 0xFF00FF) + ((g1 + g2) & 0x00FF00) + (anew << 24) );
-
-            //if (foreGround.A == 0)
-            //    return;
-
-            //if (this.A == 0)
-            //{
-            //    this.SetColor(foreGround);
-            //    return;
-            //}
-
-            //foreGround.A = (byte)((double)foreGround.A * opacity);
-
-            //if (foreGround.A == 255)
-            //{
-            //    this.SetColor(foreGround);
-            //    return;
-            //}
-
-            //int Alpha = ((int)foreGround.A) + 1;
-            //int B = Alpha * foreGround.B + (255 - Alpha) * this.B >> 8;
-            //int G = Alpha * foreGround.G + (255 - Alpha) * this.G >> 8;
-            //int R = Alpha * foreGround.R + (255 - Alpha) * this.R >> 8;
-            //int A = foreGround.A;
-
-            //if (this.A == 255)
-            //    A = 255;
-            //if (A > 255)
-            //    A = 255;
-            //if (R > 255)
-            //    R = 255;
-            //if (G > 255)
-            //    G = 255;
-            //if (B > 255)
-            //    B = 255;
-
-            //this.SetColor((byte)Math.Abs(A), (byte)Math.Abs(R), (byte)Math.Abs(G), (byte)Math.Abs(B));
         }
     }
 }

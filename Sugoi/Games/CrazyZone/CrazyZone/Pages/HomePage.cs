@@ -1,5 +1,6 @@
 ﻿using CrazyZone.Controls;
 using Sugoi.Core;
+using Sugoi.Core.Navigation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -41,8 +42,7 @@ namespace CrazyZone.Pages
         private int hiScore;
         private string hiScoreString;
 
-        private Game game;
-        private Machine machine;
+        private CrazyZoneGame game;
 
         private int fontWidth;
 
@@ -95,10 +95,17 @@ namespace CrazyZone.Pages
             private set;
         }
 
-        public HomePage(Game game)
+        public Machine Machine
         {
-            this.game = game;
-            this.machine = game.Machine;
+            get;
+            private set;
+        }
+
+        public HomePage()
+        {
+            this.game = GameService.Instance.GetGameSingleton<CrazyZoneGame>();
+
+            this.Machine = game.Machine;
             this.menuStart = new Menu();
             this.menu1Por2P = new Menu();
             
@@ -106,12 +113,12 @@ namespace CrazyZone.Pages
             {
                 if (menuPosition == 0)
                 {
-                    this.machine.Audio.Play("selectSound");
+                    this.Machine.Audio.Play("selectSound");
                     this.homeState = HomeStates.P1OrP2;
                 }
                 else if(menuPosition == 1)
                 {
-                    this.machine.Audio.Play("selectSound");
+                    this.Machine.Audio.Play("selectSound");
 
                     // clique sur Credits
                     this.homeState = HomeStates.Credits;
@@ -119,15 +126,16 @@ namespace CrazyZone.Pages
                 else
                 {
                     // clique sur Hall Of Fame
-                    this.machine.Audio.Stop("homeSound");
-                    this.machine.Audio.Play("startSound");
-                    this.game.NavigateWithFade(typeof(HallOfFamePage));
+                    this.Machine.Audio.Stop("homeSound");
+                    this.Machine.Audio.Play("startSound");
+
+                    this.game.Navigation.NavigateWithFade<HallOfFamePage>();
                 }
             };
 
             this.menuStart.BackCallback = () =>
             {
-                this.machine.Audio.Play("selectSound");
+                this.Machine.Audio.Play("selectSound");
                 homeState = HomeStates.Home;
             };
 
@@ -135,13 +143,13 @@ namespace CrazyZone.Pages
             {
                 if (menuPosition == 0)
                 {
-                    this.machine.Audio.Play("startSound");
+                    this.Machine.Audio.Play("startSound");
                     this.homeState = HomeStates.Quit;
                     this.Player = Players.Solo;
                 }
                 else
                 {
-                    this.machine.Audio.Play("startSound");
+                    this.Machine.Audio.Play("startSound");
                     // != de Solo == 2 players
                     this.Player = Players.Player2;
                     this.homeState = HomeStates.Quit;
@@ -150,13 +158,13 @@ namespace CrazyZone.Pages
 
             this.menu1Por2P.BackCallback = () =>
             {
-                this.machine.Audio.Play("selectSound");
+                this.Machine.Audio.Play("selectSound");
                 homeState = HomeStates.Menu;
             };
 
             Action<int> handlerMove = (menuPosition) =>
             {
-                this.machine.Audio.Play("menuSound", 0.5, false);
+                this.Machine.Audio.Play("menuSound", 0.5, false);
             };
 
             this.menuStart.CursorMoveCallback = handlerMove;
@@ -165,7 +173,7 @@ namespace CrazyZone.Pages
 
         public async void Initialize()
         {
-            this.machine.Frame = 0;
+            this.Machine.Frame = 0;
 
             this.homeState = HomeStates.Home;
 
@@ -175,26 +183,26 @@ namespace CrazyZone.Pages
 
             cursor = AssetStore.OpaCursorAnimator;
 
-            this.menuStart.Initialize(machine, cursor, menuEntries);
-            this.menu1Por2P.Initialize(machine, cursor, menu1Por2Pentries);
+            this.menuStart.Initialize(Machine, cursor, menuEntries);
+            this.menu1Por2P.Initialize(Machine, cursor, menu1Por2Pentries);
 
             frameScroll = 0;
 
-            hiScore = this.machine.BatteryRam.ReadInt((int)BatteryRamAddress.HiScore);
+            hiScore = this.Machine.BatteryRam.ReadInt((int)BatteryRamAddress.HiScore);
             hiScoreString = "hiscore: " + hiScore;
 
-            this.fontWidth = this.machine.Screen.Font.FontSheet.TileWidth;
+            this.fontWidth = this.Machine.Screen.Font.FontSheet.TileWidth;
 
-            this.machine.Audio.PlayLoop("homeSound");
+            this.Machine.Audio.PlayLoop("homeSound");
 
-            await this.machine.ExecuteAsync(() => this.game.SaveNameAndScoreIfNeededAsync()); 
+            await this.Machine.ExecuteAsync(() => this.game.SaveNameAndScoreIfNeededAsync()); 
 
             cursor.Start();
         }
 
         public void Updating()
         {
-            var frame = this.machine.Frame;
+            var frame = this.Machine.Frame;
 
             cursor.Update();
 
@@ -203,7 +211,7 @@ namespace CrazyZone.Pages
 
         public void Updated()
         {
-            var gamepad = this.machine.GamepadGlobal;
+            var gamepad = this.Machine.GamepadGlobal;
 
             switch (homeState)
             {
@@ -212,7 +220,7 @@ namespace CrazyZone.Pages
                     // detection du bouton Start        
                     if (gamepad.IsPressed(GamepadKeys.ButtonA))
                     {
-                        this.machine.Audio.Play("selectSound");
+                        this.Machine.Audio.Play("selectSound");
 
                         gamepad.WaitForRelease(() =>
                         {
@@ -235,7 +243,7 @@ namespace CrazyZone.Pages
 
                     if (gamepad.IsButtonsPressed)
                     {
-                        this.machine.Audio.Play("selectSound");
+                        this.Machine.Audio.Play("selectSound");
 
                         gamepad.WaitForRelease(() =>
                         {
@@ -248,15 +256,15 @@ namespace CrazyZone.Pages
 
                 case HomeStates.Quit:
 
-                    this.machine.Audio.Stop("homeSound");
+                    this.Machine.Audio.Stop("homeSound");
 
                     if (Player == Players.Solo)
                     {
-                        game.NavigateWithFade(typeof(PlayPage));
+                        game.Navigation.NavigateWithFade<PlayPage>();
                     }
                     else
                     {
-                        game.NavigateWithFade(typeof(MultiPlayPage));
+                        game.Navigation.NavigateWithFade<MultiPlayPage>();
                     }
 
                     break;
@@ -265,9 +273,9 @@ namespace CrazyZone.Pages
 
         public void Draw(int frameExecuted)
         {
-            var screen = this.machine.Screen;
+            var screen = this.Machine.Screen;
             var font = screen.Font;
-            var frame = this.machine.Frame;
+            var frame = this.Machine.Frame;
 
             //screen.Clear(new Argb32(0xeeeecc));
 

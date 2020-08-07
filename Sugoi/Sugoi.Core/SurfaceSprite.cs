@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace Sugoi.Core
 {
@@ -982,6 +983,11 @@ namespace Sugoi.Core
 
         public void Clear(Argb32 color)
         {
+            if(Opacity == 0 || color.A == 0)
+            {
+                return;
+            }
+
             if (HaveClip == false)
             {
                 var size = this.Size;
@@ -990,9 +996,19 @@ namespace Sugoi.Core
                 var addressStart = this.Address;
                 var addressStop = addressStart + size;
 
-                for (int i = addressStart; i < addressStop; i++)
+                if (Opacity == 1)
                 {
-                    pixels[i] = color;
+                    for (int i = addressStart; i < addressStop; i++)
+                    {
+                        pixels[i] = color;
+                    }
+                }
+                else
+                {
+                    for (int i = addressStart; i < addressStop; i++)
+                    {
+                        pixels[i].AlphaBlend(color, Opacity);
+                    }
                 }
             }
             else
@@ -1031,6 +1047,11 @@ namespace Sugoi.Core
 
         public void DrawRectangle(int x, int y, int width, int height, Argb32 color, bool isFilled = true)
         {
+            if(Opacity == 0 || color.A == 0)
+            {
+                return;
+            }
+
             if (isFilled == false)
             {
                 var right = x + width - 1;
@@ -1071,6 +1092,11 @@ namespace Sugoi.Core
 
         public void DrawLine(int x1, int y1, int x2, int y2, Argb32 color)
         {
+            if(Opacity == 0 || color.A == 0)
+            {
+                return;
+            }
+
             if(y1 == y2)
             {
                 this.DrawHorizontalLine(x1, y1, x2, color);
@@ -1098,6 +1124,11 @@ namespace Sugoi.Core
 
         public void DrawHorizontalLine(int x1, int y, int x2, Argb32 color)
         {
+            if(Opacity == 0 || color.A == 0)
+            {
+                return;
+            }
+
             if(x1 > x2)
             {
                 var temp = x1;
@@ -1127,6 +1158,11 @@ namespace Sugoi.Core
 
         public void DrawVerticalLine(int x, int y1, int y2, Argb32 color)
         {
+            if (Opacity == 0 || color.A == 0)
+            {
+                return;
+            }
+
             if (y1 > y2)
             {
                 var temp = y1;

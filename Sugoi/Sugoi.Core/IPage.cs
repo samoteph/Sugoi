@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Text;
 
-namespace CrazyZone.Pages
+namespace Sugoi.Core
 {
     public interface IPage
     {

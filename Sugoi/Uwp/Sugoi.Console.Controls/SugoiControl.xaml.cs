@@ -125,7 +125,7 @@ namespace Sugoi.Console.Controls
                 };
 
                 // L'affichage est ready
-                // il semblerait que le demrrage trop to de DrawStart / Update fasse planter la XBOX
+                // il semblerait que le demrrage trop tot de DrawStart / Update fasse planter la XBOX
 
                 //this.machine.DrawCallback = (frameExecuted) =>
                 //{

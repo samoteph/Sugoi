@@ -1,4 +1,5 @@
 ﻿using Sugoi.Core;
+using Sugoi.Core.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,7 +12,7 @@ namespace CrazyZone.Pages
         const string ENTER_NAME_TEXT = "Enter your name";
         const string SAVING_SCORE_TEXT = "saving score and name";
 
-        Game game;
+        CrazyZoneGame game;
         Machine machine;
         Screen screen;
         Map[] maps;
@@ -51,9 +52,9 @@ namespace CrazyZone.Pages
 
         public int Score { get; internal set; }
 
-        public InputNamePage(Game game)
+        public InputNamePage()
         {
-            this.game = game;
+            this.game = GameService.Instance.GetGameSingleton<CrazyZoneGame>();
             this.machine = game.Machine;
             this.screen = machine.Screen;
             this.gamepad = machine.GamepadGlobal;
@@ -161,7 +162,7 @@ namespace CrazyZone.Pages
                            this.Save((isSaved) =>
                            {
                                this.machine.Audio.Stop("inputNameSound");
-                               this.game.NavigateWithFade(TypeOfPageDestination);
+                               this.game.Navigation.NavigateWithFade(TypeOfPageDestination);
                            });
                         }
                         else

@@ -1,4 +1,5 @@
 ﻿using Sugoi.Core;
+using Sugoi.Core.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,8 +27,9 @@ namespace CrazyZone.Pages
             private set;
         }
 
-        public MultiPlayPage(Game game)
+        public MultiPlayPage()
         {
+            var game = GameService.Instance.GetGameSingleton<CrazyZoneGame>();
             machine = game.Machine;
             screen = machine.Screen;
 
@@ -36,8 +38,8 @@ namespace CrazyZone.Pages
 
             this.State = MultiStates.Play;
 
-            player1Page = new PlayPage(game);
-            player2Page = new PlayPage(game);
+            player1Page = new PlayPage();
+            player2Page = new PlayPage();
         }
 
         public MultiStates State

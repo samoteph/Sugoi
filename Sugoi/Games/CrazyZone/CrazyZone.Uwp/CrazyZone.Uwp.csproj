@@ -7,8 +7,8 @@
     <ProjectGuid>{1A31366E-1D80-49D3-ACC2-2C554566F8E3}</ProjectGuid>
     <OutputType>AppContainerExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Sugoi.Console</RootNamespace>
-    <AssemblyName>Sugoi.Console</AssemblyName>
+    <RootNamespace>CrazyZone.Uwp</RootNamespace>
+    <AssemblyName>CrazyZone.Uwp</AssemblyName>
     <DefaultLanguage>en-US</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion Condition=" '$(TargetPlatformVersion)' == '' ">10.0.18362.0</TargetPlatformVersion>
@@ -206,23 +206,23 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Games\CrazyZone\CrazyZone\CrazyZone.csproj">
+    <ProjectReference Include="..\CrazyZone\CrazyZone.csproj">
       <Project>{aecb6fed-3003-4442-bdb1-4c4a968e8510}</Project>
       <Name>CrazyZone</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Sugoi.Core.IO\Sugoi.Core.IO.csproj">
+    <ProjectReference Include="..\..\..\Sugoi.Core.IO\Sugoi.Core.IO.csproj">
       <Project>{93A2BC20-FC27-43F1-AD94-24114AAFA069}</Project>
       <Name>Sugoi.Core.IO</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Sugoi.Core.Shared\Sugoi.Core.Shared.csproj">
+    <ProjectReference Include="..\..\..\Sugoi.Core.Shared\Sugoi.Core.Shared.csproj">
       <Project>{3633ba3b-0e19-48a5-976d-16f7eabf2fc8}</Project>
       <Name>Sugoi.Core.Shared</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Sugoi.Core\Sugoi.Core.csproj">
+    <ProjectReference Include="..\..\..\Sugoi.Core\Sugoi.Core.csproj">
       <Project>{863DC66C-4CF6-4650-93EA-78DAC22CE49A}</Project>
       <Name>Sugoi.Core</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Sugoi.Console.Controls\Sugoi.Console.Controls.csproj">
+    <ProjectReference Include="..\..\..\Uwp\Sugoi.Console.Controls\Sugoi.Console.Controls.csproj">
       <Project>{614794d4-f806-4c32-a314-9828a2274cbd}</Project>
       <Name>Sugoi.Console.Controls</Name>
     </ProjectReference>

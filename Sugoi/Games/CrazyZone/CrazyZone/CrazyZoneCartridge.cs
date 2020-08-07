@@ -1,10 +1,5 @@
-﻿using CrazyZone.Pages;
-using Sugoi.Core;
+﻿using Sugoi.Core;
 using Sugoi.Core.IO;
-using System;
-using System.IO;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace CrazyZone
@@ -16,10 +11,11 @@ namespace CrazyZone
     public class CrazyZoneCartridge : ExecutableCartridge
     {
         private Machine machine;
-        private Game game;
+        private CrazyZoneGame game;
 
         public CrazyZoneCartridge()
         {
+            GameService.Instance.AddGameSingleton<CrazyZoneGame>();
         }
 
         public override async Task StartAsync(Machine machine)
@@ -35,7 +31,7 @@ namespace CrazyZone
 
             screen.Font = AssetStore.Font;
 
-            game = new Game();
+            game = GameService.Instance.GetGameSingleton<CrazyZoneGame>();
 
             game.Start(this.machine);
         }

@@ -1,6 +1,7 @@
 ﻿using CrazyZone.Controls;
 using CrazyZone.Sprites;
 using Sugoi.Core;
+using Sugoi.Core.Navigation;
 using System;
 using System.Diagnostics;
 
@@ -21,7 +22,7 @@ namespace CrazyZone.Pages
         const string MULTI_WIN_TEXT = "YOU WIN!";
         const string MULTI_LOOSE_TEXT = "YOU LOOSE!";
 
-        readonly private Game game;
+        readonly private CrazyZoneGame game;
         readonly private Machine machine;
         private Gamepad gamepad;
 
@@ -185,9 +186,9 @@ namespace CrazyZone.Pages
 
 #endregion
 
-        public PlayPage(Game game)
+        public PlayPage()
         {
-            this.game = game;
+            this.game = GameService.Instance.GetGameSingleton<CrazyZoneGame>();
             this.machine = game.Machine;
             this.opa = new OpaSprite(machine, this);
         }
@@ -518,19 +519,19 @@ namespace CrazyZone.Pages
                         {
                             if (Score <= hiScore)
                             {
-                                game.Navigate(typeof(HomePage));
+                                game.Navigation.Navigate<HomePage>();
                             }
                             else
                             {
                                 if (Player == Players.Solo)
                                 {
-                                    var page = (InputNamePage)game.Navigate(typeof(InputNamePage));
+                                    var page = (InputNamePage)game.Navigation.Navigate<InputNamePage>();
                                     page.Score = this.Score;
                                     page.TypeOfPageDestination = typeof(HallOfFamePage);
                                 }
                                 else
                                 {
-                                    game.Navigate(typeof(HomePage));
+                                    game.Navigation.Navigate<HomePage>();
                                 }
                             }
                         });
