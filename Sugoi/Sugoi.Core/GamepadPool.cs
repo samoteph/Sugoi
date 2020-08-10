@@ -7,19 +7,12 @@ namespace Sugoi.Core
 {
     public class GamepadPool
     {
-        private Gamepad[] gamepads;
+        private List<Gamepad> gamepads;
         private Machine machine;
 
         public GamepadPool(int size)
         {
-            this.gamepads = new Gamepad[size];
-
-            for (int i = 0; i < size; i++)
-            {
-                this.gamepads[i] = (Gamepad)Activator.CreateInstance(typeof(Gamepad));
-            }
-
-            this.CurrentIndex = 0;
+            this.gamepads = new List<Gamepad>(size);
         }
 
         /// <summary>
@@ -33,98 +26,19 @@ namespace Sugoi.Core
         }
 
         /// <summary>
-        /// Index du gamepad
-        /// </summary>
-
-        public int CurrentIndex
-        {
-            get;
-            private set;
-        }
-
-        /// <summary>
         /// Obtenir un sprite disponible (mort). Le sprite est initialisé automatiquement
         /// </summary>
 
-        public Gamepad GetFreeGamepad()
+        public void AddGamepad(Gamepad gamepad)
         {
-            var index = this.SearchFreeGamepadIndex(this.CurrentIndex);
-
-            if (index == -1)
-            {
-                throw new Exception("The pool Gamepad is unable to reserve a new Gamepad! Please set a bigger size when initializing (>" + this.gamepads.Length + ") !");
-            }
-            else
-            {
-                this.CurrentIndex = index;
-                var gamepad = this.gamepads[index];
-
-                gamepad.Start(machine);
-
-                return gamepad;
-            }
+            gamepads.Add(gamepad);
+            gamepad.Start(machine);
         }
 
-        private int SearchFreeGamepadIndex(int startIndex)
+        public void RemoveGamepad(Gamepad gamepad)
         {
-            var length = this.gamepads.Length;
-            var endIndex = length + startIndex;
-
-            for (int i = startIndex; i < endIndex; i++)
-            {
-                var index = i % length;
-
-                var gamepad = this.gamepads[index];
-
-                if (gamepad.IsFree == true)
-                {
-                    gamepad.IsFree = false;
-                    return index;
-                }
-            }
-
-            // tout est pris !
-            return -1;
-        }
-
-        /// <summary>
-        /// compte le nombre de gamepad free
-        /// </summary>
-        /// <returns></returns>
-
-        public int GetFreeCount()
-        {
-            int count = 0;
-
-            for (int i = 0; i < this.gamepads.Length; i++)
-            {
-                var gamepad = this.gamepads[i];
-
-                if (gamepad.IsFree == true)
-                {
-                    count++;
-                }
-            }
-
-            return count;
-        }
-
-        public void ForeachReserved(Action<Gamepad> action)
-        {
-            if (action == null)
-            {
-                return;
-            }
-
-            for (int i = 0; i < this.gamepads.Length; i++)
-            {
-                var gamepad = this.gamepads[i];
-
-                if (gamepad.IsFree == false)
-                {
-                    action.Invoke(gamepad);
-                }
-            }
+            gamepads.Remove(gamepad);
+            gamepad.Stop();
         }
 
         /// <summary>
@@ -136,16 +50,12 @@ namespace Sugoi.Core
         {
             int value = 0;
 
-            for (int i = 0; i < this.gamepads.Length; i++)
+            for (int i = 0; i < this.gamepads.Count; i++)
             {
                 var gamepad = this.gamepads[i];
 
-                if (gamepad.IsFree == false)
-                {
-                    var gamepadValue = gamepad.GetValue();
-
-                    value = value | gamepadValue;
-                }
+                var gamepadValue = gamepad.GetValue();
+                value = value | gamepadValue;
             }
 
             return value;
@@ -164,20 +74,17 @@ namespace Sugoi.Core
                 return;
             }
 
-            for (int i = 0; i < this.gamepads.Length; i++)
+            for (int i = 0; i < this.gamepads.Count; i++)
             {
                 var gamepad = this.gamepads[i];
 
-                if (gamepad.IsFree == false)
+                if (gamepad.IsPressed(key))
                 {
-                    if (gamepad.IsPressed(key))
-                    {
-                        bool mustContinue = gamepadPressed(gamepad);
+                    bool mustContinue = gamepadPressed(gamepad);
                     
-                        if(mustContinue == false)
-                        {
-                            return;
-                        }
+                    if(mustContinue == false)
+                    {
+                        return;
                     }
                 }
             }

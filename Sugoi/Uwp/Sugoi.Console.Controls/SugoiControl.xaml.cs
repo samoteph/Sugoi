@@ -41,21 +41,6 @@ namespace Sugoi.Console.Controls
             this.Focus(FocusState.Programmatic);
         }
 
-        //Stopwatch watch = new Stopwatch();
-
-        //private void StartWatch()
-        //{
-        //    watch.Restart();
-        //}
-
-        //private void StopWatch(string description)
-        //{
-        //    watch.Stop();
-
-        //    Debug.WriteLine("{0}={1}ms", description, watch.ElapsedMilliseconds);
-        //}
-
-
         public async Task StartAsync(Cartridge cartridge)
         {
             if (this.machine.IsStarted == false)
@@ -71,9 +56,7 @@ namespace Sugoi.Console.Controls
                     return this.WriteFileAsync(name, stream, count);
                 };
 
-                //StartWatch();
                 await cartridge.LoadAsync();
-                //StopWatch("LoadAsync");
 
                 // callback de Ram avec battery (appelé dans le Start de la machine)
                 this.machine.ReadBatteryRamAsyncCallback = () =>
@@ -92,10 +75,8 @@ namespace Sugoi.Console.Controls
                     return this.SlateView.RunOnGameLoopThreadAsync(delegateAsync);
                 };
 
-                //StartWatch();
                 // Gestion du son
                 await audioPlayer.InitializeAsync();
-                //StopWatch("Audio InitializeAsync");
 
                 this.machine.PreloadSoundAsyncCallBack = (name, channelCount) =>
                 {
@@ -124,21 +105,7 @@ namespace Sugoi.Console.Controls
                     // TODO : y a pas de pause pour le moment dans le audioplayer
                 };
 
-                // L'affichage est ready
-                // il semblerait que le demrrage trop tot de DrawStart / Update fasse planter la XBOX
-
-                //this.machine.DrawCallback = (frameExecuted) =>
-                //{
-                //    this.machine.Screen.Clear(Argb32.White);
-                //};
-
-                //this.SlateView.DrawStart += OnSlateViewDraw;
-                //this.SlateView.Update += OnSlateViewUpdate;
-
-                // Lancement de la console
-                //StartWatch();
                 await this.machine.StartAsync(cartridge);
-                //StopWatch("machine.StartAsync");
 
                 this.cartridge = this.machine.Cartridge;
                 this.screen = this.machine.Screen;
@@ -146,7 +113,8 @@ namespace Sugoi.Console.Controls
 
                 this.xboxGamepadManager.Start(this.machine);
 
-                this.keyboardGamepad = this.machine.Gamepads.GetFreeGamepad();
+                this.keyboardGamepad = new Gamepad();
+                this.machine.Gamepads.AddGamepad(this.keyboardGamepad);
 
                 this.screenArray = new byte[4 * screen.Size];
 

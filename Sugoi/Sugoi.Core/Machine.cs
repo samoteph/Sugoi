@@ -76,7 +76,7 @@ namespace Sugoi.Core
         public Machine()
         {
             this.GamepadGlobal = new Gamepad();
-            this.Gamepads = new GamepadPool(10);
+            this.Gamepads = new GamepadPool(100);
 
             this.videoMemory = new VideoMemory();
             this.BatteryRam = new BatteryRam();

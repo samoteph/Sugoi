@@ -16,16 +16,6 @@ namespace Sugoi.Core
         {
         }
 
-        /// <summary>
-        /// Permet de savoir si un gamepad est libre pour le Gamepad Pool 
-        /// </summary>
-
-        public bool IsFree
-        {
-            get;
-            set;
-        } = true;
-
         internal void Start(Machine machine)
         {
             this.machine = machine;

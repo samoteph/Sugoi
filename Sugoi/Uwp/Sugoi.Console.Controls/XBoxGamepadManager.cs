@@ -16,7 +16,8 @@ namespace Sugoi.Console.Controls
         {
             for (int i = 0; i < this.sugoiGamepads.Length; i++)
             {
-                this.sugoiGamepads[i] = machine.Gamepads.GetFreeGamepad();
+                this.sugoiGamepads[i] = new Gamepad();
+                machine.Gamepads.AddGamepad(this.sugoiGamepads[i]);
             }
         }
 
