@@ -121,6 +121,10 @@ namespace Sugoi.Console.Controls
                 Window.Current.CoreWindow.KeyDown += OnKeyDown;
                 Window.Current.CoreWindow.KeyUp += OnKeyUp;
 
+                Window.Current.CoreWindow.PointerPressed += OnPointerPressed;
+                Window.Current.CoreWindow.PointerReleased += OnPointerReleased;
+                Window.Current.CoreWindow.PointerMoved += OnPointerMoved;
+
                 // elle sera remplie si la cartouche est executable
                 var cartridgeInitCallback = this.machine.InitializeCallback;
                 
@@ -160,8 +164,58 @@ namespace Sugoi.Console.Controls
             }
         }
 
+        private void OnPointerMoved(CoreWindow sender, PointerEventArgs args)
+        {
+            var currentPoint = args.CurrentPoint;
+
+            // L'image affiché dans SlateView (ne correspond pas à la taille totale de SlateView mais au ratio du screen de la sugoi par la taille disponible dans le SlateView)
+            var device = this.SlateView.GetFrontRect();
+
+            Point screenPoint = this.machine.Screen.GetScreenPoint(
+                (int)(currentPoint.Position.X - device.X),
+                (int)(currentPoint.Position.Y - device.Y),
+                (uint)device.Width,
+                (uint)device.Height
+                );
+
+            this.machine.TouchPoints.Set(args.CurrentPoint.PointerId, screenPoint.X, screenPoint.Y);
+        }
+
+        /// <summary>
+        /// Retrait du point
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+
+        private void OnPointerReleased(CoreWindow sender, PointerEventArgs args)
+        {
+            this.machine.TouchPoints.Remove(args.CurrentPoint.PointerId);
+        }
+
+        /// <summary>
+        /// Point
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+
+        private void OnPointerPressed(CoreWindow sender, PointerEventArgs args)
+        {
+            var currentPoint = args.CurrentPoint;
+            
+            var device = this.SlateView.GetFrontRect();
+
+            Point screenPoint = this.machine.Screen.GetScreenPoint(
+                (int)(currentPoint.Position.X - device.X),
+                (int)(currentPoint.Position.Y - device.Y),
+                (uint)device.Width,
+                (uint)device.Height
+                );
+
+            this.machine.TouchPoints.Add(currentPoint.PointerId, screenPoint.X, screenPoint.Y);
+        }
+
         // La manette virtuelle keyboard
-        Sugoi.Core.Gamepad keyboardGamepad = new Core.Gamepad();
+        Gamepad keyboardGamepad = new Core.Gamepad();
 
         /// <summary>
         /// Touche retour en arrière
@@ -308,11 +362,7 @@ namespace Sugoi.Console.Controls
         private void OnSugoiGotFocus(object sender, RoutedEventArgs e)
         {
             haveFocus = true;
-            this.Focus(FocusState.Programmatic);
-
-            // nettoyage au cas ou une touche n'aurait pas été relevée après le départ du controle
-            //this.gamepad1.Release();
-            //this.gamepad2.Release();
+            //this.Focus(FocusState.Programmatic);
 
             System.Diagnostics.Debug.WriteLine("SUGOI GotFocus");
         }

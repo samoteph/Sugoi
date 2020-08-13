@@ -4,34 +4,36 @@ using System.Text;
 
 namespace Sugoi.Core
 {
-    public class TouchPoint
+    public struct TouchPoint
     {
         /// <summary>
         /// Constructeur
         /// </summary>
         /// <param name="id"></param>
 
-        public TouchPoint(int id)
+        public TouchPoint(uint id, int x, int y)
         {
             this.Id = id;
+            this.X = x;
+            this.Y = y;
         }
 
-        public int Id
+        public uint Id
         {
             get;
             private set;
         }
 
-        public double X
+        public int X
         {
             get;
-            set;
+           private set;
         }
 
-        public double Y
+        public int Y
         {
             get;
-            set;
+            private set;
         }
     }
 }

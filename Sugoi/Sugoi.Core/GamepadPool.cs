@@ -10,6 +10,8 @@ namespace Sugoi.Core
         private List<Gamepad> gamepads;
         private Machine machine;
 
+        object locker = new object();
+
         public GamepadPool(int size)
         {
             this.gamepads = new List<Gamepad>(size);
@@ -23,6 +25,11 @@ namespace Sugoi.Core
         internal void Start(Machine machine)
         {
             this.machine = machine;
+
+            lock(locker)
+            {
+                this.gamepads.Clear();
+            }
         }
 
         /// <summary>
@@ -31,13 +38,21 @@ namespace Sugoi.Core
 
         public void AddGamepad(Gamepad gamepad)
         {
-            gamepads.Add(gamepad);
+            lock (locker)
+            {
+                gamepads.Add(gamepad);
+            }
+
             gamepad.Start(machine);
         }
 
         public void RemoveGamepad(Gamepad gamepad)
         {
-            gamepads.Remove(gamepad);
+            lock (locker)
+            {
+                gamepads.Remove(gamepad);
+            }
+
             gamepad.Stop();
         }
 
@@ -50,12 +65,15 @@ namespace Sugoi.Core
         {
             int value = 0;
 
-            for (int i = 0; i < this.gamepads.Count; i++)
+            lock (locker)
             {
-                var gamepad = this.gamepads[i];
+                for (int i = 0; i < this.gamepads.Count; i++)
+                {
+                    var gamepad = this.gamepads[i];
 
-                var gamepadValue = gamepad.GetValue();
-                value = value | gamepadValue;
+                    var gamepadValue = gamepad.GetValue();
+                    value = value | gamepadValue;
+                }
             }
 
             return value;
@@ -74,17 +92,20 @@ namespace Sugoi.Core
                 return;
             }
 
-            for (int i = 0; i < this.gamepads.Count; i++)
+            lock (locker)
             {
-                var gamepad = this.gamepads[i];
-
-                if (gamepad.IsPressed(key))
+                for (int i = 0; i < this.gamepads.Count; i++)
                 {
-                    bool mustContinue = gamepadPressed(gamepad);
-                    
-                    if(mustContinue == false)
+                    var gamepad = this.gamepads[i];
+
+                    if (gamepad.IsPressed(key))
                     {
-                        return;
+                        bool mustContinue = gamepadPressed(gamepad);
+
+                        if (mustContinue == false)
+                        {
+                            return;
+                        }
                     }
                 }
             }

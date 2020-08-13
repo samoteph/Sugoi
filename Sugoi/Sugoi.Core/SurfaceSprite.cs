@@ -41,6 +41,10 @@ namespace Sugoi.Core
             }
         }
 
+        /// <summary>
+        /// Bord du SurfaceSprite (ne prend pas en compte les propriétés X et Y)
+        /// </summary>
+
         public Rectangle Bounds
         {
             get;
@@ -1288,7 +1292,7 @@ namespace Sugoi.Core
         }
 
         /// <summary>
-        /// Obtenir une position relative à Address de Pixels. Par 10 pour une address à 1000 represente une address reel à 1010
+        /// Obtenir une position pointant sur la pixel définie par x et y
         /// </summary>
         /// <param name="x"></param>
         /// <param name="y"></param>
@@ -1310,6 +1314,13 @@ namespace Sugoi.Core
 
             return position;
         }
+
+        /// <summary>
+        /// Obtenir une position relative à Address de Pixels. Par 10 pour une address à 1000 represente une address reel à 1010
+        /// </summary>
+        /// <param name="x"></param>
+        /// <param name="y"></param>
+        /// <returns></returns>
 
         private int GetAddress(int x, int y)
         {

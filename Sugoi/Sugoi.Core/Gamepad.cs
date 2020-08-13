@@ -3,14 +3,15 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace Sugoi.Core
 {
     public class Gamepad
     {
-        bool[] gamePadKeyValues;
-        Machine machine;
+        protected bool[] gamePadKeyValues;
+        protected Machine machine;
 
         public Gamepad()
         {
@@ -20,12 +21,46 @@ namespace Sugoi.Core
         {
             this.machine = machine;
             gamePadKeyValues = new bool[Enum.GetValues(typeof(GamepadKeys)).Length];
+
+            this.StartOverride();
+        }
+
+        protected virtual void StartOverride()
+        {
+
         }
 
         internal void Stop()
         {
 
         }
+
+        /// <summary>
+        /// Désactive la possibilité de presser un bouton (si IsEnabled passe à false, les boutons sont release)
+        /// </summary>
+
+        public bool IsEnabled
+        {
+            get 
+            {
+                return this.IsEnabled;
+            }
+
+            set
+            {
+                if (this.isEnabled != value)
+                {
+                    this.isEnabled = value;
+
+                    if (this.isEnabled == false && this.gamePadKeyValues != null)
+                    {
+                        this.Release();
+                    }
+                }
+            }
+        }
+
+        private bool isEnabled = true;
 
         public GamepadKeys HorizontalController
         {
@@ -71,6 +106,11 @@ namespace Sugoi.Core
 
         public void Press(GamepadKeys key)
         {
+            if(this.isEnabled == false)
+            {
+                return;
+            }
+
             gamePadKeyValues[(int)key] = true;
 
             switch(key)

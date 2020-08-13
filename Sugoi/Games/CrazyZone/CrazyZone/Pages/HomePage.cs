@@ -104,11 +104,13 @@ namespace CrazyZone.Pages
         public HomePage()
         {
             this.game = GameService.Instance.GetGameSingleton<CrazyZoneGame>();
-
             this.Machine = game.Machine;
             this.menuStart = new Menu();
             this.menu1Por2P = new Menu();
-            
+
+            this.menuStart.Y = 128;
+            this.menu1Por2P.Y = 128;
+
             this.menuStart.MenuSelectedCallback = (menuPosition) =>
             {
                 if (menuPosition == 0)
@@ -135,6 +137,8 @@ namespace CrazyZone.Pages
 
             this.menuStart.BackCallback = () =>
             {
+                this.Machine.TouchPoints.TapGamepad.IsEnabled = true;
+
                 this.Machine.Audio.Play("selectSound");
                 homeState = HomeStates.Home;
             };
@@ -177,6 +181,9 @@ namespace CrazyZone.Pages
 
             this.homeState = HomeStates.Home;
 
+            // TapGamepad activé
+            this.Machine.TouchPoints.TapGamepad.IsEnabled = true;
+
             this.title = AssetStore.Title;
             this.maps = AssetStore.ParallaxMaps;
             this.tiles = AssetStore.Tiles;
@@ -216,7 +223,7 @@ namespace CrazyZone.Pages
             switch (homeState)
             {
                 case HomeStates.Home:
-                    
+
                     // detection du bouton Start        
                     if (gamepad.IsPressed(GamepadKeys.ButtonA))
                     {
@@ -224,6 +231,8 @@ namespace CrazyZone.Pages
 
                         gamepad.WaitForRelease(() =>
                         {
+                            this.Machine.TouchPoints.TapGamepad.IsEnabled = false;
+
                             homeState = HomeStates.Menu;
                         });
                     }
@@ -307,11 +316,11 @@ namespace CrazyZone.Pages
                     break;
 
                 case HomeStates.Menu:
-                    menuStart.Draw(frameExecuted, 128);
+                    menuStart.Draw(frameExecuted);
                     break;
 
                 case HomeStates.P1OrP2:
-                    menu1Por2P.Draw(frameExecuted, 128);
+                    menu1Por2P.Draw(frameExecuted);
                     break;
 
                 case HomeStates.Credits:

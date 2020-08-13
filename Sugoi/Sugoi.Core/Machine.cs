@@ -55,6 +55,12 @@ namespace Sugoi.Core
             private set;
         }
 
+        public TouchPointPool TouchPoints
+        {
+            get;
+            private set;
+        }
+
         private Memory Memory
         {
             get;
@@ -77,6 +83,7 @@ namespace Sugoi.Core
         {
             this.GamepadGlobal = new Gamepad();
             this.Gamepads = new GamepadPool(100);
+            this.TouchPoints = new TouchPointPool(1000);
 
             this.videoMemory = new VideoMemory();
             this.BatteryRam = new BatteryRam();
@@ -119,6 +126,7 @@ namespace Sugoi.Core
 
             this.GamepadGlobal.Start(this);
             this.Gamepads.Start(this);
+            this.TouchPoints.Start(this);
 
             // demarrage de la Ram avec battery
             await this.BatteryRam.StartAsync(this);
@@ -147,30 +155,39 @@ namespace Sugoi.Core
             this.InitializeCallback?.Invoke();
         }
 
-        public bool ExecuteWaitManually
-        {
-            get;
-            set;
-        } = false;
-
         /// <summary>
         /// Appel du UpdateCallBack + Update du script
         /// </summary>
-
+    
         private void Update()
         {
             var gamepadGlobalValue = this.Gamepads.GetGamepadGlobalValue();
             this.GamepadGlobal.SetValue(gamepadGlobalValue);
 
+            // Delay (compteur de frame puis execution)
+            this.delayManager.ExecuteOneFrame();
+
             // Toujours executé car avant le Wait
             this.UpdatingCallback?.Invoke();
 
-            // ici une methode wait s'execute prioritairement à l'update
+            // ici les methodes wait s'executent en remplacement de l'update (WaitForRelease / WitForFrame)
             if (this.Wait() == false)
             {
-                // appel du script ici
+                // appel de Updated
                 this.UpdatedCallback?.Invoke();
             }
+        }
+
+        private DelayManager delayManager = new DelayManager();
+
+        /// <summary>
+        /// Ajouter une execution déportée à la x frame suivante (ne bloque pas Updated contrairement à WaitForFrame) et permet de déporté jusu'a 50 actions (par défaut)
+        /// </summary>
+        /// <param name="frameBeforeExecution"></param>
+        /// <param name="completed"></param>
+        public void Delay(int frameBeforeExecution, Action completed)
+        {
+            delayManager.AddDelay(frameBeforeExecution, completed);
         }
 
         public int Frame
@@ -179,7 +196,17 @@ namespace Sugoi.Core
             set;
         }
 
+        /// <summary>
+        /// Attente de fin de frame
+        /// </summary>
+
         private int endWaitFrame;
+
+        /// <summary>
+        /// wait some frame without executing Updated (Updating and Draw are still executed)
+        /// </summary>
+        /// <param name="frameToWait"></param>
+        /// <param name="completed"></param>
 
         public void WaitForFrame(int frameToWait, Action completed = null)
         {
@@ -240,6 +267,9 @@ namespace Sugoi.Core
             }
 
             DrawCallback?.Invoke(updateExecutedCount);
+
+            // Affichage des TouchPoints si besoin (TouchPoints.ShowTouchPoints)
+            this.TouchPoints.Draw(this.screen);
 
             this.Frame += updateExecutedCount;
 
@@ -437,7 +467,7 @@ namespace Sugoi.Core
         /// </summary>
         /// <returns></returns>
 
-        public bool Wait()
+        private bool Wait()
         {
             var currentCallBack = this.MustWaitCallBack;
 
