@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace Sugoi.Core
@@ -20,7 +21,7 @@ namespace Sugoi.Core
 
         public TouchZone(TouchPointPool touchPoints)
         {
-
+            this.touchPoints = touchPoints;
         }
 
         public bool IsStarting
@@ -32,6 +33,9 @@ namespace Sugoi.Core
         public void Start(Rectangle zone)
         {
             this.IsStarting = true;
+            this.Zone = zone;
+
+            Debug.WriteLine("Start=" + zone);
         }
 
         public bool IsPressing
@@ -81,6 +85,8 @@ namespace Sugoi.Core
                 {
                     if (Zone.Contains(tp.X, tp.Y))
                     {
+                        Debug.WriteLine("TouchZone Start Pressing");
+
                         // première fois détecté
                         startTapDateTime = DateTime.Now;
                         startTouchId = tp.Id;
@@ -125,7 +131,7 @@ namespace Sugoi.Core
                         var ms = (now - startTapDateTime).TotalMilliseconds;
 
                         // LE taping est valide sur un temps court
-                        if (ms > 100 && ms < 800)
+                        if (ms < 800)
                         {
                             // dernière position valide (de la frame d'avant car on a plus de TouchPoint disponible car le touch n'existe plus)
                             var p = this.Position;
@@ -137,6 +143,8 @@ namespace Sugoi.Core
                             }
                         }
                     }
+
+                    Debug.WriteLine("TouchZone Stop Pressing");
 
                     this.IsPressing = false;
                 }

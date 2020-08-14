@@ -43,7 +43,7 @@ namespace Sugoi.Core
         {
             get 
             {
-                return this.IsEnabled;
+                return this.isEnabled;
             }
 
             set

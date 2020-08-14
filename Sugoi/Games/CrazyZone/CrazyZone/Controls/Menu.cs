@@ -22,6 +22,9 @@ namespace CrazyZone.Controls
 
         }
 
+        int characterLength;
+        int labelWidth;
+
         public void Initialize(Machine machine, Animator cursorAnimator, string[] entries, int verticalInterval = 12, int topCursorMargin = 0)
         {
             this.machine = machine;
@@ -34,7 +37,7 @@ namespace CrazyZone.Controls
             this.cursorAnimator = cursorAnimator;
 
             // Calcul de la taille max des chaine de caracteres
-            int maxLength = 0;
+            characterLength = 0;
 
             items = new MenuItem[entries.Length];
 
@@ -46,13 +49,16 @@ namespace CrazyZone.Controls
 
                 this.items[i] = item;
 
-                if (entry.Length > maxLength)
+                if (entry.Length > characterLength)
                 {
-                    maxLength = entry.Length;
+                    characterLength = entry.Length;
                 }
             }
 
-            this.centerX = (screen.BoundsClipped.Width - maxLength * screen.Font.FontSheet.TileWidth) / 2;
+            // Taille de la chaine de caractères en pixel (pour les ZoneTouch)
+            labelWidth = characterLength * screen.Font.FontSheet.TileWidth;
+
+            this.centerX = (screen.BoundsClipped.Width - labelWidth ) / 2;
 
             this.InitializeTouchZones();
         }
@@ -127,7 +133,11 @@ namespace CrazyZone.Controls
             {
                 for (int i = 0; i < items.Length; i++)
                 {
-                    if(items[i].TouchZone.IsTaping)
+                    var item = items[i];
+
+                    item.TouchZone.Update();
+
+                    if (item.TouchZone.IsTaping)
                     {
                         MenuPosition = i;
                         this.CursorMoveCallback?.Invoke(MenuPosition);
@@ -202,14 +212,32 @@ namespace CrazyZone.Controls
         {
             if (items != null)
             {
+                int x = this.GetCenteredMenuX();
+
+                int itemWidth = cursorAnimator.Width + 8 + labelWidth;
+
                 for (int i = 0; i < items.Length; i++)
                 {
-                    items[i].TouchZone.Start(new Rectangle(X, Y + i * verticalInterval, 64, verticalInterval));
+                    items[i].TouchZone.Start(new Rectangle(x, Y + i * verticalInterval, itemWidth, verticalInterval));
                 }
             }
         }
 
         private int y;
+
+        private int GetCenteredMenuX()
+        {
+            // placement manuel
+            int x = X;
+
+            // placement par défaut
+            if (x == int.MinValue)
+            {
+                x = centerX - cursorAnimator.Width - 8;
+            }
+
+            return x;
+        }
 
         /// <summary>
         /// Affichage
@@ -225,14 +253,7 @@ namespace CrazyZone.Controls
                 screen.DrawText(item.Label, centerX, Y + i * verticalInterval);
             }
 
-            // placement manuel
-            int x = X;
-
-            // placement par défaut
-            if(x == int.MinValue)
-            {
-                x = centerX - cursorAnimator.Width - 8;
-            }
+            int x = this.GetCenteredMenuX();
 
             int centerCursorY = (screen.Font.FontSheet.TileHeight - cursorAnimator.Height) / 2;
 

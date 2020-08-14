@@ -11,6 +11,8 @@ namespace CrazyZone.Pages
 {
     public class HomePage : INavigationPage
     {
+        private const bool TWO_PLAYERS_ALLOWED = false;
+
         private const string PRESS_START = "press button A";
 
         private const string TITLE_LINE1 = "programmed by ©samsoft";
@@ -38,7 +40,7 @@ namespace CrazyZone.Pages
             MENU1POR2P_LINE1,
             MENU1POR2P_LINE2
         };
-
+        
         private int hiScore;
         private string hiScoreString;
 
@@ -116,7 +118,17 @@ namespace CrazyZone.Pages
                 if (menuPosition == 0)
                 {
                     this.Machine.Audio.Play("selectSound");
-                    this.homeState = HomeStates.P1OrP2;
+
+                    if (TWO_PLAYERS_ALLOWED == true)
+                    {
+                        // Lance le menu de selction 1 ou 2 joueurs
+                        this.homeState = HomeStates.P1OrP2;
+                    }
+                    else
+                    {
+                        // Pas de selection de 2 joueurs (en mode Touch par exemple) on joue directement
+                        this.GotoPlayPage(Players.Solo);
+                    }
                 }
                 else if(menuPosition == 1)
                 {
@@ -124,6 +136,9 @@ namespace CrazyZone.Pages
 
                     // clique sur Credits
                     this.homeState = HomeStates.Credits;
+                    // Autoriser le Tap via Touch pour sortir des crédits
+                    this.Machine.TouchPoints.TapGamepad.IsEnabled = true;
+
                 }
                 else
                 {
@@ -147,16 +162,11 @@ namespace CrazyZone.Pages
             {
                 if (menuPosition == 0)
                 {
-                    this.Machine.Audio.Play("startSound");
-                    this.homeState = HomeStates.Quit;
-                    this.Player = Players.Solo;
+                    this.GotoPlayPage(Players.Solo);
                 }
                 else
                 {
-                    this.Machine.Audio.Play("startSound");
-                    // != de Solo == 2 players
-                    this.Player = Players.Player2;
-                    this.homeState = HomeStates.Quit;
+                    this.GotoPlayPage(Players.Player2);
                 }
             };
 
@@ -173,6 +183,17 @@ namespace CrazyZone.Pages
 
             this.menuStart.CursorMoveCallback = handlerMove;
             this.menu1Por2P.CursorMoveCallback = handlerMove;
+        }
+
+        /// <summary>
+        /// GoTo PlayPage or MultiPage
+        /// </summary>
+
+        private void GotoPlayPage(Players player)
+        {
+            this.Machine.Audio.Play("startSound");
+            this.homeState = HomeStates.Quit;
+            this.Player = player;
         }
 
         public async void Initialize()

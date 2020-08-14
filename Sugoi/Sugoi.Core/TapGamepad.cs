@@ -31,6 +31,11 @@ namespace Sugoi.Core
 
         public void StartTouch()
         {
+            if(this.IsEnabled == false)
+            {
+                return;
+            }
+
             if(touchPoints.HaveTouchPoint == false)
             {
                 dateTimeStartTouch = DateTime.Now;
@@ -39,14 +44,19 @@ namespace Sugoi.Core
 
         public void StopTouch()
         {
+            if(this.IsEnabled == false)
+            {
+                return;
+            }
+
             var now = DateTime.Now;
             var ms = (now - dateTimeStartTouch).TotalMilliseconds;
 
-            if (ms > 100 && ms < 800)
+            if (ms < 800)
             {
                 if (touchPoints.HaveTouchPoint == false)
                 {
-                    Debug.WriteLine("ms=" + ms);
+                    Debug.WriteLine("tapGamepad ms=" + ms);
                     // C'est un tap
                     this.Press(KeyToPress);
                     // ne marche pas 
